@@ -571,6 +571,324 @@ $automationData = new AutomationDTO(
 $automation = MailerLite::automations()->save($automationData);
 ```
 
+## Webhook Management
+
+The Webhook API provides a fluent interface for creating, managing, and monitoring webhooks to receive real-time notifications from MailerLite.
+
+### Creating Basic Webhooks
+
+```php
+use MailerLite;
+
+// Create a webhook for subscriber events
+MailerLite::webhooks()
+    ->on('subscriber.created')
+    ->url('https://yourapp.com/webhooks/subscriber-created')
+    ->create();
+
+// Create a webhook for campaign events
+MailerLite::webhooks()
+    ->on('campaign.sent')
+    ->url('https://yourapp.com/webhooks/campaign-sent')
+    ->withSecret('your-webhook-secret')
+    ->create();
+
+// Create a webhook with custom settings
+MailerLite::webhooks()
+    ->on('subscriber.unsubscribed')
+    ->url('https://yourapp.com/webhooks/unsubscribed')
+    ->named('Unsubscribe Notifications')
+    ->timeout(60)
+    ->retries(5)
+    ->verifySSL(true)
+    ->asJson()
+    ->create();
+```
+
+### Webhook Event Types
+
+```php
+// Subscriber events
+MailerLite::webhooks()
+    ->onSubscriber('created')                    // subscriber.created
+    ->onSubscriber('updated')                    // subscriber.updated
+    ->onSubscriber('unsubscribed')               // subscriber.unsubscribed
+    ->onSubscriber('bounced')                    // subscriber.bounced
+    ->onSubscriber('complained')                 // subscriber.complained
+    ->url('https://yourapp.com/webhooks/subscriber')
+    ->create();
+
+// Campaign events
+MailerLite::webhooks()
+    ->onCampaign('sent')                         // campaign.sent
+    ->onCampaign('opened')                       // campaign.opened
+    ->onCampaign('clicked')                      // campaign.clicked
+    ->onCampaign('bounced')                      // campaign.bounced
+    ->onCampaign('delivered')                    // campaign.delivered
+    ->url('https://yourapp.com/webhooks/campaign')
+    ->create();
+
+// Automation events
+MailerLite::webhooks()
+    ->onAutomation('subscriber_added')           // automation.subscriber_added
+    ->onAutomation('subscriber_completed')       // automation.subscriber_completed
+    ->onAutomation('email_sent')                 // automation.email_sent
+    ->url('https://yourapp.com/webhooks/automation')
+    ->create();
+
+// Form and group events
+MailerLite::webhooks()
+    ->onForm('submitted')                        // form.submitted
+    ->url('https://yourapp.com/webhooks/form')
+    ->create();
+
+MailerLite::webhooks()
+    ->onGroup('subscriber_added')                // group.subscriber_added
+    ->url('https://yourapp.com/webhooks/group')
+    ->create();
+```
+
+### Convenient Event-Specific Methods
+
+```php
+// Quick webhook creation for common events
+MailerLite::webhooks()
+    ->onSubscriberCreated('https://yourapp.com/webhooks/new-subscriber')
+    ->withSecret('secret-key')
+    ->create();
+
+MailerLite::webhooks()
+    ->onSubscriberUpdated('https://yourapp.com/webhooks/updated-subscriber')
+    ->create();
+
+MailerLite::webhooks()
+    ->onSubscriberUnsubscribed('https://yourapp.com/webhooks/unsubscribed')
+    ->create();
+
+MailerLite::webhooks()
+    ->onCampaignSent('https://yourapp.com/webhooks/campaign-sent')
+    ->create();
+
+MailerLite::webhooks()
+    ->onCampaignOpened('https://yourapp.com/webhooks/campaign-opened')
+    ->create();
+
+MailerLite::webhooks()
+    ->onCampaignClicked('https://yourapp.com/webhooks/campaign-clicked')
+    ->create();
+```
+
+### Advanced Webhook Configuration
+
+```php
+// Webhook with custom headers and settings
+MailerLite::webhooks()
+    ->on('subscriber.created')
+    ->url('https://yourapp.com/webhooks/subscriber')
+    ->named('Subscriber Webhook')
+    ->withHeaders([
+        'Authorization' => 'Bearer your-api-token',
+        'X-Custom-Header' => 'custom-value'
+    ])
+    ->withSecret('webhook-signature-secret')
+    ->timeout(120)                               // 120 seconds timeout
+    ->retries(3)                                 // 3 retry attempts
+    ->verifySSL(true)                           // Verify SSL certificates
+    ->asJson()                                  // Send as JSON
+    ->create();
+
+// Webhook with form data content type
+MailerLite::webhooks()
+    ->on('campaign.opened')
+    ->url('https://yourapp.com/webhooks/opened')
+    ->asForm()                                  // Send as form data
+    ->withSettings([
+        'verify_ssl' => false,
+        'content_type' => 'application/x-www-form-urlencoded'
+    ])
+    ->create();
+```
+
+### Managing Existing Webhooks
+
+```php
+// Find a webhook
+$webhook = MailerLite::webhooks()->find('webhook-id');
+
+// Update a webhook
+MailerLite::webhooks()
+    ->on('subscriber.updated')
+    ->url('https://newdomain.com/webhooks/subscriber')
+    ->named('Updated Subscriber Webhook')
+    ->update('webhook-id');
+
+// Enable/disable webhooks
+MailerLite::webhooks()->enable('webhook-id');
+MailerLite::webhooks()->disable('webhook-id');
+
+// Delete a webhook
+MailerLite::webhooks()->delete('webhook-id');
+```
+
+### Webhook Testing and Monitoring
+
+```php
+// Test a webhook (sends test payload)
+$testResult = MailerLite::webhooks()->test('webhook-id');
+
+// Get webhook delivery logs
+$logs = MailerLite::webhooks()->logs('webhook-id');
+
+// Get webhook delivery logs with filters
+$failedLogs = MailerLite::webhooks()->logs('webhook-id', [
+    'filter[status]' => 'failed',
+    'limit' => 50
+]);
+
+// Get webhook statistics
+$stats = MailerLite::webhooks()->stats('webhook-id');
+// Returns: delivery_count, success_count, failure_count, etc.
+```
+
+### Finding and Managing Webhooks by URL
+
+```php
+// Find webhook by URL
+$webhook = MailerLite::webhooks()->findByUrl('https://yourapp.com/webhooks/subscriber');
+
+// Find webhook by URL and specific event
+$webhook = MailerLite::webhooks()->findByUrl(
+    'https://yourapp.com/webhooks/subscriber',
+    'subscriber.created'
+);
+
+// Delete webhook by URL
+MailerLite::webhooks()->deleteByUrl('https://yourapp.com/webhooks/subscriber');
+
+// Delete specific webhook by URL and event
+MailerLite::webhooks()->deleteByUrl(
+    'https://yourapp.com/webhooks/subscriber',
+    'subscriber.created'
+);
+```
+
+### Listing Webhooks
+
+```php
+// Get all webhooks
+$webhooks = MailerLite::webhooks()->all();
+
+// Get webhooks with filters
+$subscriberWebhooks = MailerLite::webhooks()->list([
+    'filter[event]' => 'subscriber.created',
+    'limit' => 25
+]);
+```
+
+### Webhook Security
+
+```php
+// Create webhook with signature verification
+MailerLite::webhooks()
+    ->on('subscriber.created')
+    ->url('https://yourapp.com/webhooks/secure')
+    ->withSecret('your-webhook-secret-key')
+    ->create();
+
+// In your webhook handler (Laravel example):
+public function handleWebhook(Request $request)
+{
+    $signature = $request->header('X-MailerLite-Signature');
+    $payload = $request->getContent();
+    $secret = 'your-webhook-secret-key';
+    
+    $expectedSignature = hash_hmac('sha256', $payload, $secret);
+    
+    if (!hash_equals($expectedSignature, $signature)) {
+        abort(403, 'Invalid signature');
+    }
+    
+    // Process webhook payload
+    $data = $request->json()->all();
+    
+    return response()->json(['status' => 'success']);
+}
+```
+
+### Webhook Payload Examples
+
+```php
+// Example webhook payloads you'll receive:
+
+// Subscriber Created
+{
+    "event": "subscriber.created",
+    "data": {
+        "id": "123",
+        "email": "user@example.com",
+        "name": "John Doe",
+        "status": "active",
+        "subscribed_at": "2024-01-01T12:00:00Z",
+        "fields": {
+            "country": "US",
+            "city": "New York"
+        },
+        "groups": [
+            {"id": "456", "name": "Newsletter"}
+        ]
+    }
+}
+
+// Campaign Sent
+{
+    "event": "campaign.sent",
+    "data": {
+        "campaign_id": "789",
+        "campaign_name": "Weekly Newsletter",
+        "sent_at": "2024-01-01T12:00:00Z",
+        "stats": {
+            "sent": 1000,
+            "delivered": 995
+        }
+    }
+}
+```
+
+### Fluent Method Chaining
+
+The Webhook Builder supports natural language chaining with "and" prefixes:
+
+```php
+MailerLite::webhooks()
+    ->on('subscriber.created')
+    ->andUrl('https://yourapp.com/webhooks/subscriber')
+    ->andNamed('Subscriber Notifications')
+    ->andWithSecret('webhook-secret')
+    ->andTimeout(60)
+    ->create();
+```
+
+### Using DTOs Directly
+
+For more control, you can use the WebhookDTO directly:
+
+```php
+use Ihasan\LaravelMailerlite\DTOs\WebhookDTO;
+
+$webhookData = new WebhookDTO(
+    event: 'subscriber.created',
+    url: 'https://yourapp.com/webhooks/subscriber',
+    enabled: true,
+    name: 'Subscriber Webhook',
+    headers: ['Authorization' => 'Bearer token'],
+    secret: 'webhook-secret',
+    timeout: 60,
+    retryCount: 3
+);
+
+$webhook = MailerLite::webhooks()->create($webhookData);
+```
+
 ## Contracts (Interfaces)
 
 This package provides comprehensive interfaces for all services, enabling easy mocking and testing:
