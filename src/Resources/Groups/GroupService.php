@@ -60,6 +60,18 @@ class GroupService implements GroupsInterface
      */
     public function get(string $id): ?array
     {
+        return $this->getById($id);
+    }
+
+    /**
+     * Get a group by ID.
+     *
+     * @param string $id
+     * @return array|null
+     * @throws MailerLiteAuthenticationException
+     */
+    public function getById(string $id): ?array
+    {
         try {
             $client = $this->manager->getClient();
             $response = $client->groups->find($id);
@@ -71,6 +83,30 @@ class GroupService implements GroupsInterface
                 return null;
             }
 
+            $this->handleException($e);
+        }
+    }
+
+    /**
+     * Get a group by name.
+     *
+     * @param string $name
+     * @return array|null
+     * @throws MailerLiteAuthenticationException
+     */
+    public function getByName(string $name): ?array
+    {
+        try {
+            $groups = $this->list();
+            
+            foreach ($groups['data'] as $group) {
+                if ($group['name'] === $name) {
+                    return $group;
+                }
+            }
+
+            return null;
+        } catch (\Exception $e) {
             $this->handleException($e);
         }
     }
@@ -189,6 +225,20 @@ class GroupService implements GroupsInterface
      */
     public function addSubscribers(string $groupId, array $subscriberIds): array
     {
+        return $this->assignSubscribers($groupId, $subscriberIds);
+    }
+
+    /**
+     * Assign subscribers to a group.
+     *
+     * @param string $groupId
+     * @param array $subscriberIds
+     * @return array
+     * @throws GroupNotFoundException
+     * @throws MailerLiteAuthenticationException
+     */
+    public function assignSubscribers(string $groupId, array $subscriberIds): array
+    {
         try {
             $client = $this->manager->getClient();
             $response = $client->groups->assignSubscriber($groupId, $subscriberIds);
@@ -214,11 +264,26 @@ class GroupService implements GroupsInterface
      */
     public function removeSubscribers(string $groupId, array $subscriberIds): bool
     {
+        $this->unassignSubscribers($groupId, $subscriberIds);
+        return true;
+    }
+
+    /**
+     * Unassign subscribers from a group.
+     *
+     * @param string $groupId
+     * @param array $subscriberIds
+     * @return array
+     * @throws GroupNotFoundException
+     * @throws MailerLiteAuthenticationException
+     */
+    public function unassignSubscribers(string $groupId, array $subscriberIds): array
+    {
         try {
             $client = $this->manager->getClient();
-            $client->groups->unassignSubscriber($groupId, $subscriberIds);
+            $response = $client->groups->unassignSubscriber($groupId, $subscriberIds);
 
-            return true;
+            return $response;
         } catch (\Exception $e) {
             if ($this->isNotFoundError($e)) {
                 throw GroupNotFoundException::withId($groupId);
