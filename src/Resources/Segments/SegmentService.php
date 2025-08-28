@@ -60,6 +60,18 @@ class SegmentService implements SegmentsInterface
      */
     public function get(string $id): ?array
     {
+        return $this->getById($id);
+    }
+
+    /**
+     * Get a segment by ID.
+     *
+     * @param string $id
+     * @return array|null
+     * @throws MailerLiteAuthenticationException
+     */
+    public function getById(string $id): ?array
+    {
         try {
             $client = $this->manager->getClient();
             $response = $client->segments->find($id);
