@@ -132,7 +132,7 @@ class WebhookDTO
      *
      * @throws InvalidArgumentException
      */
-    public static function withHeaders(string $event, string $url, array $headers): static
+    public static function createWithHeaders(string $event, string $url, array $headers): static
     {
         return new static(event: $event, url: $url, headers: $headers);
     }
@@ -142,7 +142,7 @@ class WebhookDTO
      *
      * @throws InvalidArgumentException
      */
-    public static function withSecret(string $event, string $url, string $secret): static
+    public static function createWithSecret(string $event, string $url, string $secret): static
     {
         return new static(event: $event, url: $url, secret: $secret);
     }
