@@ -184,7 +184,7 @@ class AutomationBuilder
             'type' => 'date',
             'field' => $dateField,
             'offset' => $offsetDays,
-            'unit' => 'days'
+            'unit' => 'days',
         ];
 
         $this->triggers[] = $trigger;
@@ -199,7 +199,7 @@ class AutomationBuilder
     {
         $trigger = [
             'type' => 'api',
-            'endpoint' => $endpoint
+            'endpoint' => $endpoint,
         ];
 
         $this->triggers[] = $trigger;
@@ -214,7 +214,7 @@ class AutomationBuilder
     {
         $trigger = [
             'type' => 'webhook',
-            'endpoint' => $endpoint
+            'endpoint' => $endpoint,
         ];
 
         $this->triggers[] = $trigger;
@@ -229,7 +229,7 @@ class AutomationBuilder
     {
         $step = [
             'type' => 'email',
-            'template_id' => $templateId
+            'template_id' => $templateId,
         ];
 
         $this->steps[] = $step;
@@ -244,7 +244,7 @@ class AutomationBuilder
     {
         $step = [
             'type' => 'email',
-            'campaign_id' => $campaignId
+            'campaign_id' => $campaignId,
         ];
 
         $this->steps[] = $step;
@@ -260,7 +260,7 @@ class AutomationBuilder
         $step = [
             'type' => 'delay',
             'duration' => $duration,
-            'unit' => $unit
+            'unit' => $unit,
         ];
 
         $this->steps[] = $step;
@@ -307,7 +307,7 @@ class AutomationBuilder
     {
         $step = [
             'type' => 'condition',
-            'conditions' => $conditions
+            'conditions' => $conditions,
         ];
 
         $this->steps[] = $step;
@@ -324,8 +324,8 @@ class AutomationBuilder
             [
                 'field' => $field,
                 'operator' => $operator,
-                'value' => $value
-            ]
+                'value' => $value,
+            ],
         ]);
     }
 
@@ -337,7 +337,7 @@ class AutomationBuilder
         $step = [
             'type' => 'tag',
             'action' => 'add',
-            'tag' => $tag
+            'tag' => $tag,
         ];
 
         $this->steps[] = $step;
@@ -353,7 +353,7 @@ class AutomationBuilder
         $step = [
             'type' => 'tag',
             'action' => 'remove',
-            'tag' => $tag
+            'tag' => $tag,
         ];
 
         $this->steps[] = $step;
@@ -369,7 +369,7 @@ class AutomationBuilder
         $step = [
             'type' => 'field_update',
             'field' => $field,
-            'value' => $value
+            'value' => $value,
         ];
 
         $this->steps[] = $step;
@@ -385,7 +385,7 @@ class AutomationBuilder
         $step = [
             'type' => 'webhook',
             'url' => $url,
-            'data' => $data
+            'data' => $data,
         ];
 
         $this->steps[] = $step;
@@ -428,7 +428,7 @@ class AutomationBuilder
     {
         return $this->withSetting('send_time', [
             'start' => $startTime,
-            'end' => $endTime
+            'end' => $endTime,
         ]);
     }
 
@@ -458,7 +458,7 @@ class AutomationBuilder
         $this->conditions[] = [
             'field' => $field,
             'operator' => $operator,
-            'value' => $value
+            'value' => $value,
         ];
 
         return $this;
@@ -712,6 +712,6 @@ class AutomationBuilder
             }
         }
 
-        throw new \BadMethodCallException("Method {$method} does not exist on " . static::class);
+        throw new \BadMethodCallException("Method {$method} does not exist on ".static::class);
     }
 }

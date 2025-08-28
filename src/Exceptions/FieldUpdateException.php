@@ -16,10 +16,6 @@ class FieldUpdateException extends MailerLiteException
 {
     /**
      * Create a new field update exception.
-     *
-     * @param string $fieldIdentifier
-     * @param string $message
-     * @param Throwable|null $previous
      */
     public function __construct(
         public readonly string $fieldIdentifier,
@@ -31,14 +27,11 @@ class FieldUpdateException extends MailerLiteException
 
     /**
      * Create an exception for invalid update data.
-     *
-     * @param string $fieldIdentifier
-     * @param array $errors
-     * @return static
      */
     public static function invalidData(string $fieldIdentifier, array $errors): static
     {
         $errorMessages = implode(', ', $errors);
+
         return new static(
             $fieldIdentifier,
             "Failed to update field '{$fieldIdentifier}': {$errorMessages}"
@@ -47,11 +40,6 @@ class FieldUpdateException extends MailerLiteException
 
     /**
      * Create a general field update exception.
-     *
-     * @param string $fieldIdentifier
-     * @param string $reason
-     * @param Throwable|null $previous
-     * @return static
      */
     public static function make(string $fieldIdentifier, string $reason, ?Throwable $previous = null): static
     {

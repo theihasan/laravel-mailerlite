@@ -16,10 +16,6 @@ class FieldCreateException extends MailerLiteException
 {
     /**
      * Create a new field creation exception.
-     *
-     * @param string $fieldName
-     * @param string $message
-     * @param Throwable|null $previous
      */
     public function __construct(
         public readonly string $fieldName,
@@ -31,9 +27,6 @@ class FieldCreateException extends MailerLiteException
 
     /**
      * Create an exception for when a field already exists.
-     *
-     * @param string $fieldName
-     * @return static
      */
     public static function alreadyExists(string $fieldName): static
     {
@@ -45,14 +38,11 @@ class FieldCreateException extends MailerLiteException
 
     /**
      * Create an exception for invalid field data.
-     *
-     * @param string $fieldName
-     * @param array $errors
-     * @return static
      */
     public static function invalidData(string $fieldName, array $errors): static
     {
         $errorMessages = implode(', ', $errors);
+
         return new static(
             $fieldName,
             "Failed to create field '{$fieldName}': {$errorMessages}"
@@ -61,11 +51,6 @@ class FieldCreateException extends MailerLiteException
 
     /**
      * Create a general field creation exception.
-     *
-     * @param string $fieldName
-     * @param string $reason
-     * @param Throwable|null $previous
-     * @return static
      */
     public static function make(string $fieldName, string $reason, ?Throwable $previous = null): static
     {

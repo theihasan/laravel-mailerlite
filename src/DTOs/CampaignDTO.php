@@ -420,7 +420,7 @@ class CampaignDTO
 
         if (! in_array($type, $validTypes, true)) {
             throw new InvalidArgumentException(
-                "Invalid campaign type '{$type}'. Valid types: " . implode(', ', $validTypes)
+                "Invalid campaign type '{$type}'. Valid types: ".implode(', ', $validTypes)
             );
         }
     }
@@ -433,7 +433,7 @@ class CampaignDTO
     private function validateScheduleAt(?\DateTimeInterface $scheduleAt): void
     {
         if ($scheduleAt !== null) {
-            $now = new \DateTime();
+            $now = new \DateTime;
             if ($scheduleAt <= $now) {
                 throw new InvalidArgumentException('Schedule time must be in the future.');
             }
@@ -466,7 +466,7 @@ class CampaignDTO
             $validTestTypes = ['subject', 'from_name', 'content'];
             if (! in_array($abSettings['test_type'], $validTestTypes, true)) {
                 throw new InvalidArgumentException(
-                    "Invalid A/B test type '{$abSettings['test_type']}'. Valid types: " . implode(', ', $validTestTypes)
+                    "Invalid A/B test type '{$abSettings['test_type']}'. Valid types: ".implode(', ', $validTestTypes)
                 );
             }
 

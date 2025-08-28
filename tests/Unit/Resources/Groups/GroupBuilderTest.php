@@ -126,7 +126,7 @@ describe('GroupBuilder', function () {
         });
 
         test('throws exception when name is missing', function () {
-            expect(fn() => $this->builder->create())
+            expect(fn () => $this->builder->create())
                 ->toThrow(InvalidArgumentException::class, 'Name is required to create GroupDTO');
         });
     });
@@ -281,7 +281,7 @@ describe('GroupBuilder', function () {
         });
 
         test('throws exception when name is missing', function () {
-            expect(fn() => $this->builder->toDTO())
+            expect(fn () => $this->builder->toDTO())
                 ->toThrow(InvalidArgumentException::class, 'Name is required to create GroupDTO');
         });
 
@@ -309,7 +309,7 @@ describe('GroupBuilder', function () {
 
             expect($result)->toBe($this->builder);
 
-            expect(fn() => $this->builder->toDTO())
+            expect(fn () => $this->builder->toDTO())
                 ->toThrow(InvalidArgumentException::class, 'Name is required');
         });
     });
@@ -338,12 +338,12 @@ describe('GroupBuilder', function () {
         });
 
         test('throws exception for unknown methods', function () {
-            expect(fn() => $this->builder->unknownMethod())
+            expect(fn () => $this->builder->unknownMethod())
                 ->toThrow(BadMethodCallException::class, 'Method unknownMethod does not exist');
         });
 
         test('throws exception for unknown "and" prefixed methods', function () {
-            expect(fn() => $this->builder->andUnknownMethod())
+            expect(fn () => $this->builder->andUnknownMethod())
                 ->toThrow(BadMethodCallException::class, 'Method andUnknownMethod does not exist');
         });
     });

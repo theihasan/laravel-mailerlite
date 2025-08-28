@@ -36,7 +36,7 @@ describe('CampaignService', function () {
             'status' => 'draft',
             'type' => 'regular',
             'created_at' => '2024-01-01 12:00:00',
-            'updated_at' => '2024-01-01 12:00:00'
+            'updated_at' => '2024-01-01 12:00:00',
         ];
     });
 
@@ -192,7 +192,7 @@ describe('CampaignService', function () {
             $mockResponse = [
                 'data' => [$this->mockResponse],
                 'meta' => ['total' => 1],
-                'links' => []
+                'links' => [],
             ];
 
             $this->mockClient->campaigns = mock();
@@ -212,7 +212,7 @@ describe('CampaignService', function () {
             $mockResponse = [
                 'data' => [],
                 'meta' => ['total' => 0],
-                'links' => []
+                'links' => [],
             ];
 
             $this->mockClient->campaigns = mock();
@@ -331,7 +331,7 @@ describe('CampaignService', function () {
             $statsResponse = [
                 'sent' => 100,
                 'opened' => 50,
-                'clicked' => 10
+                'clicked' => 10,
             ];
 
             $this->mockClient->campaigns = mock();
@@ -359,10 +359,10 @@ describe('CampaignService', function () {
             $subscribersResponse = [
                 'data' => [
                     ['id' => '1', 'email' => 'user1@example.com'],
-                    ['id' => '2', 'email' => 'user2@example.com']
+                    ['id' => '2', 'email' => 'user2@example.com'],
                 ],
                 'meta' => ['total' => 2],
-                'links' => []
+                'links' => [],
             ];
 
             $this->mockClient->campaigns = mock();
@@ -381,7 +381,7 @@ describe('CampaignService', function () {
             $subscribersResponse = [
                 'data' => [['id' => '1', 'email' => 'user1@example.com']],
                 'meta' => ['total' => 1],
-                'links' => []
+                'links' => [],
             ];
 
             $this->mockClient->campaigns = mock();
@@ -416,7 +416,7 @@ describe('CampaignService', function () {
                 'subject' => 'Test Campaign',
                 'from_name' => 'Test Sender',
                 'status' => 'draft',
-                'created_at' => '2024-01-01 12:00:00'
+                'created_at' => '2024-01-01 12:00:00',
             ];
 
             // Use reflection to test the protected method

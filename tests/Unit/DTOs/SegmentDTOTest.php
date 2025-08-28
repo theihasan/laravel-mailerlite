@@ -43,7 +43,7 @@ describe('SegmentDTO', function () {
             'description' => 'Test description',
             'tags' => ['test'],
             'options' => ['test' => true],
-            'active' => false
+            'active' => false,
         ];
 
         $dto = SegmentDTO::fromArray($data);
@@ -57,12 +57,12 @@ describe('SegmentDTO', function () {
     });
 
     test('throws exception when creating from array without name', function () {
-        expect(fn() => SegmentDTO::fromArray(['filters' => [['type' => 'field', 'field' => 'test', 'operator' => 'equals', 'value' => 'yes']]]))
+        expect(fn () => SegmentDTO::fromArray(['filters' => [['type' => 'field', 'field' => 'test', 'operator' => 'equals', 'value' => 'yes']]]))
             ->toThrow(InvalidArgumentException::class, 'Name is required');
     });
 
     test('throws exception when creating from array without filters', function () {
-        expect(fn() => SegmentDTO::fromArray(['name' => 'Test']))
+        expect(fn () => SegmentDTO::fromArray(['name' => 'Test']))
             ->toThrow(InvalidArgumentException::class, 'Filters are required');
     });
 
@@ -115,38 +115,38 @@ describe('SegmentDTO', function () {
 
     test('validates name is not empty', function () {
         $filters = [['type' => 'field', 'field' => 'test', 'operator' => 'equals', 'value' => 'yes']];
-        
-        expect(fn() => new SegmentDTO('', $filters))
+
+        expect(fn () => new SegmentDTO('', $filters))
             ->toThrow(InvalidArgumentException::class, 'Segment name cannot be empty');
     });
 
     test('validates filters are not empty', function () {
-        expect(fn() => new SegmentDTO('Test', []))
+        expect(fn () => new SegmentDTO('Test', []))
             ->toThrow(InvalidArgumentException::class, 'Segment filters cannot be empty');
     });
 
     test('validates filter structure', function () {
-        expect(fn() => new SegmentDTO('Test', ['invalid_filter']))
+        expect(fn () => new SegmentDTO('Test', ['invalid_filter']))
             ->toThrow(InvalidArgumentException::class, 'Filter at index 0 must be an array');
 
-        expect(fn() => new SegmentDTO('Test', [['no_type' => 'test']]))
+        expect(fn () => new SegmentDTO('Test', [['no_type' => 'test']]))
             ->toThrow(InvalidArgumentException::class, "Filter at index 0 must have a 'type' field");
     });
 
     test('validates field filter structure', function () {
-        expect(fn() => new SegmentDTO('Test', [['type' => 'field']]))
+        expect(fn () => new SegmentDTO('Test', [['type' => 'field']]))
             ->toThrow(InvalidArgumentException::class, "Field filter at index 0 must have 'field', 'operator', and 'value'");
     });
 
     test('can create copies with modifications', function () {
         $original = SegmentDTO::create('Original', [['type' => 'field', 'field' => 'test', 'operator' => 'equals', 'value' => 'yes']]);
-        
+
         $withName = $original->withName('Updated');
         expect($withName->name)->toBe('Updated');
-        
+
         $withDescription = $original->withDescription('New description');
         expect($withDescription->description)->toBe('New description');
-        
+
         $activated = $original->deactivate()->activate();
         expect($activated->active)->toBeTrue();
     });

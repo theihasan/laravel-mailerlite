@@ -17,10 +17,6 @@ class GroupCreateException extends MailerLiteException
 {
     /**
      * Create a new group creation exception.
-     *
-     * @param string $groupName
-     * @param string $message
-     * @param Throwable|null $previous
      */
     public function __construct(
         public readonly string $groupName,
@@ -32,9 +28,6 @@ class GroupCreateException extends MailerLiteException
 
     /**
      * Create an exception for when a group already exists.
-     *
-     * @param string $groupName
-     * @return static
      */
     public static function alreadyExists(string $groupName): static
     {
@@ -46,14 +39,11 @@ class GroupCreateException extends MailerLiteException
 
     /**
      * Create an exception for invalid group data.
-     *
-     * @param string $groupName
-     * @param array $errors
-     * @return static
      */
     public static function invalidData(string $groupName, array $errors): static
     {
         $errorMessages = implode(', ', $errors);
+
         return new static(
             $groupName,
             "Failed to create group '{$groupName}': {$errorMessages}"
@@ -62,11 +52,6 @@ class GroupCreateException extends MailerLiteException
 
     /**
      * Create a general group creation exception.
-     *
-     * @param string $groupName
-     * @param string $reason
-     * @param Throwable|null $previous
-     * @return static
      */
     public static function make(string $groupName, string $reason, ?Throwable $previous = null): static
     {

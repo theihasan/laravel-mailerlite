@@ -24,8 +24,6 @@ class SegmentService implements SegmentsInterface
 {
     /**
      * Create a new segment service instance.
-     *
-     * @param MailerLiteManager $manager
      */
     public function __construct(
         protected MailerLiteManager $manager
@@ -34,8 +32,6 @@ class SegmentService implements SegmentsInterface
     /**
      * Create a new segment.
      *
-     * @param SegmentDTO $segment
-     * @return array
      * @throws SegmentCreateException
      * @throws MailerLiteAuthenticationException
      */
@@ -54,8 +50,6 @@ class SegmentService implements SegmentsInterface
     /**
      * Get a segment by ID.
      *
-     * @param string $id
-     * @return array|null
      * @throws MailerLiteAuthenticationException
      */
     public function get(string $id): ?array
@@ -66,8 +60,6 @@ class SegmentService implements SegmentsInterface
     /**
      * Get a segment by ID.
      *
-     * @param string $id
-     * @return array|null
      * @throws MailerLiteAuthenticationException
      */
     public function getById(string $id): ?array
@@ -90,9 +82,6 @@ class SegmentService implements SegmentsInterface
     /**
      * Update an existing segment.
      *
-     * @param string $id
-     * @param SegmentDTO $segment
-     * @return array
      * @throws SegmentNotFoundException
      * @throws SegmentUpdateException
      * @throws MailerLiteAuthenticationException
@@ -116,8 +105,6 @@ class SegmentService implements SegmentsInterface
     /**
      * Delete a segment.
      *
-     * @param string $id
-     * @return bool
      * @throws SegmentNotFoundException
      * @throws SegmentDeleteException
      * @throws MailerLiteAuthenticationException
@@ -141,8 +128,6 @@ class SegmentService implements SegmentsInterface
     /**
      * Get all segments with optional filtering.
      *
-     * @param array $filters
-     * @return array
      * @throws MailerLiteAuthenticationException
      */
     public function list(array $filters = []): array
@@ -154,7 +139,7 @@ class SegmentService implements SegmentsInterface
             return [
                 'data' => array_map([$this, 'transformSegmentResponse'], $response['data'] ?? []),
                 'meta' => $response['meta'] ?? [],
-                'links' => $response['links'] ?? []
+                'links' => $response['links'] ?? [],
             ];
         } catch (\Exception $e) {
             $this->handleException($e);
@@ -164,9 +149,6 @@ class SegmentService implements SegmentsInterface
     /**
      * Get subscribers in a segment.
      *
-     * @param string $segmentId
-     * @param array $filters
-     * @return array
      * @throws SegmentNotFoundException
      * @throws MailerLiteAuthenticationException
      */
@@ -179,7 +161,7 @@ class SegmentService implements SegmentsInterface
             return [
                 'data' => $response['data'] ?? [],
                 'meta' => $response['meta'] ?? [],
-                'links' => $response['links'] ?? []
+                'links' => $response['links'] ?? [],
             ];
         } catch (\Exception $e) {
             if ($this->isNotFoundError($e)) {
@@ -193,8 +175,6 @@ class SegmentService implements SegmentsInterface
     /**
      * Refresh/recalculate a segment.
      *
-     * @param string $segmentId
-     * @return array
      * @throws SegmentNotFoundException
      * @throws MailerLiteAuthenticationException
      */
@@ -217,8 +197,6 @@ class SegmentService implements SegmentsInterface
     /**
      * Get segment statistics.
      *
-     * @param string $segmentId
-     * @return array
      * @throws SegmentNotFoundException
      * @throws MailerLiteAuthenticationException
      */
@@ -250,8 +228,6 @@ class SegmentService implements SegmentsInterface
     /**
      * Activate a segment.
      *
-     * @param string $segmentId
-     * @return array
      * @throws SegmentNotFoundException
      * @throws SegmentUpdateException
      * @throws MailerLiteAuthenticationException
@@ -275,8 +251,6 @@ class SegmentService implements SegmentsInterface
     /**
      * Deactivate a segment.
      *
-     * @param string $segmentId
-     * @return array
      * @throws SegmentNotFoundException
      * @throws SegmentUpdateException
      * @throws MailerLiteAuthenticationException
@@ -299,9 +273,6 @@ class SegmentService implements SegmentsInterface
 
     /**
      * Transform segment response data.
-     *
-     * @param array $response
-     * @return array
      */
     protected function transformSegmentResponse(array $response): array
     {
@@ -325,15 +296,12 @@ class SegmentService implements SegmentsInterface
 
     /**
      * Check if an exception represents a "not found" error.
-     *
-     * @param \Exception $e
-     * @return bool
      */
     protected function isNotFoundError(\Exception $e): bool
     {
         $message = strtolower($e->getMessage());
-        
-        return str_contains($message, '404') || 
+
+        return str_contains($message, '404') ||
                str_contains($message, 'not found') ||
                str_contains($message, 'does not exist');
     }
@@ -341,11 +309,8 @@ class SegmentService implements SegmentsInterface
     /**
      * Handle segment creation exceptions.
      *
-     * @param string $name
-     * @param \Exception $e
      * @throws SegmentCreateException
      * @throws MailerLiteAuthenticationException
-     * @return never
      */
     protected function handleCreateException(string $name, \Exception $e): never
     {
@@ -373,11 +338,8 @@ class SegmentService implements SegmentsInterface
     /**
      * Handle segment update exceptions.
      *
-     * @param string $identifier
-     * @param \Exception $e
      * @throws SegmentUpdateException
      * @throws MailerLiteAuthenticationException
-     * @return never
      */
     protected function handleUpdateException(string $identifier, \Exception $e): never
     {
@@ -401,11 +363,8 @@ class SegmentService implements SegmentsInterface
     /**
      * Handle segment deletion exceptions.
      *
-     * @param string $identifier
-     * @param \Exception $e
      * @throws SegmentDeleteException
      * @throws MailerLiteAuthenticationException
-     * @return never
      */
     protected function handleDeleteException(string $identifier, \Exception $e): never
     {
@@ -421,9 +380,7 @@ class SegmentService implements SegmentsInterface
     /**
      * Handle general exceptions.
      *
-     * @param \Exception $e
      * @throws MailerLiteAuthenticationException
-     * @return never
      */
     protected function handleException(\Exception $e): never
     {

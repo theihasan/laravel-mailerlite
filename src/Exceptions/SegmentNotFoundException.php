@@ -16,10 +16,6 @@ class SegmentNotFoundException extends MailerLiteException
 {
     /**
      * Create a new segment not found exception.
-     *
-     * @param string $identifier
-     * @param string $message
-     * @param Throwable|null $previous
      */
     public function __construct(
         public readonly string $identifier,
@@ -31,9 +27,6 @@ class SegmentNotFoundException extends MailerLiteException
 
     /**
      * Create an exception for a segment not found by ID.
-     *
-     * @param string $segmentId
-     * @return static
      */
     public static function withId(string $segmentId): static
     {
@@ -45,9 +38,6 @@ class SegmentNotFoundException extends MailerLiteException
 
     /**
      * Create an exception for a segment not found by name.
-     *
-     * @param string $segmentName
-     * @return static
      */
     public static function withName(string $segmentName): static
     {

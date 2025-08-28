@@ -33,7 +33,7 @@ describe('GroupDTO', function () {
             'name' => 'Newsletter',
             'description' => 'Weekly updates',
             'tags' => ['newsletter', 'weekly'],
-            'settings' => ['frequency' => 'weekly']
+            'settings' => ['frequency' => 'weekly'],
         ];
 
         $dto = GroupDTO::fromArray($data);
@@ -45,7 +45,7 @@ describe('GroupDTO', function () {
     });
 
     test('throws exception when creating from array without name', function () {
-        expect(fn() => GroupDTO::fromArray([]))
+        expect(fn () => GroupDTO::fromArray([]))
             ->toThrow(InvalidArgumentException::class, 'Name is required');
     });
 
@@ -86,7 +86,7 @@ describe('GroupDTO', function () {
             'name' => 'Newsletter',
             'description' => 'Weekly updates',
             'tags' => ['newsletter'],
-            'settings' => ['frequency' => 'weekly']
+            'settings' => ['frequency' => 'weekly'],
         ]);
     });
 
@@ -151,17 +151,17 @@ describe('GroupDTO', function () {
     });
 
     test('validates name is not empty', function () {
-        expect(fn() => new GroupDTO(''))
+        expect(fn () => new GroupDTO(''))
             ->toThrow(InvalidArgumentException::class, 'Group name cannot be empty');
 
-        expect(fn() => new GroupDTO('   '))
+        expect(fn () => new GroupDTO('   '))
             ->toThrow(InvalidArgumentException::class, 'Group name cannot be empty');
     });
 
     test('validates name length', function () {
         $longName = str_repeat('a', 256);
 
-        expect(fn() => new GroupDTO($longName))
+        expect(fn () => new GroupDTO($longName))
             ->toThrow(InvalidArgumentException::class, 'Group name cannot exceed 255 characters');
     });
 
@@ -169,7 +169,7 @@ describe('GroupDTO', function () {
         $invalidNames = ['Test<', 'Test>', 'Test"', "Test'", 'Test/', 'Test\\'];
 
         foreach ($invalidNames as $invalidName) {
-            expect(fn() => new GroupDTO($invalidName))
+            expect(fn () => new GroupDTO($invalidName))
                 ->toThrow(InvalidArgumentException::class, 'Group name contains invalid characters');
         }
     });
@@ -177,34 +177,34 @@ describe('GroupDTO', function () {
     test('validates description length', function () {
         $longDescription = str_repeat('a', 1001);
 
-        expect(fn() => new GroupDTO('Test', $longDescription))
+        expect(fn () => new GroupDTO('Test', $longDescription))
             ->toThrow(InvalidArgumentException::class, 'Group description cannot exceed 1000 characters');
     });
 
     test('validates tags are strings', function () {
-        expect(fn() => new GroupDTO('Test', null, [123]))
+        expect(fn () => new GroupDTO('Test', null, [123]))
             ->toThrow(InvalidArgumentException::class, 'All tags must be strings');
     });
 
     test('validates tags are not empty', function () {
-        expect(fn() => new GroupDTO('Test', null, ['']))
+        expect(fn () => new GroupDTO('Test', null, ['']))
             ->toThrow(InvalidArgumentException::class, 'Tags cannot be empty strings');
     });
 
     test('validates tag length', function () {
         $longTag = str_repeat('a', 101);
 
-        expect(fn() => new GroupDTO('Test', null, [$longTag]))
+        expect(fn () => new GroupDTO('Test', null, [$longTag]))
             ->toThrow(InvalidArgumentException::class, 'Each tag cannot exceed 100 characters');
     });
 
     test('validates setting keys are strings', function () {
-        expect(fn() => new GroupDTO('Test', null, [], [123 => 'value']))
+        expect(fn () => new GroupDTO('Test', null, [], [123 => 'value']))
             ->toThrow(InvalidArgumentException::class, 'Setting keys must be non-empty strings');
     });
 
     test('validates setting keys are not empty', function () {
-        expect(fn() => new GroupDTO('Test', null, [], ['' => 'value']))
+        expect(fn () => new GroupDTO('Test', null, [], ['' => 'value']))
             ->toThrow(InvalidArgumentException::class, 'Setting keys must be non-empty strings');
     });
 
@@ -215,7 +215,7 @@ describe('GroupDTO', function () {
             'float_key' => 12.34,
             'bool_key' => true,
             'null_key' => null,
-            'array_key' => ['nested' => 'value']
+            'array_key' => ['nested' => 'value'],
         ];
 
         $dto = new GroupDTO('Test', null, [], $validSettings);
@@ -224,9 +224,9 @@ describe('GroupDTO', function () {
     });
 
     test('rejects invalid setting value types', function () {
-        $invalidValue = new stdClass();
+        $invalidValue = new stdClass;
 
-        expect(fn() => new GroupDTO('Test', null, [], ['key' => $invalidValue]))
+        expect(fn () => new GroupDTO('Test', null, [], ['key' => $invalidValue]))
             ->toThrow(InvalidArgumentException::class, "Setting 'key' has invalid value type");
     });
 });

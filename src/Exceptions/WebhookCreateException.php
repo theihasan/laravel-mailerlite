@@ -27,7 +27,7 @@ class WebhookCreateException extends MailerLiteException
      */
     public static function invalidData(string $url, array $errors): static
     {
-        $reason = 'Invalid data: ' . implode(', ', $errors);
+        $reason = 'Invalid data: '.implode(', ', $errors);
 
         return static::make($url, $reason);
     }

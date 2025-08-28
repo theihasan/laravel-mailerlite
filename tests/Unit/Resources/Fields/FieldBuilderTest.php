@@ -96,7 +96,7 @@ describe('FieldBuilder', function () {
 
         test('required and optional methods set required flag', function () {
             $this->builder->name('test')->type('text');
-            
+
             $this->builder->required();
             expect($this->builder->toDTO()->required)->toBeTrue();
 
@@ -187,12 +187,12 @@ describe('FieldBuilder', function () {
         });
 
         test('throws exception when name is missing', function () {
-            expect(fn() => $this->builder->type('text')->create())
+            expect(fn () => $this->builder->type('text')->create())
                 ->toThrow(InvalidArgumentException::class, 'Name is required to create FieldDTO');
         });
 
         test('throws exception when type is missing', function () {
-            expect(fn() => $this->builder->name('test')->create())
+            expect(fn () => $this->builder->name('test')->create())
                 ->toThrow(InvalidArgumentException::class, 'Type is required to create FieldDTO');
         });
     });
@@ -390,12 +390,12 @@ describe('FieldBuilder', function () {
         });
 
         test('throws exception when name is missing', function () {
-            expect(fn() => $this->builder->toDTO())
+            expect(fn () => $this->builder->toDTO())
                 ->toThrow(InvalidArgumentException::class, 'Name is required to create FieldDTO');
         });
 
         test('throws exception when type is missing', function () {
-            expect(fn() => $this->builder->name('test')->toDTO())
+            expect(fn () => $this->builder->name('test')->toDTO())
                 ->toThrow(InvalidArgumentException::class, 'Type is required to create FieldDTO');
         });
     });
@@ -414,7 +414,7 @@ describe('FieldBuilder', function () {
 
             expect($result)->toBe($this->builder);
 
-            expect(fn() => $this->builder->toDTO())
+            expect(fn () => $this->builder->toDTO())
                 ->toThrow(InvalidArgumentException::class, 'Name is required');
         });
     });
@@ -445,12 +445,12 @@ describe('FieldBuilder', function () {
         });
 
         test('throws exception for unknown methods', function () {
-            expect(fn() => $this->builder->unknownMethod())
+            expect(fn () => $this->builder->unknownMethod())
                 ->toThrow(BadMethodCallException::class, 'Method unknownMethod does not exist');
         });
 
         test('throws exception for unknown "and" prefixed methods', function () {
-            expect(fn() => $this->builder->andUnknownMethod())
+            expect(fn () => $this->builder->andUnknownMethod())
                 ->toThrow(BadMethodCallException::class, 'Method andUnknownMethod does not exist');
         });
     });

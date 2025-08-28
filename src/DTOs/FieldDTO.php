@@ -18,12 +18,12 @@ class FieldDTO
     /**
      * Create a new field DTO.
      *
-     * @param string $name Field name/key (required)
-     * @param string $type Field type: text, number, date, boolean (required)  
-     * @param string|null $title Display title for the field (optional)
-     * @param mixed $defaultValue Default value for the field (optional)
-     * @param array $options Field-specific options/settings (optional)
-     * @param bool $required Whether this field is required (default: false)
+     * @param  string  $name  Field name/key (required)
+     * @param  string  $type  Field type: text, number, date, boolean (required)
+     * @param  string|null  $title  Display title for the field (optional)
+     * @param  mixed  $defaultValue  Default value for the field (optional)
+     * @param  array  $options  Field-specific options/settings (optional)
+     * @param  bool  $required  Whether this field is required (default: false)
      *
      * @throws InvalidArgumentException
      */
@@ -45,8 +45,6 @@ class FieldDTO
     /**
      * Create a field DTO from an array.
      *
-     * @param array $data
-     * @return static
      * @throws InvalidArgumentException
      */
     public static function fromArray(array $data): static
@@ -64,10 +62,6 @@ class FieldDTO
     /**
      * Create a text field.
      *
-     * @param string $name
-     * @param string|null $title
-     * @param string|null $defaultValue
-     * @return static
      * @throws InvalidArgumentException
      */
     public static function text(string $name, ?string $title = null, ?string $defaultValue = null): static
@@ -83,10 +77,6 @@ class FieldDTO
     /**
      * Create a number field.
      *
-     * @param string $name
-     * @param string|null $title
-     * @param int|float|null $defaultValue
-     * @return static
      * @throws InvalidArgumentException
      */
     public static function number(string $name, ?string $title = null, int|float|null $defaultValue = null): static
@@ -102,10 +92,6 @@ class FieldDTO
     /**
      * Create a date field.
      *
-     * @param string $name
-     * @param string|null $title
-     * @param string|null $defaultValue
-     * @return static
      * @throws InvalidArgumentException
      */
     public static function date(string $name, ?string $title = null, ?string $defaultValue = null): static
@@ -121,10 +107,6 @@ class FieldDTO
     /**
      * Create a boolean field.
      *
-     * @param string $name
-     * @param string|null $title
-     * @param bool|null $defaultValue
-     * @return static
      * @throws InvalidArgumentException
      */
     public static function boolean(string $name, ?string $title = null, ?bool $defaultValue = null): static
@@ -140,11 +122,6 @@ class FieldDTO
     /**
      * Create a dropdown/select field.
      *
-     * @param string $name
-     * @param array $options
-     * @param string|null $title
-     * @param string|null $defaultValue
-     * @return static
      * @throws InvalidArgumentException
      */
     public static function select(string $name, array $options, ?string $title = null, ?string $defaultValue = null): static
@@ -160,8 +137,6 @@ class FieldDTO
 
     /**
      * Convert the DTO to an array for API submission.
-     *
-     * @return array
      */
     public function toArray(): array
     {
@@ -178,7 +153,7 @@ class FieldDTO
             $data['default_value'] = $this->defaultValue;
         }
 
-        if (!empty($this->options)) {
+        if (! empty($this->options)) {
             $data['options'] = $this->options;
         }
 
@@ -192,8 +167,6 @@ class FieldDTO
     /**
      * Get a copy of the DTO with updated values.
      *
-     * @param array $updates
-     * @return static
      * @throws InvalidArgumentException
      */
     public function with(array $updates): static
@@ -203,9 +176,6 @@ class FieldDTO
 
     /**
      * Get a copy with a different name.
-     *
-     * @param string $name
-     * @return static
      */
     public function withName(string $name): static
     {
@@ -221,9 +191,6 @@ class FieldDTO
 
     /**
      * Get a copy with a different title.
-     *
-     * @param string|null $title
-     * @return static
      */
     public function withTitle(?string $title): static
     {
@@ -239,9 +206,6 @@ class FieldDTO
 
     /**
      * Get a copy with a different default value.
-     *
-     * @param mixed $defaultValue
-     * @return static
      */
     public function withDefaultValue(mixed $defaultValue): static
     {
@@ -257,9 +221,6 @@ class FieldDTO
 
     /**
      * Get a copy with additional options.
-     *
-     * @param array $options
-     * @return static
      */
     public function withOptions(array $options): static
     {
@@ -275,8 +236,6 @@ class FieldDTO
 
     /**
      * Get a copy marked as required.
-     *
-     * @return static
      */
     public function required(): static
     {
@@ -292,8 +251,6 @@ class FieldDTO
 
     /**
      * Get a copy marked as optional.
-     *
-     * @return static
      */
     public function optional(): static
     {
@@ -310,7 +267,6 @@ class FieldDTO
     /**
      * Validate field name.
      *
-     * @param string $name
      * @throws InvalidArgumentException
      */
     private function validateName(string $name): void
@@ -324,7 +280,7 @@ class FieldDTO
         }
 
         // Field name should be a valid identifier (letters, numbers, underscores)
-        if (!preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $name)) {
+        if (! preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $name)) {
             throw new InvalidArgumentException(
                 'Field name must start with a letter and contain only letters, numbers, and underscores.'
             );
@@ -334,16 +290,15 @@ class FieldDTO
     /**
      * Validate field type.
      *
-     * @param string $type
      * @throws InvalidArgumentException
      */
     private function validateType(string $type): void
     {
         $validTypes = ['text', 'number', 'date', 'boolean'];
-        
-        if (!in_array($type, $validTypes, true)) {
+
+        if (! in_array($type, $validTypes, true)) {
             throw new InvalidArgumentException(
-                "Invalid field type '{$type}'. Valid types: " . implode(', ', $validTypes)
+                "Invalid field type '{$type}'. Valid types: ".implode(', ', $validTypes)
             );
         }
     }
@@ -351,7 +306,6 @@ class FieldDTO
     /**
      * Validate field title.
      *
-     * @param string|null $title
      * @throws InvalidArgumentException
      */
     private function validateTitle(?string $title): void
@@ -366,8 +320,6 @@ class FieldDTO
     /**
      * Validate default value matches field type.
      *
-     * @param mixed $defaultValue
-     * @param string $type
      * @throws InvalidArgumentException
      */
     private function validateDefaultValue(mixed $defaultValue, string $type): void
@@ -378,29 +330,29 @@ class FieldDTO
 
         switch ($type) {
             case 'text':
-                if (!is_string($defaultValue)) {
+                if (! is_string($defaultValue)) {
                     throw new InvalidArgumentException('Default value for text field must be a string.');
                 }
                 break;
 
             case 'number':
-                if (!is_numeric($defaultValue)) {
+                if (! is_numeric($defaultValue)) {
                     throw new InvalidArgumentException('Default value for number field must be numeric.');
                 }
                 break;
 
             case 'boolean':
-                if (!is_bool($defaultValue)) {
+                if (! is_bool($defaultValue)) {
                     throw new InvalidArgumentException('Default value for boolean field must be a boolean.');
                 }
                 break;
 
             case 'date':
-                if (!is_string($defaultValue)) {
+                if (! is_string($defaultValue)) {
                     throw new InvalidArgumentException('Default value for date field must be a string.');
                 }
                 // Basic date format validation (YYYY-MM-DD)
-                if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $defaultValue)) {
+                if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $defaultValue)) {
                     throw new InvalidArgumentException(
                         'Default value for date field must be in YYYY-MM-DD format.'
                     );
@@ -412,18 +364,17 @@ class FieldDTO
     /**
      * Validate options array.
      *
-     * @param array $options
      * @throws InvalidArgumentException
      */
     private function validateOptions(array $options): void
     {
         foreach ($options as $key => $value) {
-            if (!is_string($key) || empty(trim($key))) {
+            if (! is_string($key) || empty(trim($key))) {
                 throw new InvalidArgumentException('Option keys must be non-empty strings.');
             }
 
             // Value can be string, number, boolean, array, or null
-            if (!is_scalar($value) && !is_array($value) && $value !== null) {
+            if (! is_scalar($value) && ! is_array($value) && $value !== null) {
                 throw new InvalidArgumentException(
                     "Option '{$key}' has invalid value type. Must be scalar, array, or null."
                 );

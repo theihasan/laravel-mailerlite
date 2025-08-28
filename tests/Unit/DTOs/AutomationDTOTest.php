@@ -7,11 +7,11 @@ use Ihasan\LaravelMailerlite\DTOs\AutomationDTO;
 describe('AutomationDTO', function () {
     it('can be created with required fields', function () {
         $triggers = [
-            ['type' => 'subscriber', 'event' => 'joins_group', 'target' => 'newsletter']
+            ['type' => 'subscriber', 'event' => 'joins_group', 'target' => 'newsletter'],
         ];
-        
+
         $steps = [
-            ['type' => 'email', 'template_id' => 'welcome-template']
+            ['type' => 'email', 'template_id' => 'welcome-template'],
         ];
 
         $dto = new AutomationDTO(
@@ -32,12 +32,12 @@ describe('AutomationDTO', function () {
 
     it('can be created with all fields', function () {
         $triggers = [
-            ['type' => 'subscriber', 'event' => 'joins_group', 'target' => 'newsletter']
+            ['type' => 'subscriber', 'event' => 'joins_group', 'target' => 'newsletter'],
         ];
-        
+
         $steps = [
             ['type' => 'email', 'template_id' => 'welcome-template'],
-            ['type' => 'delay', 'duration' => 1, 'unit' => 'days']
+            ['type' => 'delay', 'duration' => 1, 'unit' => 'days'],
         ];
 
         $settings = ['timezone' => 'America/New_York'];
@@ -247,7 +247,7 @@ describe('AutomationDTO', function () {
             'description' => 'Test description',
             'settings' => ['timezone' => 'UTC'],
             'conditions' => [['field' => 'country', 'operator' => 'equals', 'value' => 'US']],
-            'status' => 'active'
+            'status' => 'active',
         ];
 
         $dto = AutomationDTO::fromArray($data);
@@ -285,7 +285,7 @@ describe('AutomationDTO', function () {
             'triggers' => $triggers,
             'steps' => $steps,
             'settings' => $settings,
-            'conditions' => $conditions
+            'conditions' => $conditions,
         ]);
     });
 

@@ -16,10 +16,6 @@ class GroupDeleteException extends MailerLiteException
 {
     /**
      * Create a new group deletion exception.
-     *
-     * @param string $groupIdentifier
-     * @param string $message
-     * @param Throwable|null $previous
      */
     public function __construct(
         public readonly string $groupIdentifier,
@@ -31,11 +27,6 @@ class GroupDeleteException extends MailerLiteException
 
     /**
      * Create a general group deletion exception.
-     *
-     * @param string $groupIdentifier
-     * @param string $reason
-     * @param Throwable|null $previous
-     * @return static
      */
     public static function make(string $groupIdentifier, string $reason, ?Throwable $previous = null): static
     {

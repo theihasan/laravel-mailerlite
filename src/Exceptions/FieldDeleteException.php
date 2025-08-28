@@ -16,10 +16,6 @@ class FieldDeleteException extends MailerLiteException
 {
     /**
      * Create a new field deletion exception.
-     *
-     * @param string $fieldIdentifier
-     * @param string $message
-     * @param Throwable|null $previous
      */
     public function __construct(
         public readonly string $fieldIdentifier,
@@ -31,11 +27,6 @@ class FieldDeleteException extends MailerLiteException
 
     /**
      * Create a general field deletion exception.
-     *
-     * @param string $fieldIdentifier
-     * @param string $reason
-     * @param Throwable|null $previous
-     * @return static
      */
     public static function make(string $fieldIdentifier, string $reason, ?Throwable $previous = null): static
     {

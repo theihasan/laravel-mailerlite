@@ -270,7 +270,7 @@ describe('CampaignDTO', function () {
             'schedule_at' => new DateTime('+1 hour'),
             'type' => 'regular',
             'settings' => ['key' => 'value'],
-            'ab_settings' => []
+            'ab_settings' => [],
         ];
 
         $dto = CampaignDTO::fromArray($data);
@@ -291,7 +291,7 @@ describe('CampaignDTO', function () {
             'from_name' => 'Test Sender',
             'from_email' => 'sender@example.com',
             'html' => '<h1>Hello World</h1>',
-            'schedule_at' => '+1 hour'
+            'schedule_at' => '+1 hour',
         ];
 
         $dto = CampaignDTO::fromArray($data);
@@ -328,7 +328,7 @@ describe('CampaignDTO', function () {
             'segments' => ['segment1'],
             'schedule_at' => $scheduleAt->format('Y-m-d H:i:s'),
             'type' => 'regular',
-            'settings' => ['key' => 'value']
+            'settings' => ['key' => 'value'],
         ]);
     });
 

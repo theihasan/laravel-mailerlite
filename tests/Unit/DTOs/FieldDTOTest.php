@@ -41,7 +41,7 @@ describe('FieldDTO', function () {
             'title' => 'Company Name',
             'default_value' => 'Unknown',
             'options' => ['max_length' => 100],
-            'required' => false
+            'required' => false,
         ];
 
         $dto = FieldDTO::fromArray($data);
@@ -55,12 +55,12 @@ describe('FieldDTO', function () {
     });
 
     test('throws exception when creating from array without name', function () {
-        expect(fn() => FieldDTO::fromArray(['type' => 'text']))
+        expect(fn () => FieldDTO::fromArray(['type' => 'text']))
             ->toThrow(InvalidArgumentException::class, 'Name is required');
     });
 
     test('throws exception when creating from array without type', function () {
-        expect(fn() => FieldDTO::fromArray(['name' => 'test']))
+        expect(fn () => FieldDTO::fromArray(['name' => 'test']))
             ->toThrow(InvalidArgumentException::class, 'Type is required');
     });
 
@@ -129,7 +129,7 @@ describe('FieldDTO', function () {
             'title' => 'Age',
             'default_value' => 25,
             'options' => ['min_value' => 0],
-            'required' => true
+            'required' => true,
         ]);
     });
 
@@ -206,17 +206,17 @@ describe('FieldDTO', function () {
     });
 
     test('validates name is not empty', function () {
-        expect(fn() => new FieldDTO('', 'text'))
+        expect(fn () => new FieldDTO('', 'text'))
             ->toThrow(InvalidArgumentException::class, 'Field name cannot be empty');
 
-        expect(fn() => new FieldDTO('   ', 'text'))
+        expect(fn () => new FieldDTO('   ', 'text'))
             ->toThrow(InvalidArgumentException::class, 'Field name cannot be empty');
     });
 
     test('validates name length', function () {
         $longName = str_repeat('a', 101);
 
-        expect(fn() => new FieldDTO($longName, 'text'))
+        expect(fn () => new FieldDTO($longName, 'text'))
             ->toThrow(InvalidArgumentException::class, 'Field name cannot exceed 100 characters');
     });
 
@@ -224,7 +224,7 @@ describe('FieldDTO', function () {
         $invalidNames = ['123invalid', 'invalid-name', 'invalid.name', 'invalid name'];
 
         foreach ($invalidNames as $invalidName) {
-            expect(fn() => new FieldDTO($invalidName, 'text'))
+            expect(fn () => new FieldDTO($invalidName, 'text'))
                 ->toThrow(InvalidArgumentException::class, 'Field name must start with a letter');
         }
     });
@@ -242,7 +242,7 @@ describe('FieldDTO', function () {
         $invalidTypes = ['string', 'int', 'float', 'array', 'invalid'];
 
         foreach ($invalidTypes as $invalidType) {
-            expect(fn() => new FieldDTO('name', $invalidType))
+            expect(fn () => new FieldDTO('name', $invalidType))
                 ->toThrow(InvalidArgumentException::class, 'Invalid field type');
         }
     });
@@ -259,24 +259,24 @@ describe('FieldDTO', function () {
     test('validates title length', function () {
         $longTitle = str_repeat('a', 256);
 
-        expect(fn() => new FieldDTO('name', 'text', $longTitle))
+        expect(fn () => new FieldDTO('name', 'text', $longTitle))
             ->toThrow(InvalidArgumentException::class, 'Field title cannot exceed 255 characters');
     });
 
     test('validates default value matches field type', function () {
-        expect(fn() => new FieldDTO('name', 'text', null, 123))
+        expect(fn () => new FieldDTO('name', 'text', null, 123))
             ->toThrow(InvalidArgumentException::class, 'Default value for text field must be a string');
 
-        expect(fn() => new FieldDTO('age', 'number', null, 'not a number'))
+        expect(fn () => new FieldDTO('age', 'number', null, 'not a number'))
             ->toThrow(InvalidArgumentException::class, 'Default value for number field must be numeric');
 
-        expect(fn() => new FieldDTO('active', 'boolean', null, 'not a boolean'))
+        expect(fn () => new FieldDTO('active', 'boolean', null, 'not a boolean'))
             ->toThrow(InvalidArgumentException::class, 'Default value for boolean field must be a boolean');
 
-        expect(fn() => new FieldDTO('date', 'date', null, 123))
+        expect(fn () => new FieldDTO('date', 'date', null, 123))
             ->toThrow(InvalidArgumentException::class, 'Default value for date field must be a string');
 
-        expect(fn() => new FieldDTO('date', 'date', null, 'invalid-date'))
+        expect(fn () => new FieldDTO('date', 'date', null, 'invalid-date'))
             ->toThrow(InvalidArgumentException::class, 'Default value for date field must be in YYYY-MM-DD format');
     });
 
@@ -298,12 +298,12 @@ describe('FieldDTO', function () {
     });
 
     test('validates options keys are strings', function () {
-        expect(fn() => new FieldDTO('name', 'text', null, null, [123 => 'value']))
+        expect(fn () => new FieldDTO('name', 'text', null, null, [123 => 'value']))
             ->toThrow(InvalidArgumentException::class, 'Option keys must be non-empty strings');
     });
 
     test('validates options keys are not empty', function () {
-        expect(fn() => new FieldDTO('name', 'text', null, null, ['' => 'value']))
+        expect(fn () => new FieldDTO('name', 'text', null, null, ['' => 'value']))
             ->toThrow(InvalidArgumentException::class, 'Option keys must be non-empty strings');
     });
 
@@ -314,7 +314,7 @@ describe('FieldDTO', function () {
             'float_key' => 12.34,
             'bool_key' => true,
             'null_key' => null,
-            'array_key' => ['nested' => 'value']
+            'array_key' => ['nested' => 'value'],
         ];
 
         $dto = new FieldDTO('name', 'text', null, null, $validOptions);
@@ -323,9 +323,9 @@ describe('FieldDTO', function () {
     });
 
     test('rejects invalid option value types', function () {
-        $invalidValue = new stdClass();
+        $invalidValue = new stdClass;
 
-        expect(fn() => new FieldDTO('name', 'text', null, null, ['key' => $invalidValue]))
+        expect(fn () => new FieldDTO('name', 'text', null, null, ['key' => $invalidValue]))
             ->toThrow(InvalidArgumentException::class, "Option 'key' has invalid value type");
     });
 });

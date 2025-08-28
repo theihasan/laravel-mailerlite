@@ -37,7 +37,7 @@ describe('FieldService', function () {
                 'name' => 'company',
                 'type' => 'text',
                 'title' => 'Company Name',
-                'created_at' => '2023-01-01T00:00:00.000000Z'
+                'created_at' => '2023-01-01T00:00:00.000000Z',
             ];
 
             $this->mockFieldsEndpoint->shouldReceive('create')
@@ -61,7 +61,7 @@ describe('FieldService', function () {
                 ->once()
                 ->andThrow($exception);
 
-            expect(fn() => $this->service->create($this->fieldDTO))
+            expect(fn () => $this->service->create($this->fieldDTO))
                 ->toThrow(FieldCreateException::class, 'Failed to create field');
         });
 
@@ -72,7 +72,7 @@ describe('FieldService', function () {
                 ->once()
                 ->andThrow($exception);
 
-            expect(fn() => $this->service->create($this->fieldDTO))
+            expect(fn () => $this->service->create($this->fieldDTO))
                 ->toThrow(MailerLiteAuthenticationException::class);
         });
 
@@ -83,7 +83,7 @@ describe('FieldService', function () {
                 ->once()
                 ->andThrow($exception);
 
-            expect(fn() => $this->service->create($this->fieldDTO))
+            expect(fn () => $this->service->create($this->fieldDTO))
                 ->toThrow(FieldCreateException::class, 'Validation failed');
         });
     });
@@ -95,7 +95,7 @@ describe('FieldService', function () {
                 'name' => 'company',
                 'type' => 'text',
                 'title' => 'Company Name',
-                'subscribers_count' => 50
+                'subscribers_count' => 50,
             ];
 
             $this->mockFieldsEndpoint->shouldReceive('find')
@@ -132,7 +132,7 @@ describe('FieldService', function () {
                 ->once()
                 ->andThrow($exception);
 
-            expect(fn() => $this->service->get('123'))
+            expect(fn () => $this->service->get('123'))
                 ->toThrow(MailerLiteAuthenticationException::class);
         });
     });
@@ -144,7 +144,7 @@ describe('FieldService', function () {
                 'id' => '123',
                 'name' => 'updated_company',
                 'type' => 'text',
-                'title' => 'Updated Company'
+                'title' => 'Updated Company',
             ];
 
             $this->mockFieldsEndpoint->shouldReceive('update')
@@ -168,7 +168,7 @@ describe('FieldService', function () {
                 ->once()
                 ->andThrow($exception);
 
-            expect(fn() => $this->service->update('123', $updateDTO))
+            expect(fn () => $this->service->update('123', $updateDTO))
                 ->toThrow(FieldNotFoundException::class, "Field with ID '123' not found");
         });
 
@@ -180,7 +180,7 @@ describe('FieldService', function () {
                 ->once()
                 ->andThrow($exception);
 
-            expect(fn() => $this->service->update('123', $updateDTO))
+            expect(fn () => $this->service->update('123', $updateDTO))
                 ->toThrow(FieldUpdateException::class, 'Validation failed');
         });
     });
@@ -203,7 +203,7 @@ describe('FieldService', function () {
                 ->once()
                 ->andThrow($exception);
 
-            expect(fn() => $this->service->delete('123'))
+            expect(fn () => $this->service->delete('123'))
                 ->toThrow(FieldNotFoundException::class, "Field with ID '123' not found");
         });
 
@@ -214,7 +214,7 @@ describe('FieldService', function () {
                 ->once()
                 ->andThrow($exception);
 
-            expect(fn() => $this->service->delete('123'))
+            expect(fn () => $this->service->delete('123'))
                 ->toThrow(FieldDeleteException::class, 'Failed to delete field');
         });
     });
@@ -224,10 +224,10 @@ describe('FieldService', function () {
             $expectedResponse = [
                 'data' => [
                     ['id' => '123', 'name' => 'company', 'type' => 'text'],
-                    ['id' => '124', 'name' => 'age', 'type' => 'number']
+                    ['id' => '124', 'name' => 'age', 'type' => 'number'],
                 ],
                 'meta' => ['total' => 2],
-                'links' => []
+                'links' => [],
             ];
 
             $this->mockFieldsEndpoint->shouldReceive('get')
@@ -262,7 +262,7 @@ describe('FieldService', function () {
                 ->once()
                 ->andThrow($exception);
 
-            expect(fn() => $this->service->list())
+            expect(fn () => $this->service->list())
                 ->toThrow(MailerLiteAuthenticationException::class);
         });
     });
@@ -272,8 +272,8 @@ describe('FieldService', function () {
             $fieldsResponse = [
                 'data' => [
                     ['id' => '123', 'name' => 'company', 'type' => 'text'],
-                    ['id' => '124', 'name' => 'age', 'type' => 'number']
-                ]
+                    ['id' => '124', 'name' => 'age', 'type' => 'number'],
+                ],
             ];
 
             $this->mockFieldsEndpoint->shouldReceive('get')
@@ -292,8 +292,8 @@ describe('FieldService', function () {
         test('returns null when field not found by name', function () {
             $fieldsResponse = [
                 'data' => [
-                    ['id' => '124', 'name' => 'age', 'type' => 'number']
-                ]
+                    ['id' => '124', 'name' => 'age', 'type' => 'number'],
+                ],
             ];
 
             $this->mockFieldsEndpoint->shouldReceive('get')
@@ -312,7 +312,7 @@ describe('FieldService', function () {
                 ->once()
                 ->andThrow($exception);
 
-            expect(fn() => $this->service->findByName('company'))
+            expect(fn () => $this->service->findByName('company'))
                 ->toThrow(MailerLiteAuthenticationException::class);
         });
     });
@@ -323,7 +323,7 @@ describe('FieldService', function () {
                 'subscribers_count' => 100,
                 'filled_count' => 75,
                 'empty_count' => 25,
-                'usage_percentage' => 75.0
+                'usage_percentage' => 75.0,
             ];
 
             $this->mockFieldsEndpoint->shouldReceive('usage')
@@ -347,7 +347,7 @@ describe('FieldService', function () {
                 ->once()
                 ->andThrow($exception);
 
-            expect(fn() => $this->service->getUsage('123'))
+            expect(fn () => $this->service->getUsage('123'))
                 ->toThrow(FieldNotFoundException::class, "Field with ID '123' not found");
         });
 
@@ -362,7 +362,7 @@ describe('FieldService', function () {
                 'subscribers_count' => 0,
                 'filled_count' => 0,
                 'empty_count' => 0,
-                'usage_percentage' => 0.0
+                'usage_percentage' => 0.0,
             ]);
         });
     });
@@ -380,7 +380,7 @@ describe('FieldService', function () {
                 'position' => 1,
                 'subscribers_count' => 50,
                 'created_at' => '2023-01-01T00:00:00.000000Z',
-                'updated_at' => '2023-01-01T12:00:00.000000Z'
+                'updated_at' => '2023-01-01T12:00:00.000000Z',
             ];
 
             $this->mockFieldsEndpoint->shouldReceive('find')

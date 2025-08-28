@@ -17,7 +17,7 @@ describe('AutomationBuilder', function () {
             'enabled' => true,
             'status' => 'draft',
             'triggers' => [['type' => 'subscriber', 'event' => 'joins_group']],
-            'steps' => [['type' => 'email', 'template_id' => 'welcome']]
+            'steps' => [['type' => 'email', 'template_id' => 'welcome']],
         ];
     });
 
@@ -117,7 +117,7 @@ describe('AutomationBuilder', function () {
                 ->toDTO();
 
             expect($dto->triggers)->toBe([
-                ['type' => 'subscriber', 'event' => 'joins_group', 'target' => 'newsletter']
+                ['type' => 'subscriber', 'event' => 'joins_group', 'target' => 'newsletter'],
             ]);
         });
 
@@ -129,7 +129,7 @@ describe('AutomationBuilder', function () {
 
             $dto = $this->builder->toDTO();
             expect($dto->triggers)->toBe([
-                ['type' => 'subscriber', 'event' => 'joins_group', 'target' => 'newsletter']
+                ['type' => 'subscriber', 'event' => 'joins_group', 'target' => 'newsletter'],
             ]);
 
             $this->builder
@@ -140,7 +140,7 @@ describe('AutomationBuilder', function () {
 
             $dto = $this->builder->toDTO();
             expect($dto->triggers)->toBe([
-                ['type' => 'subscriber', 'event' => 'subscribes']
+                ['type' => 'subscriber', 'event' => 'subscribes'],
             ]);
 
             $this->builder
@@ -151,7 +151,7 @@ describe('AutomationBuilder', function () {
 
             $dto = $this->builder->toDTO();
             expect($dto->triggers)->toBe([
-                ['type' => 'subscriber', 'event' => 'updates_field', 'target' => 'country']
+                ['type' => 'subscriber', 'event' => 'updates_field', 'target' => 'country'],
             ]);
         });
 
@@ -163,7 +163,7 @@ describe('AutomationBuilder', function () {
 
             $dto = $this->builder->toDTO();
             expect($dto->triggers)->toBe([
-                ['type' => 'date', 'field' => 'birthday', 'offset' => 0, 'unit' => 'days']
+                ['type' => 'date', 'field' => 'birthday', 'offset' => 0, 'unit' => 'days'],
             ]);
         });
 
@@ -175,7 +175,7 @@ describe('AutomationBuilder', function () {
 
             $dto = $this->builder->toDTO();
             expect($dto->triggers)->toBe([
-                ['type' => 'api', 'endpoint' => '/api/trigger']
+                ['type' => 'api', 'endpoint' => '/api/trigger'],
             ]);
 
             $this->builder
@@ -186,7 +186,7 @@ describe('AutomationBuilder', function () {
 
             $dto = $this->builder->toDTO();
             expect($dto->triggers)->toBe([
-                ['type' => 'webhook', 'endpoint' => 'https://example.com/webhook']
+                ['type' => 'webhook', 'endpoint' => 'https://example.com/webhook'],
             ]);
         });
 
@@ -198,7 +198,7 @@ describe('AutomationBuilder', function () {
 
             $dto = $this->builder->toDTO();
             expect($dto->steps)->toBe([
-                ['type' => 'email', 'template_id' => 'welcome-template']
+                ['type' => 'email', 'template_id' => 'welcome-template'],
             ]);
 
             $this->builder
@@ -209,7 +209,7 @@ describe('AutomationBuilder', function () {
 
             $dto = $this->builder->toDTO();
             expect($dto->steps)->toBe([
-                ['type' => 'email', 'campaign_id' => 'welcome-campaign']
+                ['type' => 'email', 'campaign_id' => 'welcome-campaign'],
             ]);
         });
 
@@ -275,7 +275,7 @@ describe('AutomationBuilder', function () {
 
             $dto = $this->builder->toDTO();
             expect($dto->steps)->toBe([
-                ['type' => 'condition', 'conditions' => $conditions]
+                ['type' => 'condition', 'conditions' => $conditions],
             ]);
 
             $this->builder
@@ -286,7 +286,7 @@ describe('AutomationBuilder', function () {
 
             $dto = $this->builder->toDTO();
             expect($dto->steps)->toBe([
-                ['type' => 'condition', 'conditions' => [['field' => 'country', 'operator' => 'equals', 'value' => 'US']]]
+                ['type' => 'condition', 'conditions' => [['field' => 'country', 'operator' => 'equals', 'value' => 'US']]],
             ]);
         });
 
@@ -298,7 +298,7 @@ describe('AutomationBuilder', function () {
 
             $dto = $this->builder->toDTO();
             expect($dto->steps)->toBe([
-                ['type' => 'tag', 'action' => 'add', 'tag' => 'newsletter-subscriber']
+                ['type' => 'tag', 'action' => 'add', 'tag' => 'newsletter-subscriber'],
             ]);
 
             $this->builder
@@ -309,7 +309,7 @@ describe('AutomationBuilder', function () {
 
             $dto = $this->builder->toDTO();
             expect($dto->steps)->toBe([
-                ['type' => 'tag', 'action' => 'remove', 'tag' => 'trial-user']
+                ['type' => 'tag', 'action' => 'remove', 'tag' => 'trial-user'],
             ]);
         });
 
@@ -321,7 +321,7 @@ describe('AutomationBuilder', function () {
 
             $dto = $this->builder->toDTO();
             expect($dto->steps)->toBe([
-                ['type' => 'field_update', 'field' => 'status', 'value' => 'subscribed']
+                ['type' => 'field_update', 'field' => 'status', 'value' => 'subscribed'],
             ]);
         });
 
@@ -333,7 +333,7 @@ describe('AutomationBuilder', function () {
 
             $dto = $this->builder->toDTO();
             expect($dto->steps)->toBe([
-                ['type' => 'webhook', 'url' => 'https://example.com/webhook', 'data' => ['key' => 'value']]
+                ['type' => 'webhook', 'url' => 'https://example.com/webhook', 'data' => ['key' => 'value']],
             ]);
         });
 
@@ -355,7 +355,7 @@ describe('AutomationBuilder', function () {
                 'key3' => 'value3',
                 'timezone' => 'America/New_York',
                 'send_time' => ['start' => '09:00', 'end' => '17:00'],
-                'frequency_cap' => 5
+                'frequency_cap' => 5,
             ]);
         });
 
@@ -370,7 +370,7 @@ describe('AutomationBuilder', function () {
             $dto = $this->builder->toDTO();
             expect($dto->conditions)->toBe([
                 ['field' => 'country', 'operator' => 'equals', 'value' => 'US'],
-                ['field' => 'age', 'operator' => 'greater_than', 'value' => 18]
+                ['field' => 'age', 'operator' => 'greater_than', 'value' => 18],
             ]);
         });
     });
@@ -450,7 +450,7 @@ describe('AutomationBuilder', function () {
             $listResponse = [
                 'data' => [$this->mockResponse],
                 'meta' => ['total' => 1],
-                'links' => []
+                'links' => [],
             ];
 
             $this->mockService->shouldReceive('list')
@@ -467,7 +467,7 @@ describe('AutomationBuilder', function () {
             $listResponse = [
                 'data' => [$this->mockResponse],
                 'meta' => ['total' => 1],
-                'links' => []
+                'links' => [],
             ];
 
             $this->mockService->shouldReceive('list')
@@ -547,7 +547,7 @@ describe('AutomationBuilder', function () {
             $subscribersResponse = [
                 'data' => [['id' => '1', 'email' => 'user@example.com']],
                 'meta' => ['total' => 1],
-                'links' => []
+                'links' => [],
             ];
 
             $this->mockService->shouldReceive('getSubscribers')
@@ -564,7 +564,7 @@ describe('AutomationBuilder', function () {
             $activityResponse = [
                 'data' => [['id' => '1', 'action' => 'email_sent']],
                 'meta' => ['total' => 1],
-                'links' => []
+                'links' => [],
             ];
 
             $this->mockService->shouldReceive('getActivity')

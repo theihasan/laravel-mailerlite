@@ -101,7 +101,7 @@ class AutomationDTO
             [
                 'type' => 'subscriber',
                 'event' => $triggerEvent, // 'joins_group', 'subscribes', 'updates_field', etc.
-            ]
+            ],
         ];
 
         return new static(
@@ -123,8 +123,8 @@ class AutomationDTO
                 'type' => 'date',
                 'field' => $dateField,
                 'offset' => $offsetDays,
-                'unit' => 'days'
-            ]
+                'unit' => 'days',
+            ],
         ];
 
         return new static(
@@ -319,7 +319,7 @@ class AutomationDTO
             $validTypes = ['subscriber', 'date', 'api', 'webhook', 'custom_field'];
             if (! in_array($trigger['type'], $validTypes, true)) {
                 throw new InvalidArgumentException(
-                    "Invalid trigger type '{$trigger['type']}' at index {$index}. Valid types: " . implode(', ', $validTypes)
+                    "Invalid trigger type '{$trigger['type']}' at index {$index}. Valid types: ".implode(', ', $validTypes)
                 );
             }
 
@@ -343,7 +343,7 @@ class AutomationDTO
                 $validEvents = ['joins_group', 'subscribes', 'unsubscribes', 'updates_field', 'completes_automation'];
                 if (! in_array($trigger['event'], $validEvents, true)) {
                     throw new InvalidArgumentException(
-                        "Invalid subscriber event '{$trigger['event']}' at index {$index}. Valid events: " . implode(', ', $validEvents)
+                        "Invalid subscriber event '{$trigger['event']}' at index {$index}. Valid events: ".implode(', ', $validEvents)
                     );
                 }
                 break;
@@ -389,7 +389,7 @@ class AutomationDTO
             $validTypes = ['email', 'delay', 'condition', 'action', 'webhook', 'tag', 'field_update'];
             if (! in_array($step['type'], $validTypes, true)) {
                 throw new InvalidArgumentException(
-                    "Invalid step type '{$step['type']}' at index {$index}. Valid types: " . implode(', ', $validTypes)
+                    "Invalid step type '{$step['type']}' at index {$index}. Valid types: ".implode(', ', $validTypes)
                 );
             }
 
@@ -419,7 +419,7 @@ class AutomationDTO
                 $validUnits = ['minutes', 'hours', 'days', 'weeks'];
                 if (! in_array($step['unit'], $validUnits, true)) {
                     throw new InvalidArgumentException(
-                        "Invalid delay unit '{$step['unit']}' at index {$index}. Valid units: " . implode(', ', $validUnits)
+                        "Invalid delay unit '{$step['unit']}' at index {$index}. Valid units: ".implode(', ', $validUnits)
                     );
                 }
                 break;
@@ -452,7 +452,7 @@ class AutomationDTO
 
         if (! in_array($status, $validStatuses, true)) {
             throw new InvalidArgumentException(
-                "Invalid status '{$status}'. Valid statuses: " . implode(', ', $validStatuses)
+                "Invalid status '{$status}'. Valid statuses: ".implode(', ', $validStatuses)
             );
         }
     }
@@ -497,7 +497,7 @@ class AutomationDTO
             $validOperators = ['equals', 'not_equals', 'contains', 'not_contains', 'greater_than', 'less_than', 'exists', 'not_exists'];
             if (! in_array($condition['operator'], $validOperators, true)) {
                 throw new InvalidArgumentException(
-                    "Invalid condition operator '{$condition['operator']}' at index {$index}. Valid operators: " . implode(', ', $validOperators)
+                    "Invalid condition operator '{$condition['operator']}' at index {$index}. Valid operators: ".implode(', ', $validOperators)
                 );
             }
         }

@@ -16,10 +16,6 @@ class SegmentCreateException extends MailerLiteException
 {
     /**
      * Create a new segment creation exception.
-     *
-     * @param string $segmentName
-     * @param string $message
-     * @param Throwable|null $previous
      */
     public function __construct(
         public readonly string $segmentName,
@@ -31,9 +27,6 @@ class SegmentCreateException extends MailerLiteException
 
     /**
      * Create an exception for when a segment already exists.
-     *
-     * @param string $segmentName
-     * @return static
      */
     public static function alreadyExists(string $segmentName): static
     {
@@ -45,14 +38,11 @@ class SegmentCreateException extends MailerLiteException
 
     /**
      * Create an exception for invalid segment data.
-     *
-     * @param string $segmentName
-     * @param array $errors
-     * @return static
      */
     public static function invalidData(string $segmentName, array $errors): static
     {
         $errorMessages = implode(', ', $errors);
+
         return new static(
             $segmentName,
             "Failed to create segment '{$segmentName}': {$errorMessages}"
@@ -61,14 +51,11 @@ class SegmentCreateException extends MailerLiteException
 
     /**
      * Create an exception for invalid filters.
-     *
-     * @param string $segmentName
-     * @param array $filterErrors
-     * @return static
      */
     public static function invalidFilters(string $segmentName, array $filterErrors): static
     {
         $errorMessages = implode(', ', $filterErrors);
+
         return new static(
             $segmentName,
             "Failed to create segment '{$segmentName}' due to invalid filters: {$errorMessages}"
@@ -77,11 +64,6 @@ class SegmentCreateException extends MailerLiteException
 
     /**
      * Create a general segment creation exception.
-     *
-     * @param string $segmentName
-     * @param string $reason
-     * @param Throwable|null $previous
-     * @return static
      */
     public static function make(string $segmentName, string $reason, ?Throwable $previous = null): static
     {

@@ -27,7 +27,7 @@ class CampaignUpdateException extends MailerLiteException
      */
     public static function invalidData(string $identifier, array $errors): static
     {
-        $reason = 'Invalid data: ' . implode(', ', $errors);
+        $reason = 'Invalid data: '.implode(', ', $errors);
 
         return static::make($identifier, $reason);
     }

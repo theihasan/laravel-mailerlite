@@ -16,10 +16,6 @@ class SegmentDeleteException extends MailerLiteException
 {
     /**
      * Create a new segment deletion exception.
-     *
-     * @param string $segmentIdentifier
-     * @param string $message
-     * @param Throwable|null $previous
      */
     public function __construct(
         public readonly string $segmentIdentifier,
@@ -31,11 +27,6 @@ class SegmentDeleteException extends MailerLiteException
 
     /**
      * Create a general segment deletion exception.
-     *
-     * @param string $segmentIdentifier
-     * @param string $reason
-     * @param Throwable|null $previous
-     * @return static
      */
     public static function make(string $segmentIdentifier, string $reason, ?Throwable $previous = null): static
     {
