@@ -286,6 +286,291 @@ $campaignData = new CampaignDTO(
 $campaign = MailerLite::campaigns()->create($campaignData);
 ```
 
+## Automation Management
+
+The Automation API provides a fluent interface for creating, managing, and monitoring email automations and workflows.
+
+### Creating Basic Automations
+
+```php
+use MailerLite;
+
+// Create a simple welcome automation
+MailerLite::automations()
+    ->create('Welcome Series')
+    ->description('Welcome new subscribers with a series of emails')
+    ->whenSubscriberJoinsGroup('newsletter')
+    ->sendEmail('welcome-template')
+    ->delayDays(3)
+    ->sendEmail('tips-template')
+    ->delayWeeks(1)
+    ->sendEmail('resources-template')
+    ->start();
+
+// Create a birthday automation
+MailerLite::automations()
+    ->create('Birthday Campaign')
+    ->whenDateReached('birthday', 0) // Trigger on birthday
+    ->sendEmail('birthday-template')
+    ->addTag('birthday-sent')
+    ->save();
+```
+
+### Advanced Automation Workflows
+
+```php
+// Create a re-engagement automation with conditions
+MailerLite::automations()
+    ->create('Re-engagement Campaign')
+    ->description('Win back inactive subscribers')
+    ->whenSubscriberUpdatesField('last_active')
+    ->delayDays(30)
+    ->ifField('engagement_score', 'less_than', 50)
+    ->sendEmail('reengagement-template')
+    ->delayDays(7)
+    ->ifField('last_opened', 'less_than', '30 days ago')
+    ->addTag('inactive')
+    ->callWebhook('https://yourapp.com/webhooks/inactive-subscriber')
+    ->start();
+
+// API-triggered automation
+MailerLite::automations()
+    ->create('Purchase Follow-up')
+    ->whenApiCalled('/api/purchase-trigger')
+    ->delayHours(2)
+    ->sendEmail('thank-you-template')
+    ->delayDays(7)
+    ->sendEmail('review-request-template')
+    ->delayDays(30)
+    ->sendEmail('upsell-template')
+    ->withSettings([
+        'timezone' => 'America/New_York',
+        'frequency_cap' => 3
+    ])
+    ->start();
+```
+
+### Automation Triggers
+
+```php
+// Subscriber-based triggers
+MailerLite::automations()
+    ->create('Onboarding Flow')
+    ->whenSubscriberSubscribes()              // When someone subscribes
+    ->whenSubscriberJoinsGroup('premium')     // When joins specific group
+    ->whenSubscriberUpdatesField('country')   // When updates a field
+    ->sendEmail('onboarding-template')
+    ->start();
+
+// Date-based triggers
+MailerLite::automations()
+    ->create('Anniversary Campaign')
+    ->whenDateReached('signup_date', 365)     // 365 days after signup
+    ->sendEmail('anniversary-template')
+    ->start();
+
+// Webhook triggers
+MailerLite::automations()
+    ->create('External Event Automation')
+    ->whenWebhookReceived('https://yourapp.com/webhook-endpoint')
+    ->sendEmail('event-response-template')
+    ->start();
+```
+
+### Automation Actions and Steps
+
+```php
+// Email actions
+MailerLite::automations()
+    ->create('Email Sequence')
+    ->whenSubscriberJoinsGroup('course')
+    ->sendEmail('welcome-template')           // Send template
+    ->sendCampaign('intro-campaign')          // Send existing campaign
+    ->start();
+
+// Delays and timing
+MailerLite::automations()
+    ->create('Timed Sequence')
+    ->whenSubscriberJoinsGroup('trial')
+    ->sendEmail('welcome-template')
+    ->delayMinutes(30)                        // 30 minutes
+    ->delayHours(24)                          // 24 hours
+    ->delayDays(7)                            // 7 days
+    ->delayWeeks(2)                           // 2 weeks
+    ->delay(3, 'months')                      // Custom delay
+    ->sendEmail('followup-template')
+    ->start();
+
+// Conditions and branching
+MailerLite::automations()
+    ->create('Conditional Flow')
+    ->whenSubscriberJoinsGroup('leads')
+    ->ifField('country', 'equals', 'US')
+    ->sendEmail('us-specific-template')
+    ->condition([
+        ['field' => 'age', 'operator' => 'greater_than', 'value' => 25],
+        ['field' => 'income', 'operator' => 'greater_than', 'value' => 50000]
+    ])
+    ->sendEmail('premium-offer-template')
+    ->start();
+
+// Tags and field updates
+MailerLite::automations()
+    ->create('Tagging Automation')
+    ->whenSubscriberJoinsGroup('webinar')
+    ->addTag('webinar-attendee')
+    ->updateField('last_webinar', 'now')
+    ->removeTag('prospect')
+    ->sendEmail('webinar-followup')
+    ->start();
+
+// Webhook actions
+MailerLite::automations()
+    ->create('Integration Automation')
+    ->whenSubscriberUpdatesField('purchase_status')
+    ->callWebhook('https://yourapp.com/api/sync-customer', [
+        'action' => 'sync',
+        'source' => 'mailerlite'
+    ])
+    ->start();
+```
+
+### Managing Existing Automations
+
+```php
+// Find an automation
+$automation = MailerLite::automations()->find('automation-id');
+
+// Update an automation
+MailerLite::automations()
+    ->create('Updated Automation')
+    ->description('Updated description')
+    ->whenSubscriberJoinsGroup('updated-group')
+    ->sendEmail('updated-template')
+    ->update('automation-id');
+
+// Start/stop automations
+MailerLite::automations()->startById('automation-id');
+MailerLite::automations()->stopById('automation-id');
+
+// Enable/disable automations
+MailerLite::automations()->enableById('automation-id');
+MailerLite::automations()->disableById('automation-id');
+
+// Pause/resume automations
+MailerLite::automations()->pauseById('automation-id');
+MailerLite::automations()->resumeById('automation-id');
+
+// Delete an automation
+MailerLite::automations()->delete('automation-id');
+```
+
+### Automation Analytics and Monitoring
+
+```php
+// Get automation statistics
+$stats = MailerLite::automations()->stats('automation-id');
+// Returns: subscribers_count, completed_count, active_count, etc.
+
+// Get subscribers in automation
+$subscribers = MailerLite::automations()->subscribers('automation-id');
+
+// Get subscribers with filters
+$activeSubscribers = MailerLite::automations()->subscribers('automation-id', [
+    'filter[status]' => 'active'
+]);
+
+// Get automation activity
+$activity = MailerLite::automations()->activity('automation-id');
+```
+
+### Listing Automations
+
+```php
+// Get all automations
+$automations = MailerLite::automations()->all();
+
+// Get automations with filters
+$activeAutomations = MailerLite::automations()->list([
+    'filter[status]' => 'active',
+    'limit' => 50
+]);
+```
+
+### Automation Settings and Configuration
+
+```php
+// Set timezone and send time restrictions
+MailerLite::automations()
+    ->create('Time-Sensitive Automation')
+    ->whenSubscriberJoinsGroup('newsletter')
+    ->timezone('America/New_York')
+    ->sendTimeBetween('09:00', '17:00')
+    ->frequencyCap(5)  // Max 5 emails per subscriber
+    ->sendEmail('newsletter-template')
+    ->start();
+
+// Advanced settings
+MailerLite::automations()
+    ->create('Advanced Automation')
+    ->whenSubscriberJoinsGroup('premium')
+    ->withSettings([
+        'timezone' => 'UTC',
+        'send_time' => ['start' => '08:00', 'end' => '20:00'],
+        'frequency_cap' => 10,
+        'track_opens' => true,
+        'track_clicks' => true
+    ])
+    ->withConditions([
+        ['field' => 'subscription_type', 'operator' => 'equals', 'value' => 'premium'],
+        ['field' => 'country', 'operator' => 'not_equals', 'value' => 'blocked_country']
+    ])
+    ->sendEmail('premium-welcome')
+    ->start();
+```
+
+### Fluent Method Chaining
+
+The Automation Builder supports natural language chaining with "and" and "then" prefixes:
+
+```php
+MailerLite::automations()
+    ->create('Natural Language Flow')
+    ->andDescription('Reads like natural language')
+    ->andWhenSubscriberJoinsGroup('newsletter')
+    ->thenSendEmail('welcome-template')
+    ->thenDelayDays(1)
+    ->thenAddTag('welcomed')
+    ->thenIfField('country', 'equals', 'US')
+    ->thenSendEmail('us-specific-content')
+    ->start();
+```
+
+### Using DTOs Directly
+
+For more control, you can use the AutomationDTO directly:
+
+```php
+use Ihasan\LaravelMailerlite\DTOs\AutomationDTO;
+
+$automationData = new AutomationDTO(
+    name: 'Direct DTO Automation',
+    enabled: true,
+    triggers: [
+        ['type' => 'subscriber', 'event' => 'joins_group', 'target' => 'newsletter']
+    ],
+    steps: [
+        ['type' => 'email', 'template_id' => 'welcome-template'],
+        ['type' => 'delay', 'duration' => 1, 'unit' => 'days'],
+        ['type' => 'email', 'template_id' => 'followup-template']
+    ],
+    description: 'Created using DTO directly',
+    settings: ['timezone' => 'UTC']
+);
+
+$automation = MailerLite::automations()->save($automationData);
+```
+
 ## Contracts (Interfaces)
 
 This package provides comprehensive interfaces for all services, enabling easy mocking and testing:
