@@ -64,8 +64,44 @@ This package provides a Laravel-native interface to MailerLite's API with the fo
 - **Exceptions**: Granular, contextual exceptions for precise error handling
 
 **Architecture Flow:**
-```
-Facade → LaravelMailerlite → Builder → Service → Manager → MailerLite SDK → API
+
+```mermaid
+graph TD
+    A["Facade<br/>MailerLite"] --> B["LaravelMailerlite<br/>Main Service"]
+    B --> C["SubscriberBuilder"]
+    B --> D["CampaignBuilder"]
+    B --> E["GroupBuilder"]
+    B --> F["FieldBuilder"]
+    B --> G["SegmentBuilder"]
+    B --> H["AutomationBuilder"]
+    B --> I["WebhookBuilder"]
+    
+    C --> J["SubscriberService"]
+    D --> K["CampaignService"]
+    E --> L["GroupService"]
+    F --> M["FieldService"]
+    G --> N["SegmentService"]
+    H --> O["AutomationService"]
+    I --> P["WebhookService"]
+    
+    J --> Q["MailerLiteManager"]
+    K --> Q
+    L --> Q
+    M --> Q
+    N --> Q
+    O --> Q
+    P --> Q
+    
+    Q --> R["MailerLite SDK"]
+    R --> S["MailerLite API"]
+    
+    J -.-> T["SubscriberDTO"]
+    K -.-> U["CampaignDTO"]
+    L -.-> V["GroupDTO"]
+    M -.-> W["FieldDTO"]
+    N -.-> X["SegmentDTO"]
+    O -.-> Y["AutomationDTO"]
+    P -.-> Z["WebhookDTO"]
 ```
 
 ### Supported MailerLite Resources
@@ -173,6 +209,37 @@ $subscriber = MailerLite::subscribers()
 2. Chain fluent setters: `email()`, `named()`, `withField()`, `toGroup()`
 3. Call `subscribe()` to create the `SubscriberDTO` and send to API
 4. Returns subscriber data with ID
+
+**Fluent API Flow:**
+
+```mermaid
+sequenceDiagram
+    participant U as User Code
+    participant F as MailerLite Facade
+    participant B as SubscriberBuilder
+    participant S as SubscriberService
+    participant M as MailerLiteManager
+    participant SDK as MailerLite SDK
+    participant API as MailerLite API
+    
+    U->>F: MailerLite::subscribers()
+    F->>B: new SubscriberBuilder()
+    U->>B: .email('user@example.com')
+    U->>B: .named('User Name')
+    U->>B: .toGroup('newsletter')
+    U->>B: .subscribe()
+    B->>B: toDTO()
+    B->>S: create(SubscriberDTO)
+    S->>M: getClient()
+    M->>SDK: return client
+    S->>SDK: subscribers.create(data)
+    SDK->>API: POST /subscribers
+    API-->>SDK: subscriber data
+    SDK-->>S: response
+    S->>S: transformResponse()
+    S-->>B: subscriber array
+    B-->>U: subscriber data
+```
 
 **Expected Result:**
 ```php
@@ -288,6 +355,25 @@ $campaign = MailerLite::campaigns()
 4. `create()` builds `CampaignDTO` and creates draft campaign
 5. Returns campaign data with ID and status
 
+**Campaign Builder Flow:**
+
+```mermaid
+graph LR
+    A["User Code"] --> B["MailerLite::campaigns()"]
+    B --> C["CampaignBuilder"]
+    C --> D[".subject('Newsletter')"]
+    D --> E[".from('Team', 'email')"]
+    E --> F[".html('&lt;h1&gt;Content&lt;/h1&gt;')"]
+    F --> G[".toGroup('subscribers')"]
+    G --> H[".scheduleAt(tomorrow)"]
+    H --> I[".schedule()"]
+    I --> J["CampaignService"]
+    J --> K["MailerLite SDK"]
+    K --> L["API: Create Draft"]
+    L --> M["API: Schedule Campaign"]
+    M --> N["Scheduled Campaign"]
+```
+
 #### Schedule Campaign
 ```php
 $scheduled = MailerLite::campaigns()
@@ -300,12 +386,17 @@ $scheduled = MailerLite::campaigns()
 ```
 
 **Campaign Flow Diagram:**
-```
-[Build Campaign] → create() → [Draft Campaign]
-                           ↓
-                    schedule(time) → [Scheduled Campaign]
-                           ↓
-                    MailerLite sends at scheduled time
+
+```mermaid
+stateDiagram-v2
+    [*] --> Draft: create()
+    Draft --> Scheduled: schedule(time)
+    Draft --> Sent: send()
+    Scheduled --> Sent: MailerLite sends at time
+    Scheduled --> Draft: cancel()
+    Sent --> [*]
+    Draft --> [*]: delete()
+    Scheduled --> [*]: delete()
 ```
 
 #### Send Immediately
@@ -504,6 +595,25 @@ $recentSegment = MailerLite::segments()
 - **Date filters**: `createdAfter(date)`, `subscribedBefore(date)`
 - **Activity filters**: `whoOpened()`, `whoClicked()`, `whoDidntOpen()`
 
+**Segment Building Process:**
+
+```mermaid
+graph TD
+    A["SegmentBuilder"] --> B["name('Active Users')"]
+    B --> C["whereField('last_login', 'after', '2024-01-01')"]
+    C --> D["andWhereField('plan', 'equals', 'premium')"]
+    D --> E["whoOpened(campaignId, 30)"]
+    E --> F["inGroup('newsletter')"]
+    F --> G["create()"]
+    
+    G --> H["SegmentDTO"]
+    H --> I["filters: [<br/>  {type: 'field', field: 'last_login', operator: 'after', value: '2024-01-01'},<br/>  {type: 'field', field: 'plan', operator: 'equals', value: 'premium'},<br/>  {type: 'email_activity', activity: 'opened', days: 30},<br/>  {type: 'group', group_id: 'newsletter', operator: 'in'}<br/>]"]
+    
+    I --> J["SegmentService"]
+    J --> K["MailerLite API"]
+    K --> L["Dynamic Segment<br/>Calculates matching subscribers"]
+```
+
 #### Segment Management
 ```php
 // Get segment subscribers
@@ -567,12 +677,24 @@ $birthday = MailerLite::automations()
 ```
 
 **Automation Trigger Flow:**
-```
-[Trigger Event] → [Conditions Check] → [Steps Execution]
-     ↓                    ↓                    ↓
-subscriber.joins_group → if field=value → email → delay → email
-date.reached          → if group=X     → tag  → webhook
-api.called            → if activity=Y  → field_update
+
+```mermaid
+graph TD
+    A["Trigger Event"] --> B{"Automation<br/>Conditions"}
+    B -->|Pass| C["Step 1: Email"]
+    B -->|Fail| D["Skip Automation"]
+    C --> E["Step 2: Delay"]
+    E --> F["Step 3: Condition"]
+    F -->|True| G["Step 4: Send Email"]
+    F -->|False| H["Step 5: Add Tag"]
+    G --> I["Step 6: Update Field"]
+    H --> I
+    I --> J["Complete"]
+    
+    K["subscriber.joins_group"] --> A
+    L["date.reached"] --> A
+    M["api.called"] --> A
+    N["webhook.received"] --> A
 ```
 
 #### Automation Management
@@ -638,6 +760,33 @@ $secureWebhook = MailerLite::webhooks()
 ```
 
 #### Handle Webhook Payload
+
+**Webhook Processing Flow:**
+
+```mermaid
+graph TD
+    A["MailerLite Event"] --> B["Webhook Endpoint"]
+    B --> C{"Verify Signature"}
+    C -->|Valid| D["Process Event"]
+    C -->|Invalid| E["Return 403"]
+    
+    D --> F{"Event Type"}
+    F -->|subscriber.created| G["Handle New Subscriber"]
+    F -->|campaign.opened| H["Track Engagement"]
+    F -->|automation.completed| I["Update Customer Journey"]
+    F -->|webhook.test| J["Log Test Event"]
+    
+    G --> K["Update CRM"]
+    G --> L["Send Welcome Email"]
+    G --> M["Add to Segment"]
+    
+    H --> N["Update Analytics"]
+    H --> O["Trigger Follow-up"]
+    
+    I --> P["Mark Journey Complete"]
+    I --> Q["Start Next Phase"]
+```
+
 ```php
 // Laravel route example
 Route::post('/webhooks/mailerlite', function (Illuminate\Http\Request $request) {
@@ -946,6 +1095,41 @@ All exceptions extend `MailerLiteException` which provides:
 - `getContext()`: Additional error context
 - `withContext(array $context)`: Add context data
 
+```mermaid
+graph TD
+    A["MailerLiteException<br/>(Base)"] --> B["MailerLiteAuthenticationException"]
+    A --> C["SubscriberCreateException"]
+    A --> D["SubscriberUpdateException"]
+    A --> E["SubscriberDeleteException"]
+    A --> F["SubscriberNotFoundException"]
+    A --> G["CampaignCreateException"]
+    A --> H["CampaignUpdateException"]
+    A --> I["CampaignDeleteException"]
+    A --> J["CampaignSendException"]
+    A --> K["CampaignNotFoundException"]
+    A --> L["GroupCreateException"]
+    A --> M["GroupUpdateException"]
+    A --> N["GroupDeleteException"]
+    A --> O["GroupNotFoundException"]
+    A --> P["FieldCreateException"]
+    A --> Q["FieldUpdateException"]
+    A --> R["FieldDeleteException"]
+    A --> S["FieldNotFoundException"]
+    A --> T["SegmentCreateException"]
+    A --> U["SegmentUpdateException"]
+    A --> V["SegmentDeleteException"]
+    A --> W["SegmentNotFoundException"]
+    A --> X["AutomationCreateException"]
+    A --> Y["AutomationUpdateException"]
+    A --> Z["AutomationDeleteException"]
+    A --> AA["AutomationStateException"]
+    A --> BB["AutomationNotFoundException"]
+    A --> CC["WebhookCreateException"]
+    A --> DD["WebhookUpdateException"]
+    A --> EE["WebhookDeleteException"]
+    A --> FF["WebhookNotFoundException"]
+```
+
 ### Authentication Exceptions
 | Exception | When Thrown | Context |
 |-----------|-------------|---------|
@@ -1250,6 +1434,23 @@ This package follows [SemVer](https://semver.org/) guidelines:
 - **Patch versions** (X.Y.Z): Bug fixes, documentation updates, internal improvements
 
 ### Git Subtree Workflow
+
+**Subtree Development Flow:**
+
+```mermaid
+graph LR
+    A["Main Repository"] --> B["git subtree pull"]
+    B --> C["Package Updates<br/>Merged to Main"]
+    
+    D["Local Changes<br/>in packages/laravel-mailerlite"] --> E["git subtree push"]
+    E --> F["Package Repository<br/>Updated"]
+    
+    G["Development Workflow"] --> H["1. Pull latest: git mailerlite-pull"]
+    H --> I["2. Make changes in packages/"]
+    I --> J["3. Commit changes"]
+    J --> K["4. Push upstream: git mailerlite-push"]
+```
+
 For maintainers using git subtree:
 
 ```bash
