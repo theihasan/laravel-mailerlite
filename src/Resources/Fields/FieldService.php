@@ -60,13 +60,24 @@ class FieldService implements FieldsInterface
      */
     public function get(string $id): ?array
     {
+        return $this->getById($id);
+    }
+
+    /**
+     * Get a field by ID.
+     *
+     * @param string $id
+     * @return array|null
+     * @throws MailerLiteAuthenticationException
+     */
+    public function getById(string $id): ?array
+    {
         try {
             $client = $this->manager->getClient();
             $response = $client->fields->find($id);
 
             return $response ? $this->transformFieldResponse($response) : null;
         } catch (\Exception $e) {
-            // If it's a 404, return null instead of throwing
             if ($this->isNotFoundError($e)) {
                 return null;
             }
