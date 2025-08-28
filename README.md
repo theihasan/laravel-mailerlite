@@ -131,6 +131,161 @@ The manager throws `MailerLiteAuthenticationException` when:
 - API key is invalid or revoked
 - API key has insufficient permissions
 
+## Campaign Management
+
+The Campaign API provides a fluent interface for creating, scheduling, and managing email campaigns.
+
+### Creating and Sending Campaigns
+
+```php
+use MailerLite;
+
+// Create and send a campaign immediately
+MailerLite::campaigns()
+    ->subject('Weekly Newsletter')
+    ->from('Newsletter Team', 'newsletter@example.com')
+    ->html('<h1>This Week in Tech</h1><p>Latest updates...</p>')
+    ->toGroup('newsletter-subscribers')
+    ->send();
+
+// Create a draft campaign
+$campaign = MailerLite::campaigns()
+    ->draft()
+    ->subject('Product Launch')
+    ->from('Marketing', 'marketing@example.com')
+    ->html('<h1>Introducing Our New Product</h1>')
+    ->plain('Introducing Our New Product - Latest updates...')
+    ->toGroups(['customers', 'prospects'])
+    ->create();
+
+// Schedule a campaign for later
+MailerLite::campaigns()
+    ->subject('Weekend Sale')
+    ->from('Sales Team', 'sales@example.com')
+    ->content('<h1>50% Off Everything!</h1>', '50% Off Everything!')
+    ->toSegment('active-customers')
+    ->scheduleAt(now()->addDays(2))
+    ->schedule();
+```
+
+### Advanced Campaign Features
+
+```php
+// A/B Test Campaign
+MailerLite::campaigns()
+    ->subject('A/B Test Subject')
+    ->from('Test Team', 'test@example.com')
+    ->html('<h1>Version A</h1>')
+    ->toGroup('test-group')
+    ->abTest([
+        'test_type' => 'subject',
+        'send_size' => 25  // Send to 25% of recipients for testing
+    ])
+    ->create();
+
+// Campaign with custom settings
+MailerLite::campaigns()
+    ->subject('Custom Campaign')
+    ->from('Custom', 'custom@example.com')
+    ->html('<h1>Custom Content</h1>')
+    ->toGroup('subscribers')
+    ->withSettings([
+        'track_opens' => true,
+        'track_clicks' => true,
+        'google_analytics' => true
+    ])
+    ->create();
+```
+
+### Managing Existing Campaigns
+
+```php
+// Find a campaign
+$campaign = MailerLite::campaigns()->find('campaign-id');
+
+// Update a campaign
+MailerLite::campaigns()
+    ->subject('Updated Subject')
+    ->from('Updated Sender', 'updated@example.com')
+    ->html('<h1>Updated Content</h1>')
+    ->update('campaign-id');
+
+// Send an existing campaign
+MailerLite::campaigns()->sendById('campaign-id');
+
+// Schedule an existing campaign
+MailerLite::campaigns()->scheduleById('campaign-id', now()->addHour());
+
+// Cancel a scheduled campaign
+MailerLite::campaigns()->cancel('campaign-id');
+
+// Delete a campaign
+MailerLite::campaigns()->delete('campaign-id');
+```
+
+### Campaign Analytics
+
+```php
+// Get campaign statistics
+$stats = MailerLite::campaigns()->stats('campaign-id');
+// Returns: sent, opened, clicked, bounced, etc.
+
+// Get campaign subscribers
+$subscribers = MailerLite::campaigns()->subscribers('campaign-id');
+
+// Get subscribers with filters
+$openedSubscribers = MailerLite::campaigns()->subscribers('campaign-id', [
+    'filter' => 'opened'
+]);
+```
+
+### Listing Campaigns
+
+```php
+// Get all campaigns
+$campaigns = MailerLite::campaigns()->all();
+
+// Get campaigns with filters
+$sentCampaigns = MailerLite::campaigns()->list([
+    'filter[status]' => 'sent',
+    'limit' => 50
+]);
+```
+
+### Fluent Method Chaining
+
+The Campaign Builder supports natural language chaining:
+
+```php
+MailerLite::campaigns()
+    ->draft()
+    ->subject('Monthly Update')
+    ->andFrom('Team Lead', 'lead@example.com')
+    ->andHtml('<h1>Monthly Report</h1>')
+    ->andToGroup('team-members')
+    ->andScheduleIn(60) // Schedule in 60 minutes
+    ->schedule();
+```
+
+### Using DTOs Directly
+
+For more control, you can use the CampaignDTO directly:
+
+```php
+use Ihasan\LaravelMailerlite\DTOs\CampaignDTO;
+
+$campaignData = new CampaignDTO(
+    subject: 'Direct DTO Campaign',
+    fromName: 'Direct Sender',
+    fromEmail: 'direct@example.com',
+    html: '<h1>Using DTO directly</h1>',
+    groups: ['group-1', 'group-2'],
+    scheduleAt: new DateTime('+2 hours')
+);
+
+$campaign = MailerLite::campaigns()->create($campaignData);
+```
+
 ## Contracts (Interfaces)
 
 This package provides comprehensive interfaces for all services, enabling easy mocking and testing:
