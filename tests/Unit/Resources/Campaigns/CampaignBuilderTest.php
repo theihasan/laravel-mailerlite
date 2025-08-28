@@ -17,7 +17,7 @@ describe('CampaignBuilder', function () {
             'from_name' => 'Test Sender',
             'from_email' => 'sender@example.com',
             'status' => 'draft',
-            'type' => 'regular'
+            'type' => 'regular',
         ];
     });
 
@@ -236,7 +236,7 @@ describe('CampaignBuilder', function () {
             expect($dto->settings)->toBe([
                 'key1' => 'value1',
                 'key2' => 'value2',
-                'key3' => 'value3'
+                'key3' => 'value3',
             ]);
         });
     });
@@ -347,7 +347,7 @@ describe('CampaignBuilder', function () {
             $listResponse = [
                 'data' => [$this->mockResponse],
                 'meta' => ['total' => 1],
-                'links' => []
+                'links' => [],
             ];
 
             $this->mockService->shouldReceive('list')
@@ -364,7 +364,7 @@ describe('CampaignBuilder', function () {
             $listResponse = [
                 'data' => [$this->mockResponse],
                 'meta' => ['total' => 1],
-                'links' => []
+                'links' => [],
             ];
 
             $this->mockService->shouldReceive('list')
@@ -394,7 +394,7 @@ describe('CampaignBuilder', function () {
             $subscribersResponse = [
                 'data' => [['id' => '1', 'email' => 'user@example.com']],
                 'meta' => ['total' => 1],
-                'links' => []
+                'links' => [],
             ];
 
             $this->mockService->shouldReceive('getSubscribers')

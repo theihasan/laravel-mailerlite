@@ -35,7 +35,7 @@ describe('AutomationService', function () {
             'created_at' => '2024-01-01 12:00:00',
             'updated_at' => '2024-01-01 12:00:00',
             'triggers' => [['type' => 'subscriber', 'event' => 'joins_group']],
-            'steps' => [['type' => 'email', 'template_id' => 'welcome']]
+            'steps' => [['type' => 'email', 'template_id' => 'welcome']],
         ];
     });
 
@@ -209,7 +209,7 @@ describe('AutomationService', function () {
             $mockResponse = [
                 'data' => [$this->mockResponse],
                 'meta' => ['total' => 1],
-                'links' => []
+                'links' => [],
             ];
 
             $this->mockClient->automations = mock();
@@ -229,7 +229,7 @@ describe('AutomationService', function () {
             $mockResponse = [
                 'data' => [],
                 'meta' => ['total' => 0],
-                'links' => []
+                'links' => [],
             ];
 
             $this->mockClient->automations = mock();
@@ -320,10 +320,10 @@ describe('AutomationService', function () {
             $subscribersResponse = [
                 'data' => [
                     ['id' => '1', 'email' => 'user1@example.com'],
-                    ['id' => '2', 'email' => 'user2@example.com']
+                    ['id' => '2', 'email' => 'user2@example.com'],
                 ],
                 'meta' => ['total' => 2],
-                'links' => []
+                'links' => [],
             ];
 
             $this->mockClient->automations = mock();
@@ -342,7 +342,7 @@ describe('AutomationService', function () {
             $subscribersResponse = [
                 'data' => [['id' => '1', 'email' => 'user1@example.com']],
                 'meta' => ['total' => 1],
-                'links' => []
+                'links' => [],
             ];
 
             $this->mockClient->automations = mock();
@@ -361,10 +361,10 @@ describe('AutomationService', function () {
             $activityResponse = [
                 'data' => [
                     ['id' => '1', 'action' => 'email_sent', 'created_at' => '2024-01-01 12:00:00'],
-                    ['id' => '2', 'action' => 'delay_completed', 'created_at' => '2024-01-01 13:00:00']
+                    ['id' => '2', 'action' => 'delay_completed', 'created_at' => '2024-01-01 13:00:00'],
                 ],
                 'meta' => ['total' => 2],
-                'links' => []
+                'links' => [],
             ];
 
             $this->mockClient->automations = mock();
@@ -384,7 +384,7 @@ describe('AutomationService', function () {
             $statsResponse = [
                 'subscribers_count' => 100,
                 'completed_count' => 75,
-                'active_count' => 25
+                'active_count' => 25,
             ];
 
             $this->mockClient->automations = mock();
@@ -460,7 +460,7 @@ describe('AutomationService', function () {
                 'name' => 'Test Automation',
                 'enabled' => true,
                 'status' => 'draft',
-                'created_at' => '2024-01-01 12:00:00'
+                'created_at' => '2024-01-01 12:00:00',
             ];
 
             // Use reflection to test the protected method

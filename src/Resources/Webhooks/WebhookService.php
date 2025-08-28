@@ -260,7 +260,7 @@ class WebhookService implements WebhooksInterface
     {
         try {
             $webhooks = $this->list();
-            
+
             foreach ($webhooks['data'] as $webhook) {
                 if ($webhook['url'] === $url) {
                     if ($event === null || $webhook['event'] === $event) {
@@ -285,7 +285,7 @@ class WebhookService implements WebhooksInterface
     public function deleteByUrl(string $url, ?string $event = null): bool
     {
         $webhook = $this->findByUrl($url, $event);
-        
+
         if (! $webhook) {
             throw WebhookNotFoundException::withUrl($url);
         }

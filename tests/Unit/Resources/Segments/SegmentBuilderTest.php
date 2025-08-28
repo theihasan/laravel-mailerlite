@@ -80,12 +80,12 @@ describe('SegmentBuilder', function () {
         });
 
         test('throws exception when name is missing', function () {
-            expect(fn() => $this->builder->whereField('test', 'equals', true)->create())
+            expect(fn () => $this->builder->whereField('test', 'equals', true)->create())
                 ->toThrow(InvalidArgumentException::class, 'Name is required to create SegmentDTO');
         });
 
         test('throws exception when filters are missing', function () {
-            expect(fn() => $this->builder->name('Test')->create())
+            expect(fn () => $this->builder->name('Test')->create())
                 ->toThrow(InvalidArgumentException::class, 'At least one filter is required to create SegmentDTO');
         });
     });

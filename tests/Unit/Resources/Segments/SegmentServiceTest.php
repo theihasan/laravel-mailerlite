@@ -3,11 +3,8 @@
 declare(strict_types=1);
 
 use Ihasan\LaravelMailerlite\DTOs\SegmentDTO;
-use Ihasan\LaravelMailerlite\Exceptions\MailerLiteAuthenticationException;
 use Ihasan\LaravelMailerlite\Exceptions\SegmentCreateException;
-use Ihasan\LaravelMailerlite\Exceptions\SegmentDeleteException;
 use Ihasan\LaravelMailerlite\Exceptions\SegmentNotFoundException;
-use Ihasan\LaravelMailerlite\Exceptions\SegmentUpdateException;
 use Ihasan\LaravelMailerlite\Manager\MailerLiteManager;
 use Ihasan\LaravelMailerlite\Resources\Segments\SegmentService;
 use MailerLiteApi\MailerLite;
@@ -37,7 +34,7 @@ describe('SegmentService', function () {
                 'name' => 'Active Users',
                 'active' => true,
                 'subscribers_count' => 150,
-                'created_at' => '2023-01-01T00:00:00.000000Z'
+                'created_at' => '2023-01-01T00:00:00.000000Z',
             ];
 
             $this->mockSegmentsEndpoint->shouldReceive('create')
@@ -60,7 +57,7 @@ describe('SegmentService', function () {
                 ->once()
                 ->andThrow($exception);
 
-            expect(fn() => $this->service->create($this->segmentDTO))
+            expect(fn () => $this->service->create($this->segmentDTO))
                 ->toThrow(SegmentCreateException::class);
         });
     });
@@ -71,7 +68,7 @@ describe('SegmentService', function () {
                 'id' => '123',
                 'name' => 'Active Users',
                 'active' => true,
-                'subscribers_count' => 150
+                'subscribers_count' => 150,
             ];
 
             $this->mockSegmentsEndpoint->shouldReceive('find')
@@ -106,10 +103,10 @@ describe('SegmentService', function () {
             $expectedResponse = [
                 'data' => [
                     ['id' => '123', 'name' => 'Active Users', 'active' => true],
-                    ['id' => '124', 'name' => 'Premium Users', 'active' => false]
+                    ['id' => '124', 'name' => 'Premium Users', 'active' => false],
                 ],
                 'meta' => ['total' => 2],
-                'links' => []
+                'links' => [],
             ];
 
             $this->mockSegmentsEndpoint->shouldReceive('get')
@@ -131,9 +128,9 @@ describe('SegmentService', function () {
             $expectedResponse = [
                 'data' => [
                     ['id' => '1', 'email' => 'user1@example.com'],
-                    ['id' => '2', 'email' => 'user2@example.com']
+                    ['id' => '2', 'email' => 'user2@example.com'],
                 ],
-                'meta' => ['total' => 2]
+                'meta' => ['total' => 2],
             ];
 
             $this->mockSegmentsEndpoint->shouldReceive('getSubscribers')
@@ -155,7 +152,7 @@ describe('SegmentService', function () {
                 ->once()
                 ->andThrow($exception);
 
-            expect(fn() => $this->service->getSubscribers('123'))
+            expect(fn () => $this->service->getSubscribers('123'))
                 ->toThrow(SegmentNotFoundException::class, "Segment with ID '123' not found");
         });
     });
@@ -167,7 +164,7 @@ describe('SegmentService', function () {
                 'active_count' => 140,
                 'unsubscribed_count' => 5,
                 'growth_rate' => 12.5,
-                'last_calculated_at' => '2023-01-01T12:00:00.000000Z'
+                'last_calculated_at' => '2023-01-01T12:00:00.000000Z',
             ];
 
             $this->mockSegmentsEndpoint->shouldReceive('stats')
@@ -195,7 +192,7 @@ describe('SegmentService', function () {
                 'subscribers_count' => 150,
                 'active_count' => 140,
                 'last_calculated_at' => '2023-01-01T12:00:00.000000Z',
-                'created_at' => '2023-01-01T00:00:00.000000Z'
+                'created_at' => '2023-01-01T00:00:00.000000Z',
             ];
 
             $this->mockSegmentsEndpoint->shouldReceive('find')

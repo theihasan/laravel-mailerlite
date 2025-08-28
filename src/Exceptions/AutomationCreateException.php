@@ -27,7 +27,7 @@ class AutomationCreateException extends MailerLiteException
      */
     public static function invalidData(string $name, array $errors): static
     {
-        $reason = 'Invalid data: ' . implode(', ', $errors);
+        $reason = 'Invalid data: '.implode(', ', $errors);
 
         return static::make($name, $reason);
     }
@@ -37,7 +37,7 @@ class AutomationCreateException extends MailerLiteException
      */
     public static function missingRequiredFields(string $name, array $fields): static
     {
-        $reason = 'Missing required fields: ' . implode(', ', $fields);
+        $reason = 'Missing required fields: '.implode(', ', $fields);
 
         return static::make($name, $reason);
     }

@@ -149,7 +149,7 @@ class CampaignService implements CampaignsInterface
         try {
             $client = $this->manager->getClient();
             $response = $client->campaigns->schedule($id, [
-                'schedule_at' => $scheduledAt->format('Y-m-d H:i:s')
+                'schedule_at' => $scheduledAt->format('Y-m-d H:i:s'),
             ]);
 
             return $this->transformCampaignResponse($response);

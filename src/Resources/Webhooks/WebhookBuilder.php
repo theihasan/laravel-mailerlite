@@ -247,9 +247,9 @@ class WebhookBuilder
     public function onSubscriber(string $event): static
     {
         $validEvents = ['created', 'updated', 'unsubscribed', 'bounced', 'complained', 'deleted'];
-        
+
         if (! in_array($event, $validEvents, true)) {
-            throw new \InvalidArgumentException("Invalid subscriber event '{$event}'. Valid events: " . implode(', ', $validEvents));
+            throw new \InvalidArgumentException("Invalid subscriber event '{$event}'. Valid events: ".implode(', ', $validEvents));
         }
 
         return $this->on("subscriber.{$event}");
@@ -261,9 +261,9 @@ class WebhookBuilder
     public function onCampaign(string $event): static
     {
         $validEvents = ['sent', 'opened', 'clicked', 'bounced', 'complained', 'unsubscribed', 'delivered', 'soft_bounced', 'hard_bounced'];
-        
+
         if (! in_array($event, $validEvents, true)) {
-            throw new \InvalidArgumentException("Invalid campaign event '{$event}'. Valid events: " . implode(', ', $validEvents));
+            throw new \InvalidArgumentException("Invalid campaign event '{$event}'. Valid events: ".implode(', ', $validEvents));
         }
 
         return $this->on("campaign.{$event}");
@@ -275,9 +275,9 @@ class WebhookBuilder
     public function onAutomation(string $event): static
     {
         $validEvents = ['subscriber_added', 'subscriber_completed', 'email_sent', 'started', 'stopped'];
-        
+
         if (! in_array($event, $validEvents, true)) {
-            throw new \InvalidArgumentException("Invalid automation event '{$event}'. Valid events: " . implode(', ', $validEvents));
+            throw new \InvalidArgumentException("Invalid automation event '{$event}'. Valid events: ".implode(', ', $validEvents));
         }
 
         return $this->on("automation.{$event}");
@@ -289,9 +289,9 @@ class WebhookBuilder
     public function onForm(string $event): static
     {
         $validEvents = ['submitted'];
-        
+
         if (! in_array($event, $validEvents, true)) {
-            throw new \InvalidArgumentException("Invalid form event '{$event}'. Valid events: " . implode(', ', $validEvents));
+            throw new \InvalidArgumentException("Invalid form event '{$event}'. Valid events: ".implode(', ', $validEvents));
         }
 
         return $this->on("form.{$event}");
@@ -303,9 +303,9 @@ class WebhookBuilder
     public function onGroup(string $event): static
     {
         $validEvents = ['subscriber_added', 'subscriber_removed'];
-        
+
         if (! in_array($event, $validEvents, true)) {
-            throw new \InvalidArgumentException("Invalid group event '{$event}'. Valid events: " . implode(', ', $validEvents));
+            throw new \InvalidArgumentException("Invalid group event '{$event}'. Valid events: ".implode(', ', $validEvents));
         }
 
         return $this->on("group.{$event}");
@@ -571,6 +571,6 @@ class WebhookBuilder
             }
         }
 
-        throw new \BadMethodCallException("Method {$method} does not exist on " . static::class);
+        throw new \BadMethodCallException("Method {$method} does not exist on ".static::class);
     }
 }

@@ -16,10 +16,6 @@ class FieldNotFoundException extends MailerLiteException
 {
     /**
      * Create a new field not found exception.
-     *
-     * @param string $identifier
-     * @param string $message
-     * @param Throwable|null $previous
      */
     public function __construct(
         public readonly string $identifier,
@@ -31,9 +27,6 @@ class FieldNotFoundException extends MailerLiteException
 
     /**
      * Create an exception for a field not found by ID.
-     *
-     * @param string $fieldId
-     * @return static
      */
     public static function withId(string $fieldId): static
     {
@@ -45,9 +38,6 @@ class FieldNotFoundException extends MailerLiteException
 
     /**
      * Create an exception for a field not found by name.
-     *
-     * @param string $fieldName
-     * @return static
      */
     public static function withName(string $fieldName): static
     {

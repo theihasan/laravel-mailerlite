@@ -24,8 +24,6 @@ class GroupService implements GroupsInterface
 {
     /**
      * Create a new group service instance.
-     *
-     * @param MailerLiteManager $manager
      */
     public function __construct(
         protected MailerLiteManager $manager
@@ -34,8 +32,6 @@ class GroupService implements GroupsInterface
     /**
      * Create a new group.
      *
-     * @param GroupDTO $group
-     * @return array
      * @throws GroupCreateException
      * @throws MailerLiteAuthenticationException
      */
@@ -54,8 +50,6 @@ class GroupService implements GroupsInterface
     /**
      * Get a group by ID.
      *
-     * @param string $id
-     * @return array|null
      * @throws MailerLiteAuthenticationException
      */
     public function get(string $id): ?array
@@ -66,8 +60,6 @@ class GroupService implements GroupsInterface
     /**
      * Get a group by ID.
      *
-     * @param string $id
-     * @return array|null
      * @throws MailerLiteAuthenticationException
      */
     public function getById(string $id): ?array
@@ -90,15 +82,13 @@ class GroupService implements GroupsInterface
     /**
      * Get a group by name.
      *
-     * @param string $name
-     * @return array|null
      * @throws MailerLiteAuthenticationException
      */
     public function getByName(string $name): ?array
     {
         try {
             $groups = $this->list();
-            
+
             foreach ($groups['data'] as $group) {
                 if ($group['name'] === $name) {
                     return $group;
@@ -114,9 +104,6 @@ class GroupService implements GroupsInterface
     /**
      * Update an existing group.
      *
-     * @param string $id
-     * @param GroupDTO $group
-     * @return array
      * @throws GroupNotFoundException
      * @throws GroupUpdateException
      * @throws MailerLiteAuthenticationException
@@ -140,8 +127,6 @@ class GroupService implements GroupsInterface
     /**
      * Delete a group.
      *
-     * @param string $id
-     * @return bool
      * @throws GroupNotFoundException
      * @throws GroupDeleteException
      * @throws MailerLiteAuthenticationException
@@ -165,8 +150,6 @@ class GroupService implements GroupsInterface
     /**
      * Get all groups with optional filtering.
      *
-     * @param array $filters
-     * @return array
      * @throws MailerLiteAuthenticationException
      */
     public function list(array $filters = []): array
@@ -178,7 +161,7 @@ class GroupService implements GroupsInterface
             return [
                 'data' => array_map([$this, 'transformGroupResponse'], $response['data'] ?? []),
                 'meta' => $response['meta'] ?? [],
-                'links' => $response['links'] ?? []
+                'links' => $response['links'] ?? [],
             ];
         } catch (\Exception $e) {
             $this->handleException($e);
@@ -188,9 +171,6 @@ class GroupService implements GroupsInterface
     /**
      * Get subscribers in a group.
      *
-     * @param string $groupId
-     * @param array $filters
-     * @return array
      * @throws GroupNotFoundException
      * @throws MailerLiteAuthenticationException
      */
@@ -203,7 +183,7 @@ class GroupService implements GroupsInterface
             return [
                 'data' => $response['data'] ?? [],
                 'meta' => $response['meta'] ?? [],
-                'links' => $response['links'] ?? []
+                'links' => $response['links'] ?? [],
             ];
         } catch (\Exception $e) {
             if ($this->isNotFoundError($e)) {
@@ -217,9 +197,6 @@ class GroupService implements GroupsInterface
     /**
      * Add subscribers to a group.
      *
-     * @param string $groupId
-     * @param array $subscriberIds
-     * @return array
      * @throws GroupNotFoundException
      * @throws MailerLiteAuthenticationException
      */
@@ -231,9 +208,6 @@ class GroupService implements GroupsInterface
     /**
      * Assign subscribers to a group.
      *
-     * @param string $groupId
-     * @param array $subscriberIds
-     * @return array
      * @throws GroupNotFoundException
      * @throws MailerLiteAuthenticationException
      */
@@ -256,24 +230,19 @@ class GroupService implements GroupsInterface
     /**
      * Remove subscribers from a group.
      *
-     * @param string $groupId
-     * @param array $subscriberIds
-     * @return bool
      * @throws GroupNotFoundException
      * @throws MailerLiteAuthenticationException
      */
     public function removeSubscribers(string $groupId, array $subscriberIds): bool
     {
         $this->unassignSubscribers($groupId, $subscriberIds);
+
         return true;
     }
 
     /**
      * Unassign subscribers from a group.
      *
-     * @param string $groupId
-     * @param array $subscriberIds
-     * @return array
      * @throws GroupNotFoundException
      * @throws MailerLiteAuthenticationException
      */
@@ -295,9 +264,6 @@ class GroupService implements GroupsInterface
 
     /**
      * Transform group response data.
-     *
-     * @param array $response
-     * @return array
      */
     protected function transformGroupResponse(array $response): array
     {
@@ -322,15 +288,12 @@ class GroupService implements GroupsInterface
 
     /**
      * Check if an exception represents a "not found" error.
-     *
-     * @param \Exception $e
-     * @return bool
      */
     protected function isNotFoundError(\Exception $e): bool
     {
         $message = strtolower($e->getMessage());
-        
-        return str_contains($message, '404') || 
+
+        return str_contains($message, '404') ||
                str_contains($message, 'not found') ||
                str_contains($message, 'does not exist');
     }
@@ -338,11 +301,8 @@ class GroupService implements GroupsInterface
     /**
      * Handle group creation exceptions.
      *
-     * @param string $name
-     * @param \Exception $e
      * @throws GroupCreateException
      * @throws MailerLiteAuthenticationException
-     * @return never
      */
     protected function handleCreateException(string $name, \Exception $e): never
     {
@@ -366,11 +326,8 @@ class GroupService implements GroupsInterface
     /**
      * Handle group update exceptions.
      *
-     * @param string $identifier
-     * @param \Exception $e
      * @throws GroupUpdateException
      * @throws MailerLiteAuthenticationException
-     * @return never
      */
     protected function handleUpdateException(string $identifier, \Exception $e): never
     {
@@ -390,11 +347,8 @@ class GroupService implements GroupsInterface
     /**
      * Handle group deletion exceptions.
      *
-     * @param string $identifier
-     * @param \Exception $e
      * @throws GroupDeleteException
      * @throws MailerLiteAuthenticationException
-     * @return never
      */
     protected function handleDeleteException(string $identifier, \Exception $e): never
     {
@@ -410,9 +364,7 @@ class GroupService implements GroupsInterface
     /**
      * Handle general exceptions.
      *
-     * @param \Exception $e
      * @throws MailerLiteAuthenticationException
-     * @return never
      */
     protected function handleException(\Exception $e): never
     {

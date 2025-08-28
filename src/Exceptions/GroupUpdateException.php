@@ -16,10 +16,6 @@ class GroupUpdateException extends MailerLiteException
 {
     /**
      * Create a new group update exception.
-     *
-     * @param string $groupIdentifier
-     * @param string $message
-     * @param Throwable|null $previous
      */
     public function __construct(
         public readonly string $groupIdentifier,
@@ -31,14 +27,11 @@ class GroupUpdateException extends MailerLiteException
 
     /**
      * Create an exception for invalid update data.
-     *
-     * @param string $groupIdentifier
-     * @param array $errors
-     * @return static
      */
     public static function invalidData(string $groupIdentifier, array $errors): static
     {
         $errorMessages = implode(', ', $errors);
+
         return new static(
             $groupIdentifier,
             "Failed to update group '{$groupIdentifier}': {$errorMessages}"
@@ -47,11 +40,6 @@ class GroupUpdateException extends MailerLiteException
 
     /**
      * Create a general group update exception.
-     *
-     * @param string $groupIdentifier
-     * @param string $reason
-     * @param Throwable|null $previous
-     * @return static
      */
     public static function make(string $groupIdentifier, string $reason, ?Throwable $previous = null): static
     {

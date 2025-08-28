@@ -85,7 +85,7 @@ describe('WebhookDTO', function () {
     });
 
     it('validates URL length', function () {
-        $longUrl = 'https://example.com/' . str_repeat('a', 2048);
+        $longUrl = 'https://example.com/'.str_repeat('a', 2048);
 
         expect(fn () => new WebhookDTO(
             event: 'subscriber.created',
@@ -180,7 +180,7 @@ describe('WebhookDTO', function () {
             'form.submitted',
             'group.subscriber_added',
             'group.subscriber_removed',
-            'webhook.test'
+            'webhook.test',
         ];
 
         foreach ($validEvents as $event) {
@@ -202,7 +202,7 @@ describe('WebhookDTO', function () {
             'headers' => ['Authorization' => 'Bearer token'],
             'secret' => 'secret-key',
             'timeout' => 60,
-            'retry_count' => 5
+            'retry_count' => 5,
         ];
 
         $dto = WebhookDTO::fromArray($data);
@@ -242,7 +242,7 @@ describe('WebhookDTO', function () {
             'headers' => ['Authorization' => 'Bearer token'],
             'secret' => 'secret-key',
             'timeout' => 60,
-            'retry_count' => 5
+            'retry_count' => 5,
         ]);
     });
 

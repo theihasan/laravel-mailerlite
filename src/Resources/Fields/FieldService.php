@@ -24,8 +24,6 @@ class FieldService implements FieldsInterface
 {
     /**
      * Create a new field service instance.
-     *
-     * @param MailerLiteManager $manager
      */
     public function __construct(
         protected MailerLiteManager $manager
@@ -34,8 +32,6 @@ class FieldService implements FieldsInterface
     /**
      * Create a new custom field.
      *
-     * @param FieldDTO $field
-     * @return array
      * @throws FieldCreateException
      * @throws MailerLiteAuthenticationException
      */
@@ -54,8 +50,6 @@ class FieldService implements FieldsInterface
     /**
      * Get a field by ID.
      *
-     * @param string $id
-     * @return array|null
      * @throws MailerLiteAuthenticationException
      */
     public function get(string $id): ?array
@@ -66,8 +60,6 @@ class FieldService implements FieldsInterface
     /**
      * Get a field by ID.
      *
-     * @param string $id
-     * @return array|null
      * @throws MailerLiteAuthenticationException
      */
     public function getById(string $id): ?array
@@ -89,9 +81,6 @@ class FieldService implements FieldsInterface
     /**
      * Update an existing field.
      *
-     * @param string $id
-     * @param FieldDTO $field
-     * @return array
      * @throws FieldNotFoundException
      * @throws FieldUpdateException
      * @throws MailerLiteAuthenticationException
@@ -115,8 +104,6 @@ class FieldService implements FieldsInterface
     /**
      * Delete a field.
      *
-     * @param string $id
-     * @return bool
      * @throws FieldNotFoundException
      * @throws FieldDeleteException
      * @throws MailerLiteAuthenticationException
@@ -140,8 +127,6 @@ class FieldService implements FieldsInterface
     /**
      * Get all fields with optional filtering.
      *
-     * @param array $filters
-     * @return array
      * @throws MailerLiteAuthenticationException
      */
     public function list(array $filters = []): array
@@ -153,7 +138,7 @@ class FieldService implements FieldsInterface
             return [
                 'data' => array_map([$this, 'transformFieldResponse'], $response['data'] ?? []),
                 'meta' => $response['meta'] ?? [],
-                'links' => $response['links'] ?? []
+                'links' => $response['links'] ?? [],
             ];
         } catch (\Exception $e) {
             $this->handleException($e);
@@ -163,15 +148,13 @@ class FieldService implements FieldsInterface
     /**
      * Find a field by name.
      *
-     * @param string $name
-     * @return array|null
      * @throws MailerLiteAuthenticationException
      */
     public function findByName(string $name): ?array
     {
         try {
             $fields = $this->list();
-            
+
             foreach ($fields['data'] as $field) {
                 if ($field['name'] === $name) {
                     return $field;
@@ -187,8 +170,6 @@ class FieldService implements FieldsInterface
     /**
      * Get field usage statistics.
      *
-     * @param string $id
-     * @return array
      * @throws FieldNotFoundException
      * @throws MailerLiteAuthenticationException
      */
@@ -215,9 +196,6 @@ class FieldService implements FieldsInterface
 
     /**
      * Transform field response data.
-     *
-     * @param array $response
-     * @return array
      */
     protected function transformFieldResponse(array $response): array
     {
@@ -238,15 +216,12 @@ class FieldService implements FieldsInterface
 
     /**
      * Check if an exception represents a "not found" error.
-     *
-     * @param \Exception $e
-     * @return bool
      */
     protected function isNotFoundError(\Exception $e): bool
     {
         $message = strtolower($e->getMessage());
-        
-        return str_contains($message, '404') || 
+
+        return str_contains($message, '404') ||
                str_contains($message, 'not found') ||
                str_contains($message, 'does not exist');
     }
@@ -254,11 +229,8 @@ class FieldService implements FieldsInterface
     /**
      * Handle field creation exceptions.
      *
-     * @param string $name
-     * @param \Exception $e
      * @throws FieldCreateException
      * @throws MailerLiteAuthenticationException
-     * @return never
      */
     protected function handleCreateException(string $name, \Exception $e): never
     {
@@ -282,11 +254,8 @@ class FieldService implements FieldsInterface
     /**
      * Handle field update exceptions.
      *
-     * @param string $identifier
-     * @param \Exception $e
      * @throws FieldUpdateException
      * @throws MailerLiteAuthenticationException
-     * @return never
      */
     protected function handleUpdateException(string $identifier, \Exception $e): never
     {
@@ -306,11 +275,8 @@ class FieldService implements FieldsInterface
     /**
      * Handle field deletion exceptions.
      *
-     * @param string $identifier
-     * @param \Exception $e
      * @throws FieldDeleteException
      * @throws MailerLiteAuthenticationException
-     * @return never
      */
     protected function handleDeleteException(string $identifier, \Exception $e): never
     {
@@ -326,9 +292,7 @@ class FieldService implements FieldsInterface
     /**
      * Handle general exceptions.
      *
-     * @param \Exception $e
      * @throws MailerLiteAuthenticationException
-     * @return never
      */
     protected function handleException(\Exception $e): never
     {

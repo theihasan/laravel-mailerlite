@@ -87,9 +87,9 @@ class WebhookDTO
     public static function forSubscriber(string $event, string $url): static
     {
         $validEvents = ['subscriber.created', 'subscriber.updated', 'subscriber.unsubscribed', 'subscriber.bounced', 'subscriber.complained'];
-        
+
         if (! in_array($event, $validEvents, true)) {
-            throw new InvalidArgumentException("Invalid subscriber event '{$event}'. Valid events: " . implode(', ', $validEvents));
+            throw new InvalidArgumentException("Invalid subscriber event '{$event}'. Valid events: ".implode(', ', $validEvents));
         }
 
         return new static(event: $event, url: $url);
@@ -103,9 +103,9 @@ class WebhookDTO
     public static function forCampaign(string $event, string $url): static
     {
         $validEvents = ['campaign.sent', 'campaign.opened', 'campaign.clicked', 'campaign.bounced', 'campaign.complained', 'campaign.unsubscribed'];
-        
+
         if (! in_array($event, $validEvents, true)) {
-            throw new InvalidArgumentException("Invalid campaign event '{$event}'. Valid events: " . implode(', ', $validEvents));
+            throw new InvalidArgumentException("Invalid campaign event '{$event}'. Valid events: ".implode(', ', $validEvents));
         }
 
         return new static(event: $event, url: $url);
@@ -119,9 +119,9 @@ class WebhookDTO
     public static function forAutomation(string $event, string $url): static
     {
         $validEvents = ['automation.subscriber_added', 'automation.subscriber_completed', 'automation.email_sent'];
-        
+
         if (! in_array($event, $validEvents, true)) {
-            throw new InvalidArgumentException("Invalid automation event '{$event}'. Valid events: " . implode(', ', $validEvents));
+            throw new InvalidArgumentException("Invalid automation event '{$event}'. Valid events: ".implode(', ', $validEvents));
         }
 
         return new static(event: $event, url: $url);
@@ -359,7 +359,7 @@ class WebhookDTO
             'subscriber.bounced',
             'subscriber.complained',
             'subscriber.deleted',
-            
+
             // Campaign events
             'campaign.sent',
             'campaign.opened',
@@ -370,28 +370,28 @@ class WebhookDTO
             'campaign.delivered',
             'campaign.soft_bounced',
             'campaign.hard_bounced',
-            
+
             // Automation events
             'automation.subscriber_added',
             'automation.subscriber_completed',
             'automation.email_sent',
             'automation.started',
             'automation.stopped',
-            
+
             // Form events
             'form.submitted',
-            
+
             // Group events
             'group.subscriber_added',
             'group.subscriber_removed',
-            
+
             // General events
             'webhook.test',
         ];
 
         if (! in_array($event, $validEvents, true)) {
             throw new InvalidArgumentException(
-                "Invalid webhook event '{$event}'. Valid events: " . implode(', ', $validEvents)
+                "Invalid webhook event '{$event}'. Valid events: ".implode(', ', $validEvents)
             );
         }
     }

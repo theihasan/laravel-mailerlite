@@ -165,7 +165,7 @@ class CampaignBuilder
     /**
      * Set both HTML and plain text content.
      */
-    public function content(string $html, string $plain = null): static
+    public function content(string $html, ?string $plain = null): static
     {
         $this->html = $html;
         if ($plain !== null) {
@@ -531,6 +531,6 @@ class CampaignBuilder
             }
         }
 
-        throw new \BadMethodCallException("Method {$method} does not exist on " . static::class);
+        throw new \BadMethodCallException("Method {$method} does not exist on ".static::class);
     }
 }

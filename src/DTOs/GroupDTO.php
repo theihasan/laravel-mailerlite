@@ -18,10 +18,10 @@ class GroupDTO
     /**
      * Create a new group DTO.
      *
-     * @param string $name Group name (required)
-     * @param string|null $description Group description (optional)
-     * @param array $tags Tags associated with the group (optional)
-     * @param array $settings Group-specific settings (optional)
+     * @param  string  $name  Group name (required)
+     * @param  string|null  $description  Group description (optional)
+     * @param  array  $tags  Tags associated with the group (optional)
+     * @param  array  $settings  Group-specific settings (optional)
      *
      * @throws InvalidArgumentException
      */
@@ -40,8 +40,6 @@ class GroupDTO
     /**
      * Create a group DTO from an array.
      *
-     * @param array $data
-     * @return static
      * @throws InvalidArgumentException
      */
     public static function fromArray(array $data): static
@@ -57,8 +55,6 @@ class GroupDTO
     /**
      * Create a basic group with name only.
      *
-     * @param string $name
-     * @return static
      * @throws InvalidArgumentException
      */
     public static function create(string $name): static
@@ -69,9 +65,6 @@ class GroupDTO
     /**
      * Create a group with name and description.
      *
-     * @param string $name
-     * @param string $description
-     * @return static
      * @throws InvalidArgumentException
      */
     public static function createWithDescription(string $name, string $description): static
@@ -82,9 +75,6 @@ class GroupDTO
     /**
      * Create a group with tags.
      *
-     * @param string $name
-     * @param array $tags
-     * @return static
      * @throws InvalidArgumentException
      */
     public static function createWithTags(string $name, array $tags): static
@@ -94,8 +84,6 @@ class GroupDTO
 
     /**
      * Convert the DTO to an array for API submission.
-     *
-     * @return array
      */
     public function toArray(): array
     {
@@ -105,11 +93,11 @@ class GroupDTO
             $data['description'] = $this->description;
         }
 
-        if (!empty($this->tags)) {
+        if (! empty($this->tags)) {
             $data['tags'] = $this->tags;
         }
 
-        if (!empty($this->settings)) {
+        if (! empty($this->settings)) {
             $data['settings'] = $this->settings;
         }
 
@@ -119,8 +107,6 @@ class GroupDTO
     /**
      * Get a copy of the DTO with updated values.
      *
-     * @param array $updates
-     * @return static
      * @throws InvalidArgumentException
      */
     public function with(array $updates): static
@@ -130,9 +116,6 @@ class GroupDTO
 
     /**
      * Get a copy with a different name.
-     *
-     * @param string $name
-     * @return static
      */
     public function withName(string $name): static
     {
@@ -146,9 +129,6 @@ class GroupDTO
 
     /**
      * Get a copy with a different description.
-     *
-     * @param string|null $description
-     * @return static
      */
     public function withDescription(?string $description): static
     {
@@ -162,9 +142,6 @@ class GroupDTO
 
     /**
      * Get a copy with additional tags.
-     *
-     * @param array $tags
-     * @return static
      */
     public function withTags(array $tags): static
     {
@@ -178,9 +155,6 @@ class GroupDTO
 
     /**
      * Get a copy with additional settings.
-     *
-     * @param array $settings
-     * @return static
      */
     public function withSettings(array $settings): static
     {
@@ -195,7 +169,6 @@ class GroupDTO
     /**
      * Validate group name.
      *
-     * @param string $name
      * @throws InvalidArgumentException
      */
     private function validateName(string $name): void
@@ -217,7 +190,6 @@ class GroupDTO
     /**
      * Validate group description.
      *
-     * @param string|null $description
      * @throws InvalidArgumentException
      */
     private function validateDescription(?string $description): void
@@ -232,13 +204,12 @@ class GroupDTO
     /**
      * Validate tags array.
      *
-     * @param array $tags
      * @throws InvalidArgumentException
      */
     private function validateTags(array $tags): void
     {
         foreach ($tags as $tag) {
-            if (!is_string($tag)) {
+            if (! is_string($tag)) {
                 throw new InvalidArgumentException('All tags must be strings.');
             }
 
@@ -255,18 +226,17 @@ class GroupDTO
     /**
      * Validate settings array.
      *
-     * @param array $settings
      * @throws InvalidArgumentException
      */
     private function validateSettings(array $settings): void
     {
         foreach ($settings as $key => $value) {
-            if (!is_string($key) || empty(trim($key))) {
+            if (! is_string($key) || empty(trim($key))) {
                 throw new InvalidArgumentException('Setting keys must be non-empty strings.');
             }
 
             // Value can be string, number, boolean, array, or null
-            if (!is_scalar($value) && !is_array($value) && $value !== null) {
+            if (! is_scalar($value) && ! is_array($value) && $value !== null) {
                 throw new InvalidArgumentException(
                     "Setting '{$key}' has invalid value type. Must be scalar, array, or null."
                 );

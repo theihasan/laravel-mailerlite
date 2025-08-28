@@ -31,7 +31,7 @@ describe('WebhookService', function () {
             'url' => 'https://example.com/webhook',
             'enabled' => true,
             'created_at' => '2024-01-01 12:00:00',
-            'updated_at' => '2024-01-01 12:00:00'
+            'updated_at' => '2024-01-01 12:00:00',
         ];
     });
 
@@ -215,7 +215,7 @@ describe('WebhookService', function () {
             $mockResponse = [
                 'data' => [$this->mockResponse],
                 'meta' => ['total' => 1],
-                'links' => []
+                'links' => [],
             ];
 
             $this->mockClient->webhooks = mock();
@@ -235,7 +235,7 @@ describe('WebhookService', function () {
             $mockResponse = [
                 'data' => [],
                 'meta' => ['total' => 0],
-                'links' => []
+                'links' => [],
             ];
 
             $this->mockClient->webhooks = mock();
@@ -323,10 +323,10 @@ describe('WebhookService', function () {
             $logsResponse = [
                 'data' => [
                     ['id' => '1', 'status' => 'success', 'created_at' => '2024-01-01 12:00:00'],
-                    ['id' => '2', 'status' => 'failed', 'created_at' => '2024-01-01 11:00:00']
+                    ['id' => '2', 'status' => 'failed', 'created_at' => '2024-01-01 11:00:00'],
                 ],
                 'meta' => ['total' => 2],
-                'links' => []
+                'links' => [],
             ];
 
             $this->mockClient->webhooks = mock();
@@ -345,7 +345,7 @@ describe('WebhookService', function () {
             $logsResponse = [
                 'data' => [['id' => '2', 'status' => 'failed']],
                 'meta' => ['total' => 1],
-                'links' => []
+                'links' => [],
             ];
 
             $this->mockClient->webhooks = mock();
@@ -364,7 +364,7 @@ describe('WebhookService', function () {
             $statsResponse = [
                 'delivery_count' => 100,
                 'success_count' => 95,
-                'failure_count' => 5
+                'failure_count' => 5,
             ];
 
             $this->mockClient->webhooks = mock();
@@ -394,14 +394,14 @@ describe('WebhookService', function () {
                     [
                         'id' => '123',
                         'event' => 'subscriber.created',
-                        'url' => 'https://example.com/webhook'
+                        'url' => 'https://example.com/webhook',
                     ],
                     [
                         'id' => '456',
                         'event' => 'subscriber.updated',
-                        'url' => 'https://other.com/webhook'
-                    ]
-                ]
+                        'url' => 'https://other.com/webhook',
+                    ],
+                ],
             ];
 
             $this->mockClient->webhooks = mock();
@@ -421,14 +421,14 @@ describe('WebhookService', function () {
                     [
                         'id' => '123',
                         'event' => 'subscriber.created',
-                        'url' => 'https://example.com/webhook'
+                        'url' => 'https://example.com/webhook',
                     ],
                     [
                         'id' => '456',
                         'event' => 'subscriber.updated',
-                        'url' => 'https://example.com/webhook'
-                    ]
-                ]
+                        'url' => 'https://example.com/webhook',
+                    ],
+                ],
             ];
 
             $this->mockClient->webhooks = mock();
@@ -448,9 +448,9 @@ describe('WebhookService', function () {
                     [
                         'id' => '123',
                         'event' => 'subscriber.created',
-                        'url' => 'https://other.com/webhook'
-                    ]
-                ]
+                        'url' => 'https://other.com/webhook',
+                    ],
+                ],
             ];
 
             $this->mockClient->webhooks = mock();
@@ -471,9 +471,9 @@ describe('WebhookService', function () {
                     [
                         'id' => '123',
                         'event' => 'subscriber.created',
-                        'url' => 'https://example.com/webhook'
-                    ]
-                ]
+                        'url' => 'https://example.com/webhook',
+                    ],
+                ],
             ];
 
             $this->mockClient->webhooks = mock();
@@ -492,7 +492,7 @@ describe('WebhookService', function () {
 
         it('throws not found exception when webhook not found by URL', function () {
             $listResponse = [
-                'data' => []
+                'data' => [],
             ];
 
             $this->mockClient->webhooks = mock();
@@ -512,7 +512,7 @@ describe('WebhookService', function () {
                 'event' => 'subscriber.created',
                 'url' => 'https://example.com/webhook',
                 'enabled' => true,
-                'created_at' => '2024-01-01 12:00:00'
+                'created_at' => '2024-01-01 12:00:00',
             ];
 
             // Use reflection to test the protected method

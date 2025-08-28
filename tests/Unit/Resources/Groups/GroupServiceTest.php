@@ -37,7 +37,7 @@ describe('GroupService', function () {
                 'name' => 'Test Group',
                 'description' => null,
                 'active_count' => 0,
-                'created_at' => '2023-01-01T00:00:00.000000Z'
+                'created_at' => '2023-01-01T00:00:00.000000Z',
             ];
 
             $this->mockGroupsEndpoint->shouldReceive('create')
@@ -60,7 +60,7 @@ describe('GroupService', function () {
                 ->once()
                 ->andThrow($exception);
 
-            expect(fn() => $this->service->create($this->groupDTO))
+            expect(fn () => $this->service->create($this->groupDTO))
                 ->toThrow(GroupCreateException::class, 'Failed to create group');
         });
 
@@ -71,7 +71,7 @@ describe('GroupService', function () {
                 ->once()
                 ->andThrow($exception);
 
-            expect(fn() => $this->service->create($this->groupDTO))
+            expect(fn () => $this->service->create($this->groupDTO))
                 ->toThrow(MailerLiteAuthenticationException::class);
         });
 
@@ -82,7 +82,7 @@ describe('GroupService', function () {
                 ->once()
                 ->andThrow($exception);
 
-            expect(fn() => $this->service->create($this->groupDTO))
+            expect(fn () => $this->service->create($this->groupDTO))
                 ->toThrow(GroupCreateException::class, 'Validation failed');
         });
     });
@@ -93,7 +93,7 @@ describe('GroupService', function () {
                 'id' => '123',
                 'name' => 'Test Group',
                 'description' => null,
-                'active_count' => 5
+                'active_count' => 5,
             ];
 
             $this->mockGroupsEndpoint->shouldReceive('find')
@@ -129,7 +129,7 @@ describe('GroupService', function () {
                 ->once()
                 ->andThrow($exception);
 
-            expect(fn() => $this->service->get('123'))
+            expect(fn () => $this->service->get('123'))
                 ->toThrow(MailerLiteAuthenticationException::class);
         });
     });
@@ -141,7 +141,7 @@ describe('GroupService', function () {
                 'id' => '123',
                 'name' => 'Updated Group',
                 'description' => null,
-                'active_count' => 5
+                'active_count' => 5,
             ];
 
             $this->mockGroupsEndpoint->shouldReceive('update')
@@ -164,7 +164,7 @@ describe('GroupService', function () {
                 ->once()
                 ->andThrow($exception);
 
-            expect(fn() => $this->service->update('123', $updateDTO))
+            expect(fn () => $this->service->update('123', $updateDTO))
                 ->toThrow(GroupNotFoundException::class, "Group with ID '123' not found");
         });
 
@@ -176,7 +176,7 @@ describe('GroupService', function () {
                 ->once()
                 ->andThrow($exception);
 
-            expect(fn() => $this->service->update('123', $updateDTO))
+            expect(fn () => $this->service->update('123', $updateDTO))
                 ->toThrow(GroupUpdateException::class, 'Validation failed');
         });
     });
@@ -199,7 +199,7 @@ describe('GroupService', function () {
                 ->once()
                 ->andThrow($exception);
 
-            expect(fn() => $this->service->delete('123'))
+            expect(fn () => $this->service->delete('123'))
                 ->toThrow(GroupNotFoundException::class, "Group with ID '123' not found");
         });
 
@@ -210,7 +210,7 @@ describe('GroupService', function () {
                 ->once()
                 ->andThrow($exception);
 
-            expect(fn() => $this->service->delete('123'))
+            expect(fn () => $this->service->delete('123'))
                 ->toThrow(GroupDeleteException::class, 'Failed to delete group');
         });
     });
@@ -220,10 +220,10 @@ describe('GroupService', function () {
             $expectedResponse = [
                 'data' => [
                     ['id' => '123', 'name' => 'Group 1', 'active_count' => 5],
-                    ['id' => '124', 'name' => 'Group 2', 'active_count' => 10]
+                    ['id' => '124', 'name' => 'Group 2', 'active_count' => 10],
                 ],
                 'meta' => ['total' => 2],
-                'links' => []
+                'links' => [],
             ];
 
             $this->mockGroupsEndpoint->shouldReceive('get')
@@ -257,7 +257,7 @@ describe('GroupService', function () {
                 ->once()
                 ->andThrow($exception);
 
-            expect(fn() => $this->service->list())
+            expect(fn () => $this->service->list())
                 ->toThrow(MailerLiteAuthenticationException::class);
         });
     });
@@ -267,10 +267,10 @@ describe('GroupService', function () {
             $expectedResponse = [
                 'data' => [
                     ['id' => '1', 'email' => 'user1@example.com'],
-                    ['id' => '2', 'email' => 'user2@example.com']
+                    ['id' => '2', 'email' => 'user2@example.com'],
                 ],
                 'meta' => ['total' => 2],
-                'links' => []
+                'links' => [],
             ];
 
             $this->mockGroupsEndpoint->shouldReceive('getSubscribers')
@@ -292,7 +292,7 @@ describe('GroupService', function () {
                 ->once()
                 ->andThrow($exception);
 
-            expect(fn() => $this->service->getSubscribers('123'))
+            expect(fn () => $this->service->getSubscribers('123'))
                 ->toThrow(GroupNotFoundException::class, "Group with ID '123' not found");
         });
     });
@@ -319,7 +319,7 @@ describe('GroupService', function () {
                 ->once()
                 ->andThrow($exception);
 
-            expect(fn() => $this->service->addSubscribers('123', ['1', '2']))
+            expect(fn () => $this->service->addSubscribers('123', ['1', '2']))
                 ->toThrow(GroupNotFoundException::class, "Group with ID '123' not found");
         });
     });
@@ -344,7 +344,7 @@ describe('GroupService', function () {
                 ->once()
                 ->andThrow($exception);
 
-            expect(fn() => $this->service->removeSubscribers('123', ['1', '2']))
+            expect(fn () => $this->service->removeSubscribers('123', ['1', '2']))
                 ->toThrow(GroupNotFoundException::class, "Group with ID '123' not found");
         });
     });
@@ -366,7 +366,7 @@ describe('GroupService', function () {
                 'bounced_count' => 2,
                 'junk_count' => 1,
                 'created_at' => '2023-01-01T00:00:00.000000Z',
-                'updated_at' => '2023-01-01T12:00:00.000000Z'
+                'updated_at' => '2023-01-01T12:00:00.000000Z',
             ];
 
             $this->mockGroupsEndpoint->shouldReceive('find')

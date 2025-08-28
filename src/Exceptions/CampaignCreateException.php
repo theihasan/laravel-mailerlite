@@ -27,7 +27,7 @@ class CampaignCreateException extends MailerLiteException
      */
     public static function invalidData(string $subject, array $errors): static
     {
-        $reason = 'Invalid data: ' . implode(', ', $errors);
+        $reason = 'Invalid data: '.implode(', ', $errors);
 
         return static::make($subject, $reason);
     }
@@ -37,7 +37,7 @@ class CampaignCreateException extends MailerLiteException
      */
     public static function missingRequiredFields(string $subject, array $fields): static
     {
-        $reason = 'Missing required fields: ' . implode(', ', $fields);
+        $reason = 'Missing required fields: '.implode(', ', $fields);
 
         return static::make($subject, $reason);
     }

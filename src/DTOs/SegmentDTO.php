@@ -18,12 +18,12 @@ class SegmentDTO
     /**
      * Create a new segment DTO.
      *
-     * @param string $name Segment name (required)
-     * @param array $filters Segment filter conditions (required)
-     * @param string|null $description Segment description (optional)
-     * @param array $tags Tags associated with the segment (optional)
-     * @param array $options Segment-specific options/settings (optional)
-     * @param bool $active Whether the segment is active (default: true)
+     * @param  string  $name  Segment name (required)
+     * @param  array  $filters  Segment filter conditions (required)
+     * @param  string|null  $description  Segment description (optional)
+     * @param  array  $tags  Tags associated with the segment (optional)
+     * @param  array  $options  Segment-specific options/settings (optional)
+     * @param  bool  $active  Whether the segment is active (default: true)
      *
      * @throws InvalidArgumentException
      */
@@ -45,8 +45,6 @@ class SegmentDTO
     /**
      * Create a segment DTO from an array.
      *
-     * @param array $data
-     * @return static
      * @throws InvalidArgumentException
      */
     public static function fromArray(array $data): static
@@ -64,9 +62,6 @@ class SegmentDTO
     /**
      * Create a basic segment with name and filters.
      *
-     * @param string $name
-     * @param array $filters
-     * @return static
      * @throws InvalidArgumentException
      */
     public static function create(string $name, array $filters): static
@@ -77,10 +72,6 @@ class SegmentDTO
     /**
      * Create a segment with name, filters, and description.
      *
-     * @param string $name
-     * @param array $filters
-     * @param string $description
-     * @return static
      * @throws InvalidArgumentException
      */
     public static function createWithDescription(string $name, array $filters, string $description): static
@@ -91,10 +82,6 @@ class SegmentDTO
     /**
      * Create a segment with tags.
      *
-     * @param string $name
-     * @param array $filters
-     * @param array $tags
-     * @return static
      * @throws InvalidArgumentException
      */
     public static function createWithTags(string $name, array $filters, array $tags): static
@@ -105,18 +92,17 @@ class SegmentDTO
     /**
      * Create an email activity segment (opened, clicked, etc.).
      *
-     * @param string $name
-     * @param string $activity Type: opened, clicked, not_opened, not_clicked
-     * @param string|null $campaignId Campaign ID filter (optional)
-     * @param int|null $days Days back to check (optional)
-     * @return static
+     * @param  string  $activity  Type: opened, clicked, not_opened, not_clicked
+     * @param  string|null  $campaignId  Campaign ID filter (optional)
+     * @param  int|null  $days  Days back to check (optional)
+     *
      * @throws InvalidArgumentException
      */
     public static function emailActivity(string $name, string $activity, ?string $campaignId = null, ?int $days = null): static
     {
         $filters = [
             'type' => 'email_activity',
-            'activity' => $activity
+            'activity' => $activity,
         ];
 
         if ($campaignId) {
@@ -133,11 +119,8 @@ class SegmentDTO
     /**
      * Create a subscriber field segment.
      *
-     * @param string $name
-     * @param string $fieldName
-     * @param string $operator Operator: equals, not_equals, contains, not_contains, greater, less, etc.
-     * @param mixed $value
-     * @return static
+     * @param  string  $operator  Operator: equals, not_equals, contains, not_contains, greater, less, etc.
+     *
      * @throws InvalidArgumentException
      */
     public static function field(string $name, string $fieldName, string $operator, mixed $value): static
@@ -147,8 +130,8 @@ class SegmentDTO
                 'type' => 'field',
                 'field' => $fieldName,
                 'operator' => $operator,
-                'value' => $value
-            ]
+                'value' => $value,
+            ],
         ];
 
         return new static(name: $name, filters: $filters);
@@ -157,10 +140,8 @@ class SegmentDTO
     /**
      * Create a group membership segment.
      *
-     * @param string $name
-     * @param string $groupId
-     * @param bool $isMember True for "in group", false for "not in group"
-     * @return static
+     * @param  bool  $isMember  True for "in group", false for "not in group"
+     *
      * @throws InvalidArgumentException
      */
     public static function group(string $name, string $groupId, bool $isMember = true): static
@@ -169,8 +150,8 @@ class SegmentDTO
             [
                 'type' => 'group',
                 'group_id' => $groupId,
-                'operator' => $isMember ? 'in' : 'not_in'
-            ]
+                'operator' => $isMember ? 'in' : 'not_in',
+            ],
         ];
 
         return new static(name: $name, filters: $filters);
@@ -179,11 +160,10 @@ class SegmentDTO
     /**
      * Create a date-based segment.
      *
-     * @param string $name
-     * @param string $dateField Field: created_at, subscribed_at, updated_at
-     * @param string $operator Operator: after, before, between, exactly
-     * @param string|array $value Date value or array for between
-     * @return static
+     * @param  string  $dateField  Field: created_at, subscribed_at, updated_at
+     * @param  string  $operator  Operator: after, before, between, exactly
+     * @param  string|array  $value  Date value or array for between
+     *
      * @throws InvalidArgumentException
      */
     public static function date(string $name, string $dateField, string $operator, string|array $value): static
@@ -193,8 +173,8 @@ class SegmentDTO
                 'type' => 'date',
                 'field' => $dateField,
                 'operator' => $operator,
-                'value' => $value
-            ]
+                'value' => $value,
+            ],
         ];
 
         return new static(name: $name, filters: $filters);
@@ -202,8 +182,6 @@ class SegmentDTO
 
     /**
      * Convert the DTO to an array for API submission.
-     *
-     * @return array
      */
     public function toArray(): array
     {
@@ -216,15 +194,15 @@ class SegmentDTO
             $data['description'] = $this->description;
         }
 
-        if (!empty($this->tags)) {
+        if (! empty($this->tags)) {
             $data['tags'] = $this->tags;
         }
 
-        if (!empty($this->options)) {
+        if (! empty($this->options)) {
             $data['options'] = $this->options;
         }
 
-        if (!$this->active) {
+        if (! $this->active) {
             $data['active'] = $this->active;
         }
 
@@ -234,8 +212,6 @@ class SegmentDTO
     /**
      * Get a copy of the DTO with updated values.
      *
-     * @param array $updates
-     * @return static
      * @throws InvalidArgumentException
      */
     public function with(array $updates): static
@@ -245,9 +221,6 @@ class SegmentDTO
 
     /**
      * Get a copy with a different name.
-     *
-     * @param string $name
-     * @return static
      */
     public function withName(string $name): static
     {
@@ -263,9 +236,6 @@ class SegmentDTO
 
     /**
      * Get a copy with different filters.
-     *
-     * @param array $filters
-     * @return static
      */
     public function withFilters(array $filters): static
     {
@@ -281,9 +251,6 @@ class SegmentDTO
 
     /**
      * Get a copy with additional filters.
-     *
-     * @param array $filters
-     * @return static
      */
     public function addFilters(array $filters): static
     {
@@ -299,9 +266,6 @@ class SegmentDTO
 
     /**
      * Get a copy with a different description.
-     *
-     * @param string|null $description
-     * @return static
      */
     public function withDescription(?string $description): static
     {
@@ -317,9 +281,6 @@ class SegmentDTO
 
     /**
      * Get a copy with additional tags.
-     *
-     * @param array $tags
-     * @return static
      */
     public function withTags(array $tags): static
     {
@@ -335,9 +296,6 @@ class SegmentDTO
 
     /**
      * Get a copy with additional options.
-     *
-     * @param array $options
-     * @return static
      */
     public function withOptions(array $options): static
     {
@@ -353,8 +311,6 @@ class SegmentDTO
 
     /**
      * Get a copy marked as active.
-     *
-     * @return static
      */
     public function activate(): static
     {
@@ -370,8 +326,6 @@ class SegmentDTO
 
     /**
      * Get a copy marked as inactive.
-     *
-     * @return static
      */
     public function deactivate(): static
     {
@@ -388,7 +342,6 @@ class SegmentDTO
     /**
      * Validate segment name.
      *
-     * @param string $name
      * @throws InvalidArgumentException
      */
     private function validateName(string $name): void
@@ -410,7 +363,6 @@ class SegmentDTO
     /**
      * Validate segment filters.
      *
-     * @param array $filters
      * @throws InvalidArgumentException
      */
     private function validateFilters(array $filters): void
@@ -420,11 +372,11 @@ class SegmentDTO
         }
 
         foreach ($filters as $index => $filter) {
-            if (!is_array($filter)) {
+            if (! is_array($filter)) {
                 throw new InvalidArgumentException("Filter at index {$index} must be an array.");
             }
 
-            if (!isset($filter['type'])) {
+            if (! isset($filter['type'])) {
                 throw new InvalidArgumentException("Filter at index {$index} must have a 'type' field.");
             }
 
@@ -435,8 +387,6 @@ class SegmentDTO
     /**
      * Validate individual filter type.
      *
-     * @param array $filter
-     * @param int $index
      * @throws InvalidArgumentException
      */
     private function validateFilterType(array $filter, int $index): void
@@ -444,33 +394,33 @@ class SegmentDTO
         $type = $filter['type'];
         $validTypes = ['field', 'group', 'date', 'email_activity', 'survey', 'automation'];
 
-        if (!in_array($type, $validTypes, true)) {
+        if (! in_array($type, $validTypes, true)) {
             throw new InvalidArgumentException(
-                "Invalid filter type '{$type}' at index {$index}. Valid types: " . implode(', ', $validTypes)
+                "Invalid filter type '{$type}' at index {$index}. Valid types: ".implode(', ', $validTypes)
             );
         }
 
         switch ($type) {
             case 'field':
-                if (!isset($filter['field']) || !isset($filter['operator']) || !isset($filter['value'])) {
+                if (! isset($filter['field']) || ! isset($filter['operator']) || ! isset($filter['value'])) {
                     throw new InvalidArgumentException("Field filter at index {$index} must have 'field', 'operator', and 'value'.");
                 }
                 break;
 
             case 'group':
-                if (!isset($filter['group_id']) || !isset($filter['operator'])) {
+                if (! isset($filter['group_id']) || ! isset($filter['operator'])) {
                     throw new InvalidArgumentException("Group filter at index {$index} must have 'group_id' and 'operator'.");
                 }
                 break;
 
             case 'date':
-                if (!isset($filter['field']) || !isset($filter['operator']) || !isset($filter['value'])) {
+                if (! isset($filter['field']) || ! isset($filter['operator']) || ! isset($filter['value'])) {
                     throw new InvalidArgumentException("Date filter at index {$index} must have 'field', 'operator', and 'value'.");
                 }
                 break;
 
             case 'email_activity':
-                if (!isset($filter['activity'])) {
+                if (! isset($filter['activity'])) {
                     throw new InvalidArgumentException("Email activity filter at index {$index} must have 'activity'.");
                 }
                 break;
@@ -480,7 +430,6 @@ class SegmentDTO
     /**
      * Validate segment description.
      *
-     * @param string|null $description
      * @throws InvalidArgumentException
      */
     private function validateDescription(?string $description): void
@@ -495,13 +444,12 @@ class SegmentDTO
     /**
      * Validate tags array.
      *
-     * @param array $tags
      * @throws InvalidArgumentException
      */
     private function validateTags(array $tags): void
     {
         foreach ($tags as $tag) {
-            if (!is_string($tag)) {
+            if (! is_string($tag)) {
                 throw new InvalidArgumentException('All tags must be strings.');
             }
 
@@ -518,18 +466,17 @@ class SegmentDTO
     /**
      * Validate options array.
      *
-     * @param array $options
      * @throws InvalidArgumentException
      */
     private function validateOptions(array $options): void
     {
         foreach ($options as $key => $value) {
-            if (!is_string($key) || empty(trim($key))) {
+            if (! is_string($key) || empty(trim($key))) {
                 throw new InvalidArgumentException('Option keys must be non-empty strings.');
             }
 
             // Value can be string, number, boolean, array, or null
-            if (!is_scalar($value) && !is_array($value) && $value !== null) {
+            if (! is_scalar($value) && ! is_array($value) && $value !== null) {
                 throw new InvalidArgumentException(
                     "Option '{$key}' has invalid value type. Must be scalar, array, or null."
                 );

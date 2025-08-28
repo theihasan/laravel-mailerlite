@@ -16,10 +16,6 @@ class SegmentUpdateException extends MailerLiteException
 {
     /**
      * Create a new segment update exception.
-     *
-     * @param string $segmentIdentifier
-     * @param string $message
-     * @param Throwable|null $previous
      */
     public function __construct(
         public readonly string $segmentIdentifier,
@@ -31,14 +27,11 @@ class SegmentUpdateException extends MailerLiteException
 
     /**
      * Create an exception for invalid update data.
-     *
-     * @param string $segmentIdentifier
-     * @param array $errors
-     * @return static
      */
     public static function invalidData(string $segmentIdentifier, array $errors): static
     {
         $errorMessages = implode(', ', $errors);
+
         return new static(
             $segmentIdentifier,
             "Failed to update segment '{$segmentIdentifier}': {$errorMessages}"
@@ -47,14 +40,11 @@ class SegmentUpdateException extends MailerLiteException
 
     /**
      * Create an exception for invalid filters.
-     *
-     * @param string $segmentIdentifier
-     * @param array $filterErrors
-     * @return static
      */
     public static function invalidFilters(string $segmentIdentifier, array $filterErrors): static
     {
         $errorMessages = implode(', ', $filterErrors);
+
         return new static(
             $segmentIdentifier,
             "Failed to update segment '{$segmentIdentifier}' due to invalid filters: {$errorMessages}"
@@ -63,11 +53,6 @@ class SegmentUpdateException extends MailerLiteException
 
     /**
      * Create a general segment update exception.
-     *
-     * @param string $segmentIdentifier
-     * @param string $reason
-     * @param Throwable|null $previous
-     * @return static
      */
     public static function make(string $segmentIdentifier, string $reason, ?Throwable $previous = null): static
     {
