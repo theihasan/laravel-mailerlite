@@ -148,10 +148,14 @@ class SubscriberService implements SubscribersInterface
             $client = $this->manager->getClient();
             $response = $client->subscribers->get($filters);
 
+            $responseData = $response['body']['data'] ?? $response['data'] ?? [];
+            $responseMeta = $response['body']['meta'] ?? $response['meta'] ?? [];
+            $responseLinks = $response['body']['links'] ?? $response['links'] ?? [];
+
             return [
-                'data' => array_map([$this, 'transformSubscriberResponse'], $response['data'] ?? []),
-                'meta' => $response['meta'] ?? [],
-                'links' => $response['links'] ?? [],
+                'data' => array_map([$this, 'transformSubscriberResponse'], $responseData),
+                'meta' => $responseMeta,
+                'links' => $responseLinks,
             ];
         } catch (\Exception $e) {
             $this->handleException($e);
