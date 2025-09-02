@@ -289,6 +289,20 @@ class SubscriberBuilder
     }
 
     /**
+     * Update a subscriber by explicit MailerLite ID.
+     *
+     * This bypasses the email lookup and is useful when the ID is already
+     * known (e.g., stored locally) and we simply want to push the current
+     * builder state to MailerLite.
+     */
+    public function updateById(string $id): array
+    {
+        $dto = $this->toDTO();
+
+        return $this->service->update($id, $dto);
+    }
+
+    /**
      * Find subscriber by current email.
      */
     public function find(): ?array
