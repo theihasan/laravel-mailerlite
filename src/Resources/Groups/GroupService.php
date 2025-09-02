@@ -156,12 +156,19 @@ class GroupService implements GroupsInterface
     {
         try {
             $client = $this->manager->getClient();
-            $response = $client->groups->get($filters);
-
+            $response = $client->groups->get();
+            $body = $response['body'] ?? $response;
+            $rawData = $body['data'] ?? [];
+            
+            $transformedData = [];
+            $transformedData = collect($rawData)
+                ->map(fn($group) => $this->transformGroupResponse($group))
+                ->all();
+            
             return [
-                'data' => array_map([$this, 'transformGroupResponse'], $response['data'] ?? []),
-                'meta' => $response['meta'] ?? [],
-                'links' => $response['links'] ?? [],
+                'data' => $transformedData,
+                'meta' => $body['meta'] ?? [],
+                'links' => $body['links'] ?? [],
             ];
         } catch (\Exception $e) {
             $this->handleException($e);
@@ -274,9 +281,9 @@ class GroupService implements GroupsInterface
             'active_count' => $response['active_count'] ?? 0,
             'sent_count' => $response['sent_count'] ?? 0,
             'opens_count' => $response['opens_count'] ?? 0,
-            'open_rate' => $response['open_rate'] ?? 0,
+            'open_rate' => is_array($response['open_rate'] ?? null) ? ($response['open_rate']['float'] ?? 0) : ($response['open_rate'] ?? 0),
             'clicks_count' => $response['clicks_count'] ?? 0,
-            'click_rate' => $response['click_rate'] ?? 0,
+            'click_rate' => is_array($response['click_rate'] ?? null) ? ($response['click_rate']['float'] ?? 0) : ($response['click_rate'] ?? 0),
             'unsubscribed_count' => $response['unsubscribed_count'] ?? 0,
             'unconfirmed_count' => $response['unconfirmed_count'] ?? 0,
             'bounced_count' => $response['bounced_count'] ?? 0,
