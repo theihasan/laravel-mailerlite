@@ -271,24 +271,26 @@ class GroupService implements GroupsInterface
     /**
      * Transform group response data.
      */
-    protected function transformGroupResponse(array $response): array
-    {
-        return [
-            'id' => $response['body']['data']['id'] ?? null,
-            'name' => $response['body']['data']['name'] ?? null,
-            'active_count' => $response['body']['data']['active_count'] ?? 0,
-            'sent_count' => $response['body']['data']['sent_count'] ?? 0,
-            'opens_count' => $response['body']['data']['opens_count'] ?? 0,
-            'open_rate' => is_array($response['body']['data']['open_rate'] ?? null) ? ($response['body']['data']['open_rate']['float'] ?? 0) : ($response['body']['data']['open_rate']['string'] ?? 0),
-            'clicks_count' => $response['body']['data']['clicks_count'] ?? 0,
-            'click_rate' => is_array($response['body']['data']['click_rate'] ?? null) ? ($response['body']['data']['click_rate']['float'] ?? 0) : ($response['body']['data']['click_rate'] ?? 0),
-            'unsubscribed_count' => $response['body']['data']['unsubscribed_count'] ?? 0,
-            'unconfirmed_count' => $response['body']['data']['unconfirmed_count'] ?? 0,
-            'bounced_count' => $response['body']['data']['bounced_count'] ?? 0,
-            'junk_count' => $response['body']['data']['junk_count'] ?? 0,
-            'created_at' => $response['body']['data']['created_at'] ?? null,
-        ];
-    }
+     protected function transformGroupResponse(array $response): array
+     {
+         $data = $response['body']['data'] ?? $response;
+         
+         return [
+             'id' => $data['id'] ?? null,
+             'name' => $data['name'] ?? null,
+             'active_count' => $data['active_count'] ?? 0,
+             'sent_count' => $data['sent_count'] ?? 0,
+             'opens_count' => $data['opens_count'] ?? 0,
+             'open_rate' => is_array($data['open_rate'] ?? null) ? ($data['open_rate']['float'] ?? 0) : ($data['open_rate'] ?? 0),
+             'clicks_count' => $data['clicks_count'] ?? 0,
+             'click_rate' => is_array($data['click_rate'] ?? null) ? ($data['click_rate']['float'] ?? 0) : ($data['click_rate'] ?? 0),
+             'unsubscribed_count' => $data['unsubscribed_count'] ?? 0,
+             'unconfirmed_count' => $data['unconfirmed_count'] ?? 0,
+             'bounced_count' => $data['bounced_count'] ?? 0,
+             'junk_count' => $data['junk_count'] ?? 0,
+             'created_at' => $data['created_at'] ?? null,
+         ];
+     }
 
     /**
      * Check if an exception represents a "not found" error.
