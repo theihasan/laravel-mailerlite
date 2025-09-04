@@ -28,7 +28,9 @@ use PHPUnit\Framework\MockObject\MockObject;
 final class LaravelMailerliteTest extends TestCase
 {
     private LaravelMailerlite $laravelMailerlite;
+
     private MailerLiteManager&MockObject $mockManager;
+
     private Container&MockObject $mockContainer;
 
     protected function setUp(): void
@@ -37,10 +39,10 @@ final class LaravelMailerliteTest extends TestCase
 
         $this->mockManager = $this->createMock(MailerLiteManager::class);
         $this->mockContainer = $this->createMock(Container::class);
-        
+
         // Replace the app container with our mock
         Container::setInstance($this->mockContainer);
-        
+
         $this->laravelMailerlite = new LaravelMailerlite($this->mockManager);
     }
 
@@ -63,7 +65,7 @@ final class LaravelMailerliteTest extends TestCase
     {
         $manager = $this->createMock(MailerLiteManager::class);
         $instance = new LaravelMailerlite($manager);
-        
+
         $this->assertInstanceOf(LaravelMailerlite::class, $instance);
     }
 
@@ -73,12 +75,12 @@ final class LaravelMailerliteTest extends TestCase
     {
         $manager = $this->createMock(MailerLiteManager::class);
         $instance = new LaravelMailerlite($manager);
-        
+
         // Use reflection to verify the manager is properly injected
         $reflection = new \ReflectionClass($instance);
         $property = $reflection->getProperty('manager');
         $property->setAccessible(true);
-        
+
         $this->assertSame($manager, $property->getValue($instance));
     }
 
@@ -87,7 +89,7 @@ final class LaravelMailerliteTest extends TestCase
     public function it_returns_subscriber_builder(): void
     {
         $subscriberBuilder = $this->createMock(SubscriberBuilder::class);
-        
+
         $this->mockContainer
             ->expects($this->once())
             ->method('make')
@@ -105,7 +107,7 @@ final class LaravelMailerliteTest extends TestCase
     public function it_returns_campaign_builder(): void
     {
         $campaignBuilder = $this->createMock(CampaignBuilder::class);
-        
+
         $this->mockContainer
             ->expects($this->once())
             ->method('make')
@@ -123,7 +125,7 @@ final class LaravelMailerliteTest extends TestCase
     public function it_returns_group_builder(): void
     {
         $groupBuilder = $this->createMock(GroupBuilder::class);
-        
+
         $this->mockContainer
             ->expects($this->once())
             ->method('make')
@@ -141,7 +143,7 @@ final class LaravelMailerliteTest extends TestCase
     public function it_returns_field_builder(): void
     {
         $fieldBuilder = $this->createMock(FieldBuilder::class);
-        
+
         $this->mockContainer
             ->expects($this->once())
             ->method('make')
@@ -159,7 +161,7 @@ final class LaravelMailerliteTest extends TestCase
     public function it_returns_segment_builder(): void
     {
         $segmentBuilder = $this->createMock(SegmentBuilder::class);
-        
+
         $this->mockContainer
             ->expects($this->once())
             ->method('make')
@@ -177,7 +179,7 @@ final class LaravelMailerliteTest extends TestCase
     public function it_returns_automation_builder(): void
     {
         $automationBuilder = $this->createMock(AutomationBuilder::class);
-        
+
         $this->mockContainer
             ->expects($this->once())
             ->method('make')
@@ -195,7 +197,7 @@ final class LaravelMailerliteTest extends TestCase
     public function it_returns_webhook_builder(): void
     {
         $webhookBuilder = $this->createMock(WebhookBuilder::class);
-        
+
         $this->mockContainer
             ->expects($this->once())
             ->method('make')
@@ -214,7 +216,7 @@ final class LaravelMailerliteTest extends TestCase
     public function it_returns_correct_builder_instances(string $method, string $expectedClass): void
     {
         $mockBuilder = $this->createMock($expectedClass);
-        
+
         $this->mockContainer
             ->expects($this->once())
             ->method('make')
@@ -251,7 +253,7 @@ final class LaravelMailerliteTest extends TestCase
     {
         $mockBuilder1 = $this->createMock($expectedClass);
         $mockBuilder2 = $this->createMock($expectedClass);
-        
+
         $this->mockContainer
             ->expects($this->exactly(2))
             ->method('make')
@@ -283,7 +285,7 @@ final class LaravelMailerliteTest extends TestCase
         $this->mockContainer
             ->expects($this->exactly(7))
             ->method('make')
-            ->willReturnCallback(fn($class) => $builders[$class] ?? null);
+            ->willReturnCallback(fn ($class) => $builders[$class] ?? null);
 
         // Should not throw any exceptions
         $this->assertInstanceOf(SubscriberBuilder::class, $this->laravelMailerlite->subscribers());
@@ -306,7 +308,7 @@ final class LaravelMailerliteTest extends TestCase
             ->with($expectedClass)
             ->willReturn(null);
 
-        // Since the actual implementation uses strict return types, 
+        // Since the actual implementation uses strict return types,
         // null return from container should cause a TypeError
         $this->expectException(\TypeError::class);
         $this->expectExceptionMessageMatches('/Return value must be of type .+Builder, null returned/');
@@ -321,9 +323,9 @@ final class LaravelMailerliteTest extends TestCase
         // Test with a manager that might throw exceptions
         $faultyManager = $this->createMock(MailerLiteManager::class);
         $faultyManager->method('getApiKey')->willThrowException(new MailerLiteAuthenticationException('API key error'));
-        
+
         $instance = new LaravelMailerlite($faultyManager);
-        
+
         // The LaravelMailerlite should still be constructable even with a faulty manager
         $this->assertInstanceOf(LaravelMailerlite::class, $instance);
     }
@@ -336,9 +338,9 @@ final class LaravelMailerliteTest extends TestCase
         $emptyManager = $this->createMock(MailerLiteManager::class);
         $emptyManager->method('getApiKey')->willReturn(null);
         $emptyManager->method('getOptions')->willReturn([]);
-        
+
         $instance = new LaravelMailerlite($emptyManager);
-        
+
         $this->assertInstanceOf(LaravelMailerlite::class, $instance);
     }
 
@@ -349,10 +351,10 @@ final class LaravelMailerliteTest extends TestCase
         // Test when container is not set - this actually uses Laravel's real container
         // which will try to resolve the builder and fail due to missing API key
         Container::setInstance(null);
-        
+
         $this->expectException(MailerLiteAuthenticationException::class);
         $this->expectExceptionMessage('MailerLite API key is missing');
-        
+
         $this->laravelMailerlite->subscribers();
     }
 
@@ -362,7 +364,7 @@ final class LaravelMailerliteTest extends TestCase
     {
         $subscriberBuilder = $this->createMock(SubscriberBuilder::class);
         $subscriberBuilder->method('create')->willReturnSelf();
-        
+
         $this->mockContainer
             ->expects($this->once())
             ->method('make')
@@ -370,7 +372,7 @@ final class LaravelMailerliteTest extends TestCase
             ->willReturn($subscriberBuilder);
 
         $result = $this->laravelMailerlite->subscribers();
-        
+
         // Verify we can potentially chain methods (if the builder supports it)
         $this->assertInstanceOf(SubscriberBuilder::class, $result);
     }
@@ -380,16 +382,16 @@ final class LaravelMailerliteTest extends TestCase
     public function it_maintains_manager_immutability(): void
     {
         $originalManager = $this->mockManager;
-        
+
         // Create a new instance
         $newManager = $this->createMock(MailerLiteManager::class);
         $newInstance = new LaravelMailerlite($newManager);
-        
+
         // Original instance should still have original manager
         $reflection = new \ReflectionClass($this->laravelMailerlite);
         $property = $reflection->getProperty('manager');
         $property->setAccessible(true);
-        
+
         $this->assertSame($originalManager, $property->getValue($this->laravelMailerlite));
         $this->assertSame($newManager, $property->getValue($newInstance));
     }
@@ -407,15 +409,16 @@ final class LaravelMailerliteTest extends TestCase
         $this->mockContainer
             ->expects($this->exactly(2))
             ->method('make')
-            ->willReturnCallback(function($class) use ($builders, &$callCount) {
+            ->willReturnCallback(function ($class) use ($builders, &$callCount) {
                 $callCount++;
+
                 return $builders[$class] ?? null;
             });
 
         // Simulate concurrent calls
         $result1 = $this->laravelMailerlite->subscribers();
         $result2 = $this->laravelMailerlite->campaigns();
-        
+
         $this->assertEquals(2, $callCount);
         $this->assertInstanceOf(SubscriberBuilder::class, $result1);
         $this->assertInstanceOf(CampaignBuilder::class, $result2);
@@ -445,10 +448,10 @@ final class LaravelMailerliteTest extends TestCase
     {
         // Reset to use real Laravel container
         Container::setInstance(null);
-        
+
         // This should work with the real Laravel application container
         $subscriberBuilder = $this->app->make(SubscriberBuilder::class);
-        
+
         $this->assertInstanceOf(SubscriberBuilder::class, $subscriberBuilder);
     }
 
@@ -458,7 +461,7 @@ final class LaravelMailerliteTest extends TestCase
     {
         $serialized = serialize($this->laravelMailerlite);
         $unserialized = unserialize($serialized);
-        
+
         $this->assertInstanceOf(LaravelMailerlite::class, $unserialized);
         $this->assertInstanceOf(MailerLiteInterface::class, $unserialized);
     }
@@ -469,22 +472,22 @@ final class LaravelMailerliteTest extends TestCase
     {
         // Create many instances to test memory handling
         $instances = [];
-        
+
         for ($i = 0; $i < 100; $i++) {
             $manager = $this->createMock(MailerLiteManager::class);
             $instances[] = new LaravelMailerlite($manager);
         }
-        
+
         // All instances should be valid
         $this->assertCount(100, $instances);
-        
+
         foreach ($instances as $instance) {
             $this->assertInstanceOf(LaravelMailerlite::class, $instance);
         }
-        
+
         // Clean up
         unset($instances);
-        
+
         // Original instance should still work
         $this->assertInstanceOf(LaravelMailerlite::class, $this->laravelMailerlite);
     }
@@ -494,7 +497,7 @@ final class LaravelMailerliteTest extends TestCase
     public function it_respects_php_type_system(): void
     {
         $subscriberBuilder = $this->createMock(SubscriberBuilder::class);
-        
+
         $this->mockContainer
             ->expects($this->once())
             ->method('make')
@@ -502,7 +505,7 @@ final class LaravelMailerliteTest extends TestCase
             ->willReturn($subscriberBuilder);
 
         $result = $this->laravelMailerlite->subscribers();
-        
+
         // Strict type checking
         $this->assertTrue($result instanceof SubscriberBuilder);
         $this->assertIsObject($result);
