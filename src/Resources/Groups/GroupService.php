@@ -40,6 +40,7 @@ class GroupService implements GroupsInterface
         try {
             $client = $this->manager->getClient();
             $response = $client->groups->create($group->toArray());
+
             return $this->transformGroupResponse($response);
         } catch (\Exception $e) {
             $this->handleCreateException($group->name, $e);
@@ -158,12 +159,12 @@ class GroupService implements GroupsInterface
             $response = $client->groups->get();
             $body = $response['body'] ?? $response;
             $rawData = $body['data'] ?? [];
-            
+
             $transformedData = [];
             $transformedData = collect($rawData)
-                ->map(fn($group) => $this->transformGroupResponse($group))
+                ->map(fn ($group) => $this->transformGroupResponse($group))
                 ->all();
-            
+
             return [
                 'data' => $transformedData,
                 'meta' => $body['meta'] ?? [],
