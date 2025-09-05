@@ -40,7 +40,7 @@ class SubscriberService implements SubscribersInterface
         try {
             $client = $this->manager->getClient();
             $response = $client->subscribers->create($subscriber->toArray());
-
+            
             return $this->transformSubscriberResponse($response);
         } catch (\Exception $e) {
             $this->handleCreateException($subscriber->email, $e);
@@ -281,20 +281,21 @@ class SubscriberService implements SubscribersInterface
      */
     protected function transformSubscriberResponse(array $response): array
     {
+        $data = $response['body']['data'] ?? $response;
         return [
-            'id' => $response['id'] ?? null,
-            'email' => $response['email'] ?? null,
-            'name' => $response['name'] ?? null,
-            'status' => $response['status'] ?? null,
-            'subscribed_at' => $response['subscribed_at'] ?? null,
-            'unsubscribed_at' => $response['unsubscribed_at'] ?? null,
-            'created_at' => $response['created_at'] ?? null,
-            'updated_at' => $response['updated_at'] ?? null,
-            'fields' => $response['fields'] ?? [],
-            'groups' => $response['groups'] ?? [],
-            'segments' => $response['segments'] ?? [],
-            'opted_in_at' => $response['opted_in_at'] ?? null,
-            'optin_ip' => $response['optin_ip'] ?? null,
+            'id' => $data['id'] ?? null,
+            'email' => $data['email'] ?? null,
+            'name' => $data['name'] ?? null,
+            'status' => $data['status'] ?? null,
+            'subscribed_at' => $data['subscribed_at'] ?? null,
+            'unsubscribed_at' => $data['unsubscribed_at'] ?? null,
+            'created_at' => $data['created_at'] ?? null,
+            'updated_at' => $data['updated_at'] ?? null,
+            'fields' => $data['fields'] ?? [],
+            'groups' => $data['groups'] ?? [],
+            'segments' => $data['segments'] ?? [],
+            'opted_in_at' => $data['opted_in_at'] ?? null,
+            'optin_ip' => $data['optin_ip'] ?? null,
         ];
     }
 
