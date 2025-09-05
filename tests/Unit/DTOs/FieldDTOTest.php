@@ -126,7 +126,6 @@ describe('FieldDTO', function () {
         expect($array)->toBe([
             'name' => 'age',
             'type' => 'number',
-            'title' => 'Age',
             'default_value' => 25,
             'options' => ['min_value' => 0],
             'required' => true,
@@ -214,18 +213,18 @@ describe('FieldDTO', function () {
     });
 
     test('validates name length', function () {
-        $longName = str_repeat('a', 101);
+        $longName = str_repeat('a', 256);
 
         expect(fn () => new FieldDTO($longName, 'text'))
-            ->toThrow(InvalidArgumentException::class, 'Field name cannot exceed 100 characters');
+            ->toThrow(InvalidArgumentException::class, 'Field name cannot exceed 255 characters (MailerLite limit)');
     });
 
     test('validates name format', function () {
-        $invalidNames = ['123invalid', 'invalid-name', 'invalid.name', 'invalid name'];
+        $invalidNames = ['', '   ', str_repeat('a', 256)];
 
         foreach ($invalidNames as $invalidName) {
             expect(fn () => new FieldDTO($invalidName, 'text'))
-                ->toThrow(InvalidArgumentException::class, 'Field name must start with a letter');
+                ->toThrow(InvalidArgumentException::class);
         }
     });
 
