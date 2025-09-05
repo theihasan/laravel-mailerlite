@@ -78,7 +78,7 @@ class SubscriberService implements SubscribersInterface
     {
         try {
             $client = $this->manager->getClient();
-            $response = $client->subscribers->get($id);
+            $response = $client->subscribers->get();
 
             return $response ? $this->transformSubscriberResponse($response) : null;
         } catch (\Exception $e) {
@@ -172,9 +172,9 @@ class SubscriberService implements SubscribersInterface
     {
         try {
             $client = $this->manager->getClient();
-            $response = $client->subscribers->addToGroup($subscriberId, $groupId);
+            $response = $client->groups->addSubscriber($groupId, ['email' => $subscriberId]);
 
-            return $this->transformSubscriberResponse($response);
+            return $response;
         } catch (\Exception $e) {
             if ($this->isNotFoundError($e)) {
                 throw SubscriberNotFoundException::withId($subscriberId);
@@ -194,7 +194,7 @@ class SubscriberService implements SubscribersInterface
     {
         try {
             $client = $this->manager->getClient();
-            $client->subscribers->removeFromGroup($subscriberId, $groupId);
+            $client->groups->removeSubscriber($groupId, $subscriberId);
 
             return true;
         } catch (\Exception $e) {
@@ -249,6 +249,30 @@ class SubscriberService implements SubscribersInterface
             }
 
             $this->handleUpdateException($id, $e);
+        }
+    }
+
+    /**
+     * Import multiple subscribers to a group.
+     *
+     * @throws MailerLiteAuthenticationException
+     */
+    public function importSubscribers(string $groupId, array $subscribers, array $options = []): array
+    {
+        try {
+            $client = $this->manager->getClient();
+            
+            $defaultOptions = [
+                'resubscribe' => false,
+                'autoresponders' => false
+            ];
+            
+            $mergedOptions = array_merge($defaultOptions, $options);
+            $response = $client->groups->importSubscribers($groupId, $subscribers, $mergedOptions);
+
+            return $response;
+        } catch (\Exception $e) {
+            $this->handleException($e);
         }
     }
 
