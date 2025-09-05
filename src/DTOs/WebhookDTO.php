@@ -153,7 +153,7 @@ class WebhookDTO
     public function toArray(): array
     {
         $data = [
-            'event' => $this->event,
+            'events' => [$this->event], // MailerLite API expects 'events' array
             'url' => $this->url,
             'enabled' => $this->enabled,
         ];
