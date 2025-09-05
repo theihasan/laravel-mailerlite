@@ -83,6 +83,33 @@ class SegmentService implements SegmentsInterface
     }
 
     /**
+     * Find a segment by name.
+     * 
+     * Note: MailerLite API does not have a single segment endpoint.
+     * This method searches through all segments to find the one with matching name.
+     *
+     * @throws MailerLiteAuthenticationException
+     */
+     public function findByName(string $name): ?array
+     {
+         try {
+             // Use the filter parameter to filter segments by name on the API side
+             // This leverages the API's filtering capabilities instead of retrieving all segments
+             $filters = ['filter[name]' => $name];
+             $segments = $this->list($filters);
+
+             // If we have a matching segment, it will be the first (and possibly only) result
+             if (isset($segments['data'][0]) && $segments['data'][0]['name'] === $name) {
+                 return $segments['data'][0];
+             }
+
+             return null;
+         } catch (\Exception $e) {
+             $this->handleException($e);
+         }
+     }
+
+    /**
      * Update an existing segment.
      *
      * @throws SegmentNotFoundException

@@ -401,6 +401,14 @@ class SegmentBuilder
     }
 
     /**
+     * Find a segment by name.
+     */
+    public function findByName(string $name): ?array
+    {
+        return $this->service->findByName($name);
+    }
+
+    /**
      * Get all segments with optional filters.
      */
     public function list(array $filters = []): array
