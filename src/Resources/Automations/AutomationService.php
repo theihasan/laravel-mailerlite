@@ -70,6 +70,32 @@ class AutomationService implements AutomationsInterface
     }
 
     /**
+     * Find an automation by name.
+     * 
+     * Note: Searches through paginated automations list to find matching name.
+     * This provides a workaround for MailerLite API limitations.
+     *
+     * @throws MailerLiteAuthenticationException
+     */
+    public function findByName(string $name): ?array
+    {
+        try {
+            // Search through all automations to find one with matching name
+            $automations = $this->list();
+            
+            foreach ($automations['data'] as $automation) {
+                if ($automation['name'] === $name) {
+                    return $automation;
+                }
+            }
+            
+            return null;
+        } catch (\Exception $e) {
+            $this->handleException($e);
+        }
+    }
+
+    /**
      * Update an existing automation.
      *
      * @throws AutomationNotFoundException

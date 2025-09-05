@@ -234,7 +234,7 @@ describe('WebhookDTO', function () {
         $array = $dto->toArray();
 
         expect($array)->toBe([
-            'event' => 'subscriber.created',
+            'events' => ['subscriber.created'],
             'url' => 'https://example.com/webhook',
             'enabled' => false,
             'name' => 'Test Webhook',
