@@ -71,6 +71,32 @@ class CampaignService implements CampaignsInterface
     }
 
     /**
+     * Find a campaign by name.
+     * 
+     * Note: Searches through paginated campaigns list to find matching name.
+     * This provides a workaround for MailerLite API limitations.
+     *
+     * @throws MailerLiteAuthenticationException
+     */
+    public function findByName(string $name): ?array
+    {
+        try {
+            // Search through all campaigns to find one with matching name
+            $campaigns = $this->list();
+            
+            foreach ($campaigns['data'] as $campaign) {
+                if ($campaign['name'] === $name) {
+                    return $campaign;
+                }
+            }
+            
+            return null;
+        } catch (\Exception $e) {
+            $this->handleException($e);
+        }
+    }
+
+    /**
      * Update an existing campaign.
      *
      * @throws CampaignNotFoundException
@@ -126,11 +152,14 @@ class CampaignService implements CampaignsInterface
         try {
             $client = $this->manager->getClient();
             $response = $client->campaigns->get($filters);
+            
+            // The MailerLite SDK wraps the API response in a 'body' key
+            $body = $response['body'] ?? $response;
 
             return [
-                'data' => array_map([$this, 'transformCampaignResponse'], $response['data'] ?? []),
-                'meta' => $response['meta'] ?? [],
-                'links' => $response['links'] ?? [],
+                'data' => array_map([$this, 'transformCampaignResponse'], $body['data'] ?? []),
+                'meta' => $body['meta'] ?? [],
+                'links' => $body['links'] ?? [],
             ];
         } catch (\Exception $e) {
             $this->handleException($e);
@@ -272,36 +301,38 @@ class CampaignService implements CampaignsInterface
      */
     protected function transformCampaignResponse(array $response): array
     {
+        $data = $response['body']['data'] ?? $response;
+        
         return [
-            'id' => $response['id'] ?? null,
-            'account_id' => $response['account_id'] ?? null,
-            'name' => $response['name'] ?? null,
-            'subject' => $response['subject'] ?? null,
-            'from_name' => $response['from_name'] ?? null,
-            'from_email' => $response['from_email'] ?? null,
-            'status' => $response['status'] ?? null,
-            'type' => $response['type'] ?? null,
-            'created_at' => $response['created_at'] ?? null,
-            'updated_at' => $response['updated_at'] ?? null,
-            'scheduled_at' => $response['scheduled_at'] ?? null,
-            'sent_at' => $response['sent_at'] ?? null,
-            'delivery_schedule' => $response['delivery_schedule'] ?? null,
-            'language_iso' => $response['language_iso'] ?? null,
-            'is_winner' => $response['is_winner'] ?? null,
-            'winner_version_for' => $response['winner_version_for'] ?? null,
-            'winner_sending_time' => $response['winner_sending_time'] ?? null,
-            'winner_selected_manually_at' => $response['winner_selected_manually_at'] ?? null,
-            'uses_ecommerce' => $response['uses_ecommerce'] ?? null,
-            'uses_survey' => $response['uses_survey'] ?? null,
-            'can_be_scheduled' => $response['can_be_scheduled'] ?? null,
-            'warnings' => $response['warnings'] ?? [],
-            'initial_created_at' => $response['initial_created_at'] ?? null,
-            'emails' => $response['emails'] ?? [],
-            'used_in_automations' => $response['used_in_automations'] ?? [],
-            'type_for_humans' => $response['type_for_humans'] ?? null,
-            'stats' => $response['stats'] ?? [],
-            'settings' => $response['settings'] ?? [],
-            'ab_settings' => $response['ab_settings'] ?? [],
+            'id' => $data['id'] ?? null,
+            'account_id' => $data['account_id'] ?? null,
+            'name' => $data['name'] ?? null,
+            'subject' => $data['subject'] ?? null,
+            'from_name' => $data['from_name'] ?? null,
+            'from_email' => $data['from_email'] ?? null,
+            'status' => $data['status'] ?? null,
+            'type' => $data['type'] ?? null,
+            'created_at' => $data['created_at'] ?? null,
+            'updated_at' => $data['updated_at'] ?? null,
+            'scheduled_at' => $data['scheduled_at'] ?? null,
+            'sent_at' => $data['sent_at'] ?? null,
+            'delivery_schedule' => $data['delivery_schedule'] ?? null,
+            'language_iso' => $data['language_iso'] ?? null,
+            'is_winner' => $data['is_winner'] ?? null,
+            'winner_version_for' => $data['winner_version_for'] ?? null,
+            'winner_sending_time' => $data['winner_sending_time'] ?? null,
+            'winner_selected_manually_at' => $data['winner_selected_manually_at'] ?? null,
+            'uses_ecommerce' => $data['uses_ecommerce'] ?? null,
+            'uses_survey' => $data['uses_survey'] ?? null,
+            'can_be_scheduled' => $data['can_be_scheduled'] ?? null,
+            'warnings' => $data['warnings'] ?? [],
+            'initial_created_at' => $data['initial_created_at'] ?? null,
+            'emails' => $data['emails'] ?? [],
+            'used_in_automations' => $data['used_in_automations'] ?? [],
+            'type_for_humans' => $data['type_for_humans'] ?? null,
+            'stats' => $data['stats'] ?? [],
+            'settings' => $data['settings'] ?? [],
+            'ab_settings' => $data['ab_settings'] ?? [],
         ];
     }
 

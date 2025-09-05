@@ -18,7 +18,8 @@ class CampaignDTO
     /**
      * Create a new campaign DTO.
      *
-     * @param  string  $subject  Campaign subject line (required)
+     * @param  string  $name  Campaign name (required, max 255 chars)
+     * @param  string  $subject  Email subject line (required)
      * @param  string  $fromName  Sender name (required)
      * @param  string  $fromEmail  Sender email address (required)
      * @param  string|null  $html  HTML content of the campaign (optional)
@@ -33,6 +34,7 @@ class CampaignDTO
      * @throws InvalidArgumentException
      */
     public function __construct(
+        public readonly string $name,
         public readonly string $subject,
         public readonly string $fromName,
         public readonly string $fromEmail,
@@ -45,6 +47,7 @@ class CampaignDTO
         public readonly array $settings = [],
         public readonly array $abSettings = [],
     ) {
+        $this->validateName($name);
         $this->validateSubject($subject);
         $this->validateFromName($fromName);
         $this->validateFromEmail($fromEmail);
@@ -73,6 +76,7 @@ class CampaignDTO
         }
 
         return new static(
+            name: $data['name'] ?? throw new InvalidArgumentException('Name is required'),
             subject: $data['subject'] ?? throw new InvalidArgumentException('Subject is required'),
             fromName: $data['from_name'] ?? throw new InvalidArgumentException('From name is required'),
             fromEmail: $data['from_email'] ?? throw new InvalidArgumentException('From email is required'),
@@ -88,13 +92,14 @@ class CampaignDTO
     }
 
     /**
-     * Create a basic campaign with subject, from name, and from email.
+     * Create a basic campaign with name, subject, from name, and from email.
      *
      * @throws InvalidArgumentException
      */
-    public static function create(string $subject, string $fromName, string $fromEmail): static
+    public static function create(string $name, string $subject, string $fromName, string $fromEmail): static
     {
         return new static(
+            name: $name,
             subject: $subject,
             fromName: $fromName,
             fromEmail: $fromEmail
@@ -106,9 +111,10 @@ class CampaignDTO
      *
      * @throws InvalidArgumentException
      */
-    public static function createWithHtml(string $subject, string $fromName, string $fromEmail, string $html): static
+    public static function createWithHtml(string $name, string $subject, string $fromName, string $fromEmail, string $html): static
     {
         return new static(
+            name: $name,
             subject: $subject,
             fromName: $fromName,
             fromEmail: $fromEmail,
@@ -121,9 +127,10 @@ class CampaignDTO
      *
      * @throws InvalidArgumentException
      */
-    public static function createWithContent(string $subject, string $fromName, string $fromEmail, string $html, string $plain): static
+    public static function createWithContent(string $name, string $subject, string $fromName, string $fromEmail, string $html, string $plain): static
     {
         return new static(
+            name: $name,
             subject: $subject,
             fromName: $fromName,
             fromEmail: $fromEmail,
@@ -134,22 +141,29 @@ class CampaignDTO
 
     /**
      * Convert the DTO to an array for API submission.
+     * Follows MailerLite API structure with required 'emails' array.
      */
     public function toArray(): array
     {
         $data = [
-            'subject' => $this->subject,
-            'from_name' => $this->fromName,
-            'from_email' => $this->fromEmail,
+            'name' => $this->name,
             'type' => $this->type,
+            'emails' => [
+                [
+                    'subject' => $this->subject,
+                    'from_name' => $this->fromName,
+                    'from' => $this->fromEmail,
+                ]
+            ]
         ];
 
+        // Add content to the email object if provided
         if ($this->html !== null) {
-            $data['html'] = $this->html;
+            $data['emails'][0]['content'] = $this->html;
         }
 
         if ($this->plain !== null) {
-            $data['plain'] = $this->plain;
+            $data['emails'][0]['plain_text'] = $this->plain;
         }
 
         if (! empty($this->groups)) {
@@ -186,11 +200,33 @@ class CampaignDTO
     }
 
     /**
+     * Get a copy with a different name.
+     */
+    public function withName(string $name): static
+    {
+        return new static(
+            name: $name,
+            subject: $this->subject,
+            fromName: $this->fromName,
+            fromEmail: $this->fromEmail,
+            html: $this->html,
+            plain: $this->plain,
+            groups: $this->groups,
+            segments: $this->segments,
+            scheduleAt: $this->scheduleAt,
+            type: $this->type,
+            settings: $this->settings,
+            abSettings: $this->abSettings,
+        );
+    }
+
+    /**
      * Get a copy with a different subject.
      */
     public function withSubject(string $subject): static
     {
         return new static(
+            name: $this->name,
             subject: $subject,
             fromName: $this->fromName,
             fromEmail: $this->fromEmail,
@@ -211,6 +247,7 @@ class CampaignDTO
     public function withFrom(string $fromName, string $fromEmail): static
     {
         return new static(
+            name: $this->name,
             subject: $this->subject,
             fromName: $fromName,
             fromEmail: $fromEmail,
@@ -231,6 +268,7 @@ class CampaignDTO
     public function withHtml(string $html): static
     {
         return new static(
+            name: $this->name,
             subject: $this->subject,
             fromName: $this->fromName,
             fromEmail: $this->fromEmail,
@@ -251,6 +289,7 @@ class CampaignDTO
     public function withGroups(array $groups): static
     {
         return new static(
+            name: $this->name,
             subject: $this->subject,
             fromName: $this->fromName,
             fromEmail: $this->fromEmail,
@@ -271,6 +310,7 @@ class CampaignDTO
     public function withSegments(array $segments): static
     {
         return new static(
+            name: $this->name,
             subject: $this->subject,
             fromName: $this->fromName,
             fromEmail: $this->fromEmail,
@@ -291,6 +331,7 @@ class CampaignDTO
     public function withSchedule(\DateTimeInterface $scheduleAt): static
     {
         return new static(
+            name: $this->name,
             subject: $this->subject,
             fromName: $this->fromName,
             fromEmail: $this->fromEmail,
@@ -303,6 +344,22 @@ class CampaignDTO
             settings: $this->settings,
             abSettings: $this->abSettings,
         );
+    }
+
+    /**
+     * Validate campaign name.
+     *
+     * @throws InvalidArgumentException
+     */
+    private function validateName(string $name): void
+    {
+        if (empty(trim($name))) {
+            throw new InvalidArgumentException('Campaign name cannot be empty.');
+        }
+
+        if (strlen($name) > 255) {
+            throw new InvalidArgumentException('Campaign name cannot exceed 255 characters.');
+        }
     }
 
     /**

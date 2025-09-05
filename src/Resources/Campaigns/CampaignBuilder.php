@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Ihasan\LaravelMailerlite\Resources\Campaigns;
 
 use Ihasan\LaravelMailerlite\DTOs\CampaignDTO;
+use Ihasan\LaravelMailerlite\Resources\Groups\GroupService;
 
 /**
  * Campaign Builder
@@ -24,6 +25,11 @@ use Ihasan\LaravelMailerlite\DTOs\CampaignDTO;
  */
 class CampaignBuilder
 {
+    /**
+     * Current campaign name being built
+     */
+    protected ?string $name = null;
+
     /**
      * Current campaign subject being built
      */
@@ -88,8 +94,11 @@ class CampaignBuilder
      * Create a new campaign builder instance.
      */
     public function __construct(
-        protected CampaignService $service
-    ) {}
+        protected CampaignService $service,
+        protected ?GroupService $groupService = null
+    ) {
+        $this->groupService = $groupService ?? app(GroupService::class);
+    }
 
     /**
      * Start building a draft campaign.
@@ -99,6 +108,24 @@ class CampaignBuilder
         $this->isDraft = true;
 
         return $this;
+    }
+
+    /**
+     * Set the campaign name.
+     */
+    public function name(string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Alias for name() - more descriptive.
+     */
+    public function named(string $name): static
+    {
+        return $this->name($name);
     }
 
     /**
@@ -177,13 +204,16 @@ class CampaignBuilder
 
     /**
      * Add the campaign to a group.
+     * Automatically resolves group names to group IDs.
      */
-    public function toGroup(string|array $groups): static
+    public function toGroup(string|int|array $groups): static
     {
-        if (is_string($groups)) {
-            $this->groups[] = $groups;
+        if (is_string($groups) || is_int($groups)) {
+            $this->groups[] = $this->resolveGroupId($groups);
         } else {
-            $this->groups = array_merge($this->groups, $groups);
+            foreach ($groups as $group) {
+                $this->groups[] = $this->resolveGroupId($group);
+            }
         }
 
         return $this;
@@ -192,7 +222,7 @@ class CampaignBuilder
     /**
      * Alias for toGroup() - more natural when adding multiple groups.
      */
-    public function toGroups(string|array $groups): static
+    public function toGroups(string|int|array $groups): static
     {
         return $this->toGroup($groups);
     }
@@ -358,6 +388,14 @@ class CampaignBuilder
     }
 
     /**
+     * Find campaign by name.
+     */
+    public function findByName(string $name): ?array
+    {
+        return $this->service->findByName($name);
+    }
+
+    /**
      * Update an existing campaign.
      *
      * @throws \Ihasan\LaravelMailerlite\Exceptions\CampaignNotFoundException
@@ -469,7 +507,11 @@ class CampaignBuilder
             throw new \InvalidArgumentException('From email is required to create CampaignDTO');
         }
 
+        // Auto-generate name from subject if not provided
+        $name = $this->name ?? $this->subject;
+
         return new CampaignDTO(
+            name: $name,
             subject: $this->subject,
             fromName: $this->fromName,
             fromEmail: $this->fromEmail,
@@ -489,6 +531,7 @@ class CampaignBuilder
      */
     public function reset(): static
     {
+        $this->name = null;
         $this->subject = null;
         $this->fromName = null;
         $this->fromEmail = null;
@@ -532,5 +575,40 @@ class CampaignBuilder
         }
 
         throw new \BadMethodCallException("Method {$method} does not exist on ".static::class);
+    }
+
+    /**
+     * Resolve group identifier to group ID.
+     * 
+     * @param string|int $group Group name or ID
+     * @return string Group ID
+     * @throws \InvalidArgumentException
+     */
+    protected function resolveGroupId(string|int $group): string
+    {
+        // If it's already an integer ID, return as string
+        if (is_int($group)) {
+            return (string) $group;
+        }
+
+        // If it's a numeric string, assume it's already an ID
+        if (is_numeric($group)) {
+            return $group;
+        }
+
+        // Try to find group by name
+        try {
+            $groups = $this->groupService->list();
+            
+            foreach ($groups['data'] as $groupData) {
+                if ($groupData['name'] === $group) {
+                    return (string) $groupData['id'];
+                }
+            }
+            
+            throw new \InvalidArgumentException("Group '{$group}' not found. Please use group ID or ensure the group exists.");
+        } catch (\Exception $e) {
+            throw new \InvalidArgumentException("Failed to resolve group '{$group}': " . $e->getMessage());
+        }
     }
 }
