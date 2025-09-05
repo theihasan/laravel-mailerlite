@@ -58,22 +58,26 @@ class SegmentService implements SegmentsInterface
 
     /**
      * Get a segment by ID.
+     * 
+     * Note: MailerLite API does not have a single segment endpoint.
+     * This method searches through all segments to find the one with matching ID.
      *
      * @throws MailerLiteAuthenticationException
      */
     public function getById(string $id): ?array
     {
         try {
-            $client = $this->manager->getClient();
-            $response = $client->segments->find($id);
-
-            return $response ? $this->transformSegmentResponse($response) : null;
-        } catch (\Exception $e) {
-            // If it's a 404, return null instead of throwing
-            if ($this->isNotFoundError($e)) {
-                return null;
+            // Since there's no single segment endpoint, we need to search through all segments
+            $segments = $this->list();
+            
+            foreach ($segments['data'] as $segment) {
+                if ($segment['id'] === $id) {
+                    return $segment;
+                }
             }
-
+            
+            return null;
+        } catch (\Exception $e) {
             $this->handleException($e);
         }
     }

@@ -371,7 +371,12 @@ class SegmentBuilder
      */
     public function update(string $id): array
     {
-        $dto = $this->toDTO();
+        // For updates, we only need the name (MailerLite API only supports updating segment name)
+        if (! $this->name) {
+            throw new \InvalidArgumentException('Name is required to update segment');
+        }
+
+        $dto = \Ihasan\LaravelMailerlite\DTOs\SegmentDTO::forUpdate($this->name);
 
         return $this->service->update($id, $dto);
     }

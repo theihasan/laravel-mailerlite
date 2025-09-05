@@ -19,24 +19,31 @@ class SegmentDTO
      * Create a new segment DTO.
      *
      * @param  string  $name  Segment name (required)
-     * @param  array  $filters  Segment filter conditions (required)
+     * @param  array  $filters  Segment filter conditions (required for creation, optional for updates)
      * @param  string|null  $description  Segment description (optional)
      * @param  array  $tags  Tags associated with the segment (optional)
      * @param  array  $options  Segment-specific options/settings (optional)
      * @param  bool  $active  Whether the segment is active (default: true)
+     * @param  bool  $isUpdate  Whether this DTO is for an update operation (default: false)
      *
      * @throws InvalidArgumentException
      */
     public function __construct(
         public readonly string $name,
-        public readonly array $filters,
+        public readonly array $filters = [],
         public readonly ?string $description = null,
         public readonly array $tags = [],
         public readonly array $options = [],
         public readonly bool $active = true,
+        public readonly bool $isUpdate = false,
     ) {
         $this->validateName($name);
-        $this->validateFilters($filters);
+        
+        // Only validate filters if this is not an update operation
+        if (!$this->isUpdate) {
+            $this->validateFilters($filters);
+        }
+        
         $this->validateDescription($description);
         $this->validateTags($tags);
         $this->validateOptions($options);
@@ -51,11 +58,12 @@ class SegmentDTO
     {
         return new static(
             name: $data['name'] ?? throw new InvalidArgumentException('Name is required'),
-            filters: $data['filters'] ?? throw new InvalidArgumentException('Filters are required'),
+            filters: $data['filters'] ?? [],
             description: $data['description'] ?? null,
             tags: $data['tags'] ?? [],
             options: $data['options'] ?? [],
             active: $data['active'] ?? true,
+            isUpdate: $data['is_update'] ?? false,
         );
     }
 
@@ -67,6 +75,16 @@ class SegmentDTO
     public static function create(string $name, array $filters): static
     {
         return new static(name: $name, filters: $filters);
+    }
+
+    /**
+     * Create a segment DTO for update operations (no filters required).
+     *
+     * @throws InvalidArgumentException
+     */
+    public static function forUpdate(string $name): static
+    {
+        return new static(name: $name, filters: [], isUpdate: true);
     }
 
     /**
@@ -187,8 +205,12 @@ class SegmentDTO
     {
         $data = [
             'name' => $this->name,
-            'filters' => $this->filters,
         ];
+
+        // Only include filters if this is not an update operation or if filters are provided
+        if (!$this->isUpdate && !empty($this->filters)) {
+            $data['filters'] = $this->filters;
+        }
 
         if ($this->description !== null) {
             $data['description'] = $this->description;
@@ -231,6 +253,7 @@ class SegmentDTO
             tags: $this->tags,
             options: $this->options,
             active: $this->active,
+            isUpdate: $this->isUpdate,
         );
     }
 
@@ -368,7 +391,7 @@ class SegmentDTO
     private function validateFilters(array $filters): void
     {
         if (empty($filters)) {
-            throw new InvalidArgumentException('Segment filters cannot be empty.');
+            throw new InvalidArgumentException('At least one filter is required to create SegmentDTO');
         }
 
         foreach ($filters as $index => $filter) {
