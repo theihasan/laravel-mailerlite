@@ -538,7 +538,19 @@ $campaign = MailerLite::campaigns()
 ### How to Fetch a Campaign
 
 ```php
+// Find by MailerLite ID (if you have it)
 $campaign = MailerLite::campaigns()->find('campaign-id-123');
+
+// Find by campaign name (searches through all campaigns)
+$campaign = MailerLite::campaigns()->findByName('Weekly Newsletter');
+
+// Note: Due to MailerLite API limitations, campaigns don't have a direct 
+// "get by ID" endpoint, so find() searches through the campaign list
+if ($campaign) {
+    echo "Found campaign: " . $campaign['name'];
+} else {
+    echo "Campaign not found";
+}
 ```
 
 ### How to Update a Campaign
@@ -644,10 +656,23 @@ try {
 ### How to Fetch a Segment
 
 ```php
-// Find segment by ID (Note: MailerLite API doesn't have a single segment endpoint)
-$segment = MailerLite::segments()->find('segment-id-123'); // May return null
+// Find by MailerLite ID - searches through segment list
+$segment = MailerLite::segments()->find('segment-id-123');
 
-// Get all segments and find by name
+// Find by segment name (recommended approach)
+$segment = MailerLite::segments()->findByName('Active Users');
+
+// Note: MailerLite API doesn't have a single segment endpoint
+// Both methods above search through paginated segment lists automatically
+
+if ($segment) {
+    echo "Found segment: " . $segment['name'];
+    echo "Total subscribers: " . $segment['total'];
+} else {
+    echo "Segment not found";
+}
+
+// Alternative manual approach (not recommended - use findByName instead)
 $segments = MailerLite::segments()->all();
 $targetSegment = collect($segments['data'])->firstWhere('name', 'Active Users');
 ```
@@ -761,7 +786,21 @@ $automation = MailerLite::automations()
 ### How to Fetch an Automation
 
 ```php
+// Find by MailerLite ID - searches through automation list
 $automation = MailerLite::automations()->find('automation-id-123');
+
+// Find by automation name (recommended for better readability)
+$automation = MailerLite::automations()->findByName('Welcome Series');
+
+// Note: MailerLite API doesn't have a single automation endpoint
+// Both methods search through paginated automation lists automatically
+
+if ($automation) {
+    echo "Found automation: " . $automation['name'];
+    echo "Status: " . $automation['status'];
+} else {
+    echo "Automation not found";
+}
 ```
 
 ### How to Update an Automation
@@ -833,10 +872,21 @@ $webhook = MailerLite::webhooks()
 ### How to Fetch a Webhook
 
 ```php
+// Find by MailerLite ID - searches through webhook list
 $webhook = MailerLite::webhooks()->find('webhook-id-123');
 
-// Find by URL
+// Find by webhook URL (recommended approach)
 $webhook = MailerLite::webhooks()->findByUrl('https://app.example.com/webhook');
+
+// Note: MailerLite API doesn't have a single webhook endpoint
+// Both methods search through paginated webhook lists automatically
+
+if ($webhook) {
+    echo "Found webhook: " . $webhook['url'];
+    echo "Events: " . implode(', ', $webhook['events']);
+} else {
+    echo "Webhook not found";
+}
 ```
 
 ### How to Update a Webhook
@@ -912,6 +962,65 @@ test('subscriber can be created with fluent API', function () {
 
 ## API Limitations & Important Notes
 
+### MailerLite API Resource Limitations
+
+Due to MailerLite API constraints, some resources don't have direct "get by ID" endpoints. This package implements intelligent workarounds using search-through-list functionality:
+
+#### Resources with Search-Based Retrieval
+
+| Resource | Limitation | Package Solution |
+|----------|------------|------------------|
+| **Campaigns** | No single campaign endpoint | Searches through campaign list by name |
+| **Segments** | No single segment endpoint | Searches through segment list by name |
+| **Automations** | No single automation endpoint | Searches through automation list by name |
+| **Webhooks** | No single webhook endpoint | Searches through webhook list by URL |
+
+#### How Search-Based Functionality Works
+
+```php
+// These methods automatically search through paginated lists:
+
+// Campaign by name - searches through all campaigns
+$campaign = MailerLite::campaigns()->findByName('Weekly Newsletter');
+
+// Segment by name - searches through all segments  
+$segment = MailerLite::segments()->findByName('Active Users');
+
+// Automation by name - searches through all automations
+$automation = MailerLite::automations()->findByName('Welcome Series');
+
+// Webhook by URL - searches through all webhooks
+$webhook = MailerLite::webhooks()->findByUrl('https://app.example.com/webhook');
+
+// These methods use the search functionality internally:
+$campaign = MailerLite::campaigns()->find('campaign-id-or-name');
+$segment = MailerLite::segments()->find('segment-id-or-name');  
+$automation = MailerLite::automations()->find('automation-id-or-name');
+$webhook = MailerLite::webhooks()->find('webhook-id-or-url');
+```
+
+#### Performance Considerations
+
+**⚠️ Important Performance Notes:**
+
+- **First-time searches** may be slower as they iterate through API pages
+- **Exact matches** are faster than partial searches
+- **Consider caching** results for frequently accessed resources
+- **Use specific names** to improve search efficiency
+
+```php
+// More efficient - exact name match
+$campaign = MailerLite::campaigns()->findByName('Weekly Newsletter');
+
+// Less efficient - will search through many pages if not found early
+$campaign = MailerLite::campaigns()->findByName('Newsletter That May Not Exist');
+
+// Most efficient - direct API call (only works for Subscribers, Groups, Fields)
+$subscriber = MailerLite::subscribers()->findById('12345');
+$group = MailerLite::groups()->find('group-id-123');
+$field = MailerLite::fields()->find('field-id-123');
+```
+
 ### Segment Creation
 **❌ Not supported via API** - Segments must be created through the [MailerLite web interface](https://dashboard.mailerlite.com/). Once created, you can manage them via this package.
 
@@ -939,6 +1048,58 @@ MailerLite::campaigns()->name('Campaign Name')->subject('Newsletter')->create();
 // Both work the same way:
 ->toGroups(['12345', '67890'])                    // Group IDs
 ->toGroups(['Newsletter', 'Premium Customers'])   // Group names (auto-resolved)
+```
+
+### Search Operation Error Handling
+
+```php
+use Ihasan\LaravelMailerlite\Exceptions\{
+    CampaignNotFoundException,
+    SegmentNotFoundException,
+    AutomationNotFoundException,
+    WebhookNotFoundException
+};
+
+try {
+    $campaign = MailerLite::campaigns()->findByName('Non Existent Campaign');
+    // Returns null if not found
+    
+    if (!$campaign) {
+        // Handle not found case
+    }
+    
+} catch (CampaignNotFoundException $e) {
+    // Handle specific campaign search errors
+} catch (MailerLiteException $e) {
+    // Handle general API errors during search
+}
+```
+
+### Best Practices for Search-Based Operations
+
+```php
+// ✅ Good: Use specific, exact names for faster searches
+$campaign = MailerLite::campaigns()->findByName('Weekly Newsletter - January 2024');
+
+// ❌ Avoid: Generic names that might match multiple results
+$campaign = MailerLite::campaigns()->findByName('Newsletter');
+
+// ✅ Good: Cache results for frequently accessed resources
+$segmentCache = cache()->remember('active-users-segment', 3600, function () {
+    return MailerLite::segments()->findByName('Active Users');
+});
+
+// ✅ Good: Handle not-found cases gracefully
+$automation = MailerLite::automations()->findByName('Welcome Series');
+if (!$automation) {
+    Log::warning('Welcome Series automation not found - may need to be recreated');
+    // Fallback logic here
+}
+
+// ✅ Good: Use direct ID methods when available (Groups, Fields, Subscribers)
+$group = MailerLite::groups()->find('group-123');           // Direct API call
+$field = MailerLite::fields()->find('field-456');           // Direct API call  
+$subscriber = MailerLite::subscribers()->findById('sub-789'); // Direct API call
 ```
 
 ## Error Handling
