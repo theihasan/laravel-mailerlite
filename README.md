@@ -494,13 +494,22 @@ $campaigns = MailerLite::campaigns()->list([
 ### How to Create a Campaign
 
 ```php
-// Create draft campaign
+// Basic campaign (name auto-generated from subject)
 $campaign = MailerLite::campaigns()
     ->subject('Weekly Newsletter')
     ->from('Newsletter Team', 'newsletter@company.com')
     ->html('<h1>Newsletter</h1><p>Content here...</p>')
     ->plain('Newsletter - Content here...')
-    ->toGroups(['newsletter-subscribers', 'customers'])
+    ->toGroups(['12345', '67890']) // Use group IDs or names (auto-resolved)
+    ->create();
+
+// Campaign with custom name
+$campaign = MailerLite::campaigns()
+    ->name('Weekly Newsletter Campaign')      // Custom campaign name
+    ->subject('Weekly Newsletter')            // Email subject line
+    ->from('Newsletter Team', 'newsletter@company.com')
+    ->html('<h1>Newsletter</h1><p>Content here...</p>')
+    ->toGroups(['newsletter-subscribers', 'customers']) // Group names auto-resolved
     ->create();
 
 // Create and send immediately
@@ -520,6 +529,11 @@ $campaign = MailerLite::campaigns()
     ->scheduleAt(now()->addDays(2))
     ->schedule();
 ```
+
+> **💡 Pro Tips:**
+> - Campaign **name** is required by MailerLite API (auto-generated from subject if not provided)
+> - Use **group IDs** for better performance, or **group names** (auto-resolved to IDs)
+> - Both **HTML** and **plain text** content are recommended but only one is required
 
 ### How to Fetch a Campaign
 
@@ -566,6 +580,8 @@ $subscribers = MailerLite::campaigns()->subscribers('campaign-id-123', [
 
 ## Segments
 
+> **⚠️ Important Note**: Segment creation is **NOT supported** by the MailerLite API. Segments must be created through the [MailerLite web interface](https://dashboard.mailerlite.com/). Once created, you can manage them via this package.
+
 ### How to Get All Segments
 
 ```php
@@ -574,56 +590,78 @@ $segments = MailerLite::segments()->all();
 
 // Get segments with filters
 $segments = MailerLite::segments()->list([
-    'filter[status]' => 'active',
-    'limit' => 25
+    'limit' => 25,
+    'page' => 1
 ]);
+
+// Response structure
+/*
+{
+    "data": [
+        {
+            "id": "12345",
+            "name": "Active Users",
+            "total": 150,
+            "open_rate": {"float": 0.25, "string": "25%"},
+            "click_rate": {"float": 0.12, "string": "12%"},
+            "created_at": "2024-01-15T10:30:00Z"
+        }
+    ],
+    "meta": {
+        "current_page": 1,
+        "total": 5
+    }
+}
+*/
 ```
 
 ### How to Create a Segment
 
+**❌ Segments cannot be created via API.** Use the MailerLite web interface instead:
+
 ```php
-// Field-based segment
-$segment = MailerLite::segments()
-    ->name('Active Premium Users')
-    ->whereField('plan', 'equals', 'premium')
-    ->andWhereField('last_login', 'after', '2024-01-01')
-    ->create();
-
-// Email activity segment
-$segment = MailerLite::segments()
-    ->name('Highly Engaged')
-    ->whoOpened(null, 30) // Opened any email in last 30 days
-    ->andWhoClicked(null, 30) // And clicked in last 30 days
-    ->create();
-
-// Group-based segment
-$segment = MailerLite::segments()
-    ->name('Newsletter VIPs')
-    ->inGroup('newsletter-subscribers')
-    ->andWhereField('engagement_score', 'greater_than', 80)
-    ->create();
-
-// Date-based segment
-$segment = MailerLite::segments()
-    ->name('Recent Subscribers')
-    ->createdAfter('2024-01-01')
-    ->subscribedAfter('2024-01-01')
-    ->create();
+// This will throw a BadMethodCallException with helpful instructions:
+try {
+    $segment = MailerLite::segments()
+        ->name('Active Premium Users')
+        ->whereField('plan', 'equals', 'premium')
+        ->create();
+} catch (\BadMethodCallException $e) {
+    echo $e->getMessage();
+    // "Segment creation is not supported by the MailerLite API. 
+    // Segments must be created through the MailerLite web interface 
+    // at https://dashboard.mailerlite.com/..."
+}
 ```
+
+**✅ To create segments:**
+1. Go to [MailerLite Dashboard](https://dashboard.mailerlite.com/)
+2. Navigate to **Subscribers** → **Segments**
+3. Click **Create Segment**
+4. Set up your filters using the visual interface
+5. Use this package to manage the segment via API
 
 ### How to Fetch a Segment
 
 ```php
-$segment = MailerLite::segments()->find('segment-id-123');
+// Find segment by ID (Note: MailerLite API doesn't have a single segment endpoint)
+$segment = MailerLite::segments()->find('segment-id-123'); // May return null
+
+// Get all segments and find by name
+$segments = MailerLite::segments()->all();
+$targetSegment = collect($segments['data'])->firstWhere('name', 'Active Users');
 ```
 
 ### How to Update a Segment
 
 ```php
+// Only the segment name can be updated via API
 $updated = MailerLite::segments()
     ->name('Updated Segment Name')
-    ->whereField('status', 'equals', 'active')
     ->update('segment-id-123');
+
+// Note: Segment filters/conditions cannot be updated via API
+// Use the MailerLite web interface to modify segment criteria
 ```
 
 ### How to Delete a Segment
@@ -637,19 +675,38 @@ $deleted = MailerLite::segments()->delete('segment-id-123');
 ```php
 // Get segment subscribers
 $subscribers = MailerLite::segments()->getSubscribers('segment-id-123', [
-    'limit' => 100
+    'limit' => 100,
+    'filter[status]' => 'active'
 ]);
 
-// Refresh segment (recalculate matches)
-MailerLite::segments()->refresh('segment-id-123');
-
-// Get segment statistics
-$stats = MailerLite::segments()->getStats('segment-id-123');
-
-// Activate/deactivate segment
-MailerLite::segments()->activate('segment-id-123');
-MailerLite::segments()->deactivate('segment-id-123');
+// Response includes subscriber data with fields and groups
+/*
+{
+    "data": [
+        {
+            "id": "67890",
+            "email": "user@example.com",
+            "status": "active",
+            "fields": {"company": "Acme Corp"},
+            "groups": [...]
+        }
+    ],
+    "meta": {"total": 150}
+}
+*/
 ```
+
+### Supported vs Unsupported Operations
+
+| Operation | Supported | Method |
+|-----------|-----------|---------|
+| **List segments** | ✅ | `MailerLite::segments()->all()` |
+| **Get segment subscribers** | ✅ | `MailerLite::segments()->getSubscribers($id)` |
+| **Update segment name** | ✅ | `MailerLite::segments()->update($id, $dto)` |
+| **Delete segment** | ✅ | `MailerLite::segments()->delete($id)` |
+| **Create segment** | ❌ | Use [web interface](https://dashboard.mailerlite.com/) |
+| **Update segment filters** | ❌ | Use [web interface](https://dashboard.mailerlite.com/) |
+| **Activate/deactivate** | ❌ | Use [web interface](https://dashboard.mailerlite.com/) |
 
 ## Automations
 
@@ -853,6 +910,37 @@ test('subscriber can be created with fluent API', function () {
 });
 ```
 
+## API Limitations & Important Notes
+
+### Segment Creation
+**❌ Not supported via API** - Segments must be created through the [MailerLite web interface](https://dashboard.mailerlite.com/). Once created, you can manage them via this package.
+
+```php
+// This will throw a helpful exception:
+MailerLite::segments()->name('Test')->whereField('plan', 'premium')->create();
+// BadMethodCallException: "Segments must be created through the MailerLite web interface..."
+```
+
+### Campaign Requirements  
+**✅ Name field is required** - MailerLite API requires a campaign name. If not provided, it's auto-generated from the subject line.
+
+```php
+// Auto-generated name from subject
+MailerLite::campaigns()->subject('Newsletter')->from('...')->create();
+
+// Custom name
+MailerLite::campaigns()->name('Campaign Name')->subject('Newsletter')->create();
+```
+
+### Group Resolution
+**✅ Automatic group name → ID resolution** - You can use group names or IDs interchangeably.
+
+```php
+// Both work the same way:
+->toGroups(['12345', '67890'])                    // Group IDs
+->toGroups(['Newsletter', 'Premium Customers'])   // Group names (auto-resolved)
+```
+
 ## Error Handling
 
 The package provides granular exception handling:
@@ -862,7 +950,8 @@ use Ihasan\LaravelMailerlite\Exceptions\{
     MailerLiteAuthenticationException,
     SubscriberCreateException,
     SubscriberNotFoundException,
-    CampaignSendException
+    CampaignCreateException,
+    SegmentCreateException
 };
 
 try {
@@ -871,8 +960,10 @@ try {
     // Handle authentication issues
 } catch (SubscriberCreateException $e) {
     // Handle subscriber creation failures
-} catch (SubscriberNotFoundException $e) {
-    // Handle missing subscribers
+} catch (CampaignCreateException $e) {
+    // Handle campaign creation issues (missing name, invalid data, etc.)
+} catch (\BadMethodCallException $e) {
+    // Handle unsupported operations (like segment creation)
 } catch (\InvalidArgumentException $e) {
     // Handle validation errors
 }

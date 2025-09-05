@@ -31,20 +31,19 @@ class SegmentService implements SegmentsInterface
 
     /**
      * Create a new segment.
+     * 
+     * Note: MailerLite API does NOT support creating segments programmatically.
+     * Segments must be created through the MailerLite web interface.
      *
-     * @throws SegmentCreateException
-     * @throws MailerLiteAuthenticationException
+     * @throws \BadMethodCallException
      */
     public function create(SegmentDTO $segment): array
     {
-        try {
-            $client = $this->manager->getClient();
-            $response = $client->segments->create($segment->toArray());
-
-            return $this->transformSegmentResponse($response);
-        } catch (\Exception $e) {
-            $this->handleCreateException($segment->name, $e);
-        }
+        throw new \BadMethodCallException(
+            'Segment creation is not supported by the MailerLite API. ' .
+            'Segments must be created through the MailerLite web interface at https://dashboard.mailerlite.com/. ' .
+            'You can then list, update, and delete segments via the API.'
+        );
     }
 
     /**
@@ -135,11 +134,14 @@ class SegmentService implements SegmentsInterface
         try {
             $client = $this->manager->getClient();
             $response = $client->segments->get($filters);
+            
+            // The MailerLite SDK wraps the API response in a 'body' key
+            $body = $response['body'] ?? $response;
 
             return [
-                'data' => array_map([$this, 'transformSegmentResponse'], $response['data'] ?? []),
-                'meta' => $response['meta'] ?? [],
-                'links' => $response['links'] ?? [],
+                'data' => array_map([$this, 'transformSegmentResponse'], $body['data'] ?? []),
+                'meta' => $body['meta'] ?? [],
+                'links' => $body['links'] ?? [],
             ];
         } catch (\Exception $e) {
             $this->handleException($e);
@@ -157,11 +159,14 @@ class SegmentService implements SegmentsInterface
         try {
             $client = $this->manager->getClient();
             $response = $client->segments->getSubscribers($segmentId, $filters);
+            
+            // The MailerLite SDK wraps the API response in a 'body' key
+            $body = $response['body'] ?? $response;
 
             return [
-                'data' => $response['data'] ?? [],
-                'meta' => $response['meta'] ?? [],
-                'links' => $response['links'] ?? [],
+                'data' => $body['data'] ?? [],
+                'meta' => $body['meta'] ?? [],
+                'links' => $body['links'] ?? [],
             ];
         } catch (\Exception $e) {
             if ($this->isNotFoundError($e)) {
@@ -276,21 +281,20 @@ class SegmentService implements SegmentsInterface
      */
     protected function transformSegmentResponse(array $response): array
     {
+        $data = $response['body']['data'] ?? $response;
+        
         return [
-            'id' => $response['id'] ?? null,
-            'name' => $response['name'] ?? null,
-            'description' => $response['description'] ?? null,
-            'filters' => $response['filters'] ?? [],
-            'active' => $response['active'] ?? true,
-            'subscribers_count' => $response['subscribers_count'] ?? 0,
-            'active_count' => $response['active_count'] ?? 0,
-            'unsubscribed_count' => $response['unsubscribed_count'] ?? 0,
-            'unconfirmed_count' => $response['unconfirmed_count'] ?? 0,
-            'bounced_count' => $response['bounced_count'] ?? 0,
-            'junk_count' => $response['junk_count'] ?? 0,
-            'last_calculated_at' => $response['last_calculated_at'] ?? null,
-            'created_at' => $response['created_at'] ?? null,
-            'updated_at' => $response['updated_at'] ?? null,
+            'id' => $data['id'] ?? null,
+            'name' => $data['name'] ?? null,
+            'description' => $data['description'] ?? null,
+            'filters' => $data['filters'] ?? [],
+            'active' => $data['active'] ?? true,
+            'total' => $data['total'] ?? 0, // MailerLite uses 'total' not 'subscribers_count'
+            'subscribers_count' => $data['total'] ?? 0, // Alias for backward compatibility
+            'open_rate' => $data['open_rate'] ?? ['float' => 0, 'string' => '0%'],
+            'click_rate' => $data['click_rate'] ?? ['float' => 0, 'string' => '0%'],
+            'created_at' => $data['created_at'] ?? null,
+            'updated_at' => $data['updated_at'] ?? null,
         ];
     }
 

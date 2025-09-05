@@ -348,15 +348,19 @@ class SegmentBuilder
 
     /**
      * Create the segment.
+     * 
+     * Note: MailerLite API does NOT support creating segments programmatically.
+     * Segments must be created through the MailerLite web interface.
      *
-     * @throws \Ihasan\LaravelMailerlite\Exceptions\SegmentCreateException
-     * @throws \InvalidArgumentException
+     * @throws \BadMethodCallException
      */
     public function create(): array
     {
-        $dto = $this->toDTO();
-
-        return $this->service->create($dto);
+        throw new \BadMethodCallException(
+            'Segment creation is not supported by the MailerLite API. ' .
+            'Segments must be created through the MailerLite web interface at https://dashboard.mailerlite.com/. ' .
+            'You can then list, update, and delete segments via the API.'
+        );
     }
 
     /**
