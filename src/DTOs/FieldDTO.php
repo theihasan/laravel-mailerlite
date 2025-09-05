@@ -339,17 +339,12 @@ class FieldDTO
                 ! is_bool($defaultValue) &&
                 throw new InvalidArgumentException('Default value for boolean field must be a boolean.'),
 
-            'date' => {
-                if (! is_string($defaultValue)) {
-                    throw new InvalidArgumentException('Default value for date field must be a string.');
-                }
-                // Basic date format validation (YYYY-MM-DD)
-                if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $defaultValue)) {
-                    throw new InvalidArgumentException(
-                        'Default value for date field must be in YYYY-MM-DD format.'
-                    );
-                }
-            },
+            'date' => is_string($defaultValue) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $defaultValue) ? true :
+                throw new InvalidArgumentException(
+                    is_string($defaultValue) 
+                        ? 'Default value for date field must be in YYYY-MM-DD format.'
+                        : 'Default value for date field must be a string.'
+                ),
 
             default => null,
         };
