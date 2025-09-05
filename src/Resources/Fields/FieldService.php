@@ -65,15 +65,17 @@ class FieldService implements FieldsInterface
     public function getById(string $id): ?array
     {
         try {
-            $client = $this->manager->getClient();
-            $response = $client->fields->find($id);
+            // MailerLite API doesn't have a single field endpoint, so we search through all fields
+            $fields = $this->list();
 
-            return $response ? $this->transformFieldResponse($response) : null;
-        } catch (\Exception $e) {
-            if ($this->isNotFoundError($e)) {
-                return null;
+            foreach ($fields['data'] as $field) {
+                if ($field['id'] === $id) {
+                    return $field;
+                }
             }
 
+            return null;
+        } catch (\Exception $e) {
             $this->handleException($e);
         }
     }
@@ -173,28 +175,16 @@ class FieldService implements FieldsInterface
     /**
      * Get field usage statistics.
      *
-     * @throws FieldNotFoundException
-     * @throws MailerLiteAuthenticationException
+     * Note: This functionality is not available in the current MailerLite API.
+     * 
+     * @throws \BadMethodCallException
      */
     public function getUsage(string $id): array
     {
-        try {
-            $client = $this->manager->getClient();
-            $response = $client->fields->usage($id);
-
-            return [
-                'subscribers_count' => $response['subscribers_count'] ?? 0,
-                'filled_count' => $response['filled_count'] ?? 0,
-                'empty_count' => $response['empty_count'] ?? 0,
-                'usage_percentage' => $response['usage_percentage'] ?? 0.0,
-            ];
-        } catch (\Exception $e) {
-            if ($this->isNotFoundError($e)) {
-                throw FieldNotFoundException::withId($id);
-            }
-
-            $this->handleException($e);
-        }
+        throw new \BadMethodCallException(
+            'Field usage statistics are not available in the MailerLite API. ' .
+            'This method is not implemented.'
+        );
     }
 
     /**
