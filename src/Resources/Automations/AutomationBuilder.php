@@ -502,6 +502,14 @@ class AutomationBuilder
     }
 
     /**
+     * Find automation by name.
+     */
+    public function findByName(string $name): ?array
+    {
+        return $this->service->findByName($name);
+    }
+
+    /**
      * Update an existing automation.
      *
      * @throws \Ihasan\LaravelMailerlite\Exceptions\AutomationNotFoundException

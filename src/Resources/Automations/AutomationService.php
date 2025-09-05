@@ -357,6 +357,7 @@ class AutomationService implements AutomationsInterface
      */
     protected function transformAutomationResponse(array $response): array
     {
+        $data = $response['data']['body'] ?? $response;
         return [
             'id' => $response['id'] ?? null,
             'account_id' => $response['account_id'] ?? null,
