@@ -251,8 +251,10 @@ describe('SubscriberDTO', function () {
 
             $expected = [
                 'email' => 'full@example.com',
-                'name' => 'Full User',
-                'fields' => ['role' => 'admin'],
+                'fields' => [
+                    'role' => 'admin',
+                    'name' => 'Full User'
+                ],
                 'groups' => ['group1'],
                 'status' => 'unconfirmed',
                 'resubscribe' => true,
@@ -275,7 +277,9 @@ describe('SubscriberDTO', function () {
 
             $expected = [
                 'email' => 'default@example.com',
-                'name' => 'User',
+                'fields' => [
+                    'name' => 'User'
+                ],
             ];
 
             expect($dto->toArray())->toBe($expected);
