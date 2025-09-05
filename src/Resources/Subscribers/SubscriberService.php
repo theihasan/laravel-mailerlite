@@ -78,7 +78,7 @@ class SubscriberService implements SubscribersInterface
     {
         try {
             $client = $this->manager->getClient();
-            $response = $client->subscribers->get();
+            $response = $client->subscribers->find($id);
 
             return $response ? $this->transformSubscriberResponse($response) : null;
         } catch (\Exception $e) {
@@ -172,7 +172,7 @@ class SubscriberService implements SubscribersInterface
     {
         try {
             $client = $this->manager->getClient();
-            $response = $client->groups->addSubscriber($groupId, ['email' => $subscriberId]);
+            $response = $client->groups->assignSubscriber($groupId, $subscriberId);
 
             return $response;
         } catch (\Exception $e) {
@@ -194,7 +194,7 @@ class SubscriberService implements SubscribersInterface
     {
         try {
             $client = $this->manager->getClient();
-            $client->groups->removeSubscriber($groupId, $subscriberId);
+            $client->groups->unAssignSubscriber($groupId, $subscriberId);
 
             return true;
         } catch (\Exception $e) {
@@ -268,7 +268,33 @@ class SubscriberService implements SubscribersInterface
             ];
             
             $mergedOptions = array_merge($defaultOptions, $options);
-            $response = $client->groups->importSubscribers($groupId, $subscribers, $mergedOptions);
+            
+            // Use batch endpoint to create/update subscribers with groups
+            $batchRequests = [];
+            
+            foreach ($subscribers as $subscriberData) {
+                // Create DTO to ensure proper formatting (name goes to fields, etc.)
+                $dto = new SubscriberDTO(
+                    email: $subscriberData['email'],
+                    name: $subscriberData['name'] ?? null,
+                    fields: $subscriberData['fields'] ?? [],
+                    groups: array_merge($subscriberData['groups'] ?? [], [$groupId]),
+                    status: $subscriberData['status'] ?? 'active',
+                    resubscribe: $mergedOptions['resubscribe'],
+                    type: $subscriberData['type'] ?? null,
+                    segments: $subscriberData['segments'] ?? [],
+                    autoresponders: $mergedOptions['autoresponders']
+                );
+                
+                $batchRequests[] = [
+                    'method' => 'POST',
+                    'path' => '/api/subscribers',
+                    'body' => $dto->toArray()
+                ];
+            }
+            
+            // Send batch request
+            $response = $client->batches->send(['requests' => $batchRequests]);
 
             return $response;
         } catch (\Exception $e) {
@@ -282,16 +308,18 @@ class SubscriberService implements SubscribersInterface
     protected function transformSubscriberResponse(array $response): array
     {
         $data = $response['body']['data'] ?? $response;
+        $fields = $data['fields'] ?? [];
+        
         return [
             'id' => $data['id'] ?? null,
             'email' => $data['email'] ?? null,
-            'name' => $data['name'] ?? null,
+            'name' => $fields['name'] ?? $data['name'] ?? null, // Check fields first, then fallback to top-level
             'status' => $data['status'] ?? null,
             'subscribed_at' => $data['subscribed_at'] ?? null,
             'unsubscribed_at' => $data['unsubscribed_at'] ?? null,
             'created_at' => $data['created_at'] ?? null,
             'updated_at' => $data['updated_at'] ?? null,
-            'fields' => $data['fields'] ?? [],
+            'fields' => $fields,
             'groups' => $data['groups'] ?? [],
             'segments' => $data['segments'] ?? [],
             'opted_in_at' => $data['opted_in_at'] ?? null,
