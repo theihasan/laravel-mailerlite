@@ -155,22 +155,25 @@ class FieldService implements FieldsInterface
      *
      * @throws MailerLiteAuthenticationException
      */
-    public function findByName(string $name): ?array
-    {
-        try {
-            $fields = $this->list();
+     public function findByName(string $name): ?array
+     {
+         try {
+             // Convert names with spaces to snake_case
+             $searchName = strtolower(str_replace(' ', '_', $name));
 
-            foreach ($fields['data'] as $field) {
-                if ($field['name'] === $name) {
-                    return $field;
-                }
-            }
+             $fields = $this->list();
 
-            return null;
-        } catch (\Exception $e) {
-            $this->handleException($e);
-        }
-    }
+             foreach ($fields['data'] as $field) {
+                 if ($field['key'] === $searchName) {
+                     return $field;
+                 }
+             }
+
+             return null;
+         } catch (\Exception $e) {
+             $this->handleException($e);
+         }
+     }
 
     /**
      * Get field usage statistics.
