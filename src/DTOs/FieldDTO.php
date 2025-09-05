@@ -137,6 +137,9 @@ class FieldDTO
 
     /**
      * Convert the DTO to an array for API submission.
+     * 
+     * Note: MailerLite API doesn't support a separate 'title' field for custom fields.
+     * The 'name' field serves as both the identifier and display name.
      */
     public function toArray(): array
     {
@@ -145,9 +148,8 @@ class FieldDTO
             'type' => $this->type,
         ];
 
-        if ($this->title !== null) {
-            $data['title'] = $this->title;
-        }
+        // Note: 'title' is not included as MailerLite API doesn't support it
+        // The 'name' field serves as both identifier and display title
 
         if ($this->defaultValue !== null) {
             $data['default_value'] = $this->defaultValue;
@@ -275,16 +277,12 @@ class FieldDTO
             throw new InvalidArgumentException('Field name cannot be empty.');
         }
 
-        if (strlen($name) > 100) {
-            throw new InvalidArgumentException('Field name cannot exceed 100 characters.');
+        if (strlen($name) > 255) {
+            throw new InvalidArgumentException('Field name cannot exceed 255 characters (MailerLite limit).');
         }
 
-        // Field name should be a valid identifier (letters, numbers, underscores)
-        if (! preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $name)) {
-            throw new InvalidArgumentException(
-                'Field name must start with a letter and contain only letters, numbers, and underscores.'
-            );
-        }
+        // MailerLite accepts human-readable field names with spaces and most characters
+        // Just ensure it's not too long and not empty - let MailerLite API handle validation
     }
 
     /**
@@ -328,26 +326,20 @@ class FieldDTO
             return;
         }
 
-        switch ($type) {
-            case 'text':
-                if (! is_string($defaultValue)) {
-                    throw new InvalidArgumentException('Default value for text field must be a string.');
-                }
-                break;
+        match ($type) {
+            'text' => 
+                ! is_string($defaultValue) &&
+                throw new InvalidArgumentException('Default value for text field must be a string.'),
 
-            case 'number':
-                if (! is_numeric($defaultValue)) {
-                    throw new InvalidArgumentException('Default value for number field must be numeric.');
-                }
-                break;
+            'number' =>
+                ! is_numeric($defaultValue) &&
+                throw new InvalidArgumentException('Default value for number field must be numeric.'),
 
-            case 'boolean':
-                if (! is_bool($defaultValue)) {
-                    throw new InvalidArgumentException('Default value for boolean field must be a boolean.');
-                }
-                break;
+            'boolean' =>
+                ! is_bool($defaultValue) &&
+                throw new InvalidArgumentException('Default value for boolean field must be a boolean.'),
 
-            case 'date':
+            'date' => {
                 if (! is_string($defaultValue)) {
                     throw new InvalidArgumentException('Default value for date field must be a string.');
                 }
@@ -357,8 +349,10 @@ class FieldDTO
                         'Default value for date field must be in YYYY-MM-DD format.'
                     );
                 }
-                break;
-        }
+            },
+
+            default => null,
+        };
     }
 
     /**

@@ -141,11 +141,15 @@ class FieldBuilder
     }
 
     /**
-     * Set the field title.
+     * Set the field title (which updates the field name in MailerLite).
+     * 
+     * Note: MailerLite does not support separate title fields. The name field
+     * serves as both the identifier and display name.
      */
     public function withTitle(string $title): static
     {
-        $this->title = $title;
+        // In MailerLite, the title IS the name - there's no separate title field
+        $this->name = $title;
 
         return $this;
     }
@@ -299,7 +303,22 @@ class FieldBuilder
      */
     public function update(string $id): array
     {
-        $dto = $this->toDTO();
+        // Get the existing field to merge with new values
+        $existingField = $this->service->getById($id);
+        
+        if (!$existingField) {
+            throw \Ihasan\LaravelMailerlite\Exceptions\FieldNotFoundException::withId($id);
+        }
+        
+        // Create DTO with existing values as defaults, overridden by builder values
+        $dto = new \Ihasan\LaravelMailerlite\DTOs\FieldDTO(
+            name: $this->name ?? $existingField['name'],
+            type: $this->type ?? $existingField['type'],
+            title: $this->title ?? $existingField['title'],
+            defaultValue: $this->defaultValue ?? $existingField['default_value'],
+            options: !empty($this->options) ? $this->options : ($existingField['options'] ?? []),
+            required: $this->required !== false ? $this->required : ($existingField['required'] ?? false)
+        );
 
         return $this->service->update($id, $dto);
     }
