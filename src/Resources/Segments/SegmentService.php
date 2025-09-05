@@ -90,24 +90,23 @@ class SegmentService implements SegmentsInterface
      *
      * @throws MailerLiteAuthenticationException
      */
-     public function findByName(string $name): ?array
-     {
-         try {
-             // Use the filter parameter to filter segments by name on the API side
-             // This leverages the API's filtering capabilities instead of retrieving all segments
-             $filters = ['filter[name]' => $name];
-             $segments = $this->list($filters);
-
-             // If we have a matching segment, it will be the first (and possibly only) result
-             if (isset($segments['data'][0]) && $segments['data'][0]['name'] === $name) {
-                 return $segments['data'][0];
-             }
-
-             return null;
-         } catch (\Exception $e) {
-             $this->handleException($e);
-         }
-     }
+    public function findByName(string $name): ?array
+    {
+        try {
+            // Since there's no single segment endpoint, we need to search through all segments
+            $segments = $this->list();
+            
+            foreach ($segments['data'] as $segment) {
+                if ($segment['name'] === $name) {
+                    return $segment;
+                }
+            }
+            
+            return null;
+        } catch (\Exception $e) {
+            $this->handleException($e);
+        }
+    }
 
     /**
      * Update an existing segment.

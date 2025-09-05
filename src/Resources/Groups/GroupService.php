@@ -101,6 +101,16 @@ class GroupService implements GroupsInterface
     }
 
     /**
+     * Find a group by name (alias for getByName).
+     *
+     * @throws MailerLiteAuthenticationException
+     */
+    public function findByName(string $name): ?array
+    {
+        return $this->getByName($name);
+    }
+
+    /**
      * Update an existing group.
      *
      * @throws GroupNotFoundException
