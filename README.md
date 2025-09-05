@@ -306,16 +306,65 @@ $result = MailerLite::subscribers()
 ```
 
 #### Group Management
+
+**⚠️ Important: `toGroup()` vs `addToGroup()` - Common Confusion**
+
+These methods serve **different purposes** and are often confused:
+
+| Method | Purpose | When to Use | API Calls |
+|--------|---------|-------------|-----------|
+| `toGroup()` | Assign groups **during subscriber creation** | Creating new subscribers | None (builds data) |
+| `addToGroup()` | Add **existing subscriber** to group | Modifying existing subscribers | Immediate API call |
+
+**✅ Creating New Subscriber with Groups:**
 ```php
-// Add to group
-MailerLite::subscribers()
-    ->email('jane@example.com')
-    ->addToGroup('premium-users');
+// Use toGroup() - groups assigned during creation
+$subscriber = MailerLite::subscribers()
+    ->email('newuser@example.com')
+    ->named('New User')
+    ->toGroup('12345')              // ← Assigns group during creation
+    ->toGroups(['67890', '11111'])  // ← Multiple groups
+    ->subscribe();                  // ← Creates subscriber WITH groups
+```
+
+**✅ Adding Existing Subscriber to Groups:**
+```php
+// Use addToGroup() - immediate group assignment  
+$result = MailerLite::subscribers()
+    ->email('jane@example.com')     // ← Find existing subscriber
+    ->addToGroup('premium-users');  // ← Immediately adds to group
 
 // Remove from group
 MailerLite::subscribers()
     ->email('jane@example.com')
     ->removeFromGroup('trial-users');
+```
+
+**❌ Common Mistake:**
+```php
+// This WON'T work - toGroup() just builds data, doesn't execute
+MailerLite::subscribers()
+    ->email('existing@example.com')
+    ->toGroup('12345');  // ← No API call made! Data just stored in builder.
+```
+
+**⚠️ Group IDs vs Names:**
+MailerLite requires **numeric group IDs**, not group names:
+```php
+// ❌ Wrong - using group name
+->toGroup('Newsletter Subscribers')
+
+// ✅ Correct - using group ID  
+->toGroup('12345')
+
+// Find group ID first:
+$groups = MailerLite::groups()->list();
+foreach($groups['data'] as $group) {
+    if($group['name'] === 'Newsletter Subscribers') {
+        $groupId = $group['id']; // Use this ID
+        break;
+    }
+}
 ```
 
 #### Alternative DTO Approach
@@ -869,13 +918,18 @@ $webhook = MailerLite::webhooks()->findByUrl('https://app.example.com/webhook');
 | `resubscribe(string $id)` | array | SubscriberUpdateException, SubscriberNotFoundException |
 
 #### Builder Methods
+
+**Key Distinction:**
+- **`toGroup()`** - Assigns groups during subscriber **creation** (no immediate API call)
+- **`addToGroup()`** - Adds **existing** subscriber to group (immediate API call)
+
 | Method | Returns | Description |
 |--------|---------|-------------|
 | `email(string $email)` | self | Set email address |
 | `named(string $name)` | self | Set subscriber name |
 | `withField(string $key, mixed $value)` | self | Add custom field |
 | `withFields(array $fields)` | self | Add multiple fields |
-| `toGroup(string\|array $groups)` | self | Assign to groups |
+| `toGroup(string\|array $groups)` | self | Assign to groups (for new subscribers) |
 | `toSegment(string\|array $segments)` | self | Assign to segments |
 | `active()` | self | Set status to active |
 | `unsubscribed()` | self | Set status to unsubscribed |
@@ -885,6 +939,8 @@ $webhook = MailerLite::webhooks()->findByUrl('https://app.example.com/webhook');
 | `subscribe()` | array | Create subscriber |
 | `update()` | array\|null | Update existing subscriber |
 | `find()` | array\|null | Find subscriber by email |
+| `addToGroup(string $groupId)` | array\|null | Add existing subscriber to group |
+| `removeFromGroup(string $groupId)` | bool | Remove existing subscriber from group |
 | `unsubscribe()` | array\|null | Unsubscribe subscriber |
 | `delete()` | bool | Delete subscriber |
 
