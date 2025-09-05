@@ -134,11 +134,14 @@ class FieldService implements FieldsInterface
         try {
             $client = $this->manager->getClient();
             $response = $client->fields->get($filters);
+            
+            // The MailerLite SDK wraps the API response in a 'body' key
+            $body = $response['body'] ?? $response;
 
             return [
-                'data' => array_map([$this, 'transformFieldResponse'], $response['data'] ?? []),
-                'meta' => $response['meta'] ?? [],
-                'links' => $response['links'] ?? [],
+                'data' => array_map([$this, 'transformFieldResponse'], $body['data'] ?? []),
+                'meta' => $body['meta'] ?? [],
+                'links' => $body['links'] ?? [],
             ];
         } catch (\Exception $e) {
             $this->handleException($e);
@@ -199,18 +202,23 @@ class FieldService implements FieldsInterface
      */
     protected function transformFieldResponse(array $response): array
     {
+        $data = $response['body']['data'] ?? $response;
+        
         return [
-            'id' => $response['id'] ?? null,
-            'name' => $response['name'] ?? null,
-            'type' => $response['type'] ?? null,
-            'title' => $response['title'] ?? null,
-            'default_value' => $response['default_value'] ?? null,
-            'options' => $response['options'] ?? [],
-            'required' => $response['required'] ?? false,
-            'position' => $response['position'] ?? null,
-            'subscribers_count' => $response['subscribers_count'] ?? null,
-            'created_at' => $response['created_at'] ?? null,
-            'updated_at' => $response['updated_at'] ?? null,
+            'id' => $data['id'] ?? null,
+            'name' => $data['name'] ?? null,
+            'key' => $data['key'] ?? null,
+            'type' => $data['type'] ?? null,
+            'title' => $data['title'] ?? null,
+            'default_value' => $data['default_value'] ?? null,
+            'options' => $data['options'] ?? [],
+            'required' => $data['required'] ?? false,
+            'position' => $data['position'] ?? null,
+            'subscribers_count' => $data['subscribers_count'] ?? null,
+            'is_default' => $data['is_default'] ?? false,
+            'used_in_automations' => $data['used_in_automations'] ?? false,
+            'created_at' => $data['created_at'] ?? null,
+            'updated_at' => $data['updated_at'] ?? null,
         ];
     }
 
