@@ -109,12 +109,13 @@ class SubscriberDTO
     {
         $data = ['email' => $this->email];
 
+        $fields = $this->fields;
         if ($this->name !== null) {
-            $data['name'] = $this->name;
+            $fields['name'] = $this->name;
         }
 
-        if (! empty($this->fields)) {
-            $data['fields'] = $this->fields;
+        if (! empty($fields)) {
+            $data['fields'] = $fields;
         }
 
         if (! empty($this->groups)) {
