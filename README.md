@@ -7,118 +7,20 @@
 
 A comprehensive, fluent Laravel wrapper for the official MailerLite PHP SDK. Provides strongly-typed DTOs, expressive builders that read like English, robust services with granular exception handling, contracts for testability, and comprehensive test coverage.
 
-**Key Features:**
-- 🚀 Fluent API that reads like plain English
-- 📝 Strongly-typed DTOs with validation
-- 🔧 Comprehensive builder pattern for all resources
-- 🎯 Granular exception handling with context
-- 🧪 Full test coverage with mocking support
-- 📦 Laravel service container integration
-- 🔌 Clean contracts for dependency injection
-
 ## Table of Contents
 
-- [Package Overview](#package-overview)
-  - [Purpose and High-Level Architecture](#purpose-and-high-level-architecture)
-  - [Supported MailerLite Resources](#supported-mailerlite-resources)
 - [Installation](#installation)
-  - [Composer Install](#composer-install)
-  - [Publish Config](#publish-config)
 - [Configuration](#configuration)
-  - [API Key Setup](#api-key-setup)
-  - [Runtime API Key Override](#runtime-api-key-override)
-- [Quick Start / Fluent API](#quick-start--fluent-api)
-  - [Subscribers](#subscribers)
-  - [Campaigns](#campaigns)
-  - [Groups](#groups)
-  - [Fields](#fields)
-  - [Segments](#segments)
-  - [Automations](#automations)
-  - [Webhooks](#webhooks)
-- [Resources Reference](#resources-reference)
-  - [Subscribers Reference](#subscribers-reference)
-  - [Campaigns Reference](#campaigns-reference)
-  - [Groups Reference](#groups-reference)
-  - [Fields Reference](#fields-reference)
-  - [Segments Reference](#segments-reference)
-  - [Automations Reference](#automations-reference)
-  - [Webhooks Reference](#webhooks-reference)
-- [Exception Reference](#exception-reference)
+- [Subscribers](#subscribers)
+- [Groups](#groups)
+- [Fields](#fields)
+- [Campaigns](#campaigns)
+- [Segments](#segments)
+- [Automations](#automations)
+- [Webhooks](#webhooks)
 - [Testing](#testing)
-- [Versioning & Changelog](#versioning--changelog)
-
----
-
-## Package Overview
-
-### Purpose and High-Level Architecture
-
-This package provides a Laravel-native interface to MailerLite's API with the following architectural components:
-
-- **DTOs (Data Transfer Objects)**: Strongly-typed, validated data containers
-- **Builders**: Fluent, chainable APIs that read like natural language
-- **Services**: Resource-specific API orchestration with comprehensive error handling
-- **Manager**: Centralized SDK client management with authentication
-- **Contracts**: Interfaces for clean dependency injection and testing
-- **Facade**: Convenient static access for quick operations
-- **Exceptions**: Granular, contextual exceptions for precise error handling
-
-**Architecture Flow:**
-
-```mermaid
-graph TD
-    A["Facade<br/>MailerLite"] --> B["LaravelMailerlite<br/>Main Service"]
-    B --> C["SubscriberBuilder"]
-    B --> D["CampaignBuilder"]
-    B --> E["GroupBuilder"]
-    B --> F["FieldBuilder"]
-    B --> G["SegmentBuilder"]
-    B --> H["AutomationBuilder"]
-    B --> I["WebhookBuilder"]
-    
-    C --> J["SubscriberService"]
-    D --> K["CampaignService"]
-    E --> L["GroupService"]
-    F --> M["FieldService"]
-    G --> N["SegmentService"]
-    H --> O["AutomationService"]
-    I --> P["WebhookService"]
-    
-    J --> Q["MailerLiteManager"]
-    K --> Q
-    L --> Q
-    M --> Q
-    N --> Q
-    O --> Q
-    P --> Q
-    
-    Q --> R["MailerLite SDK"]
-    R --> S["MailerLite API"]
-    
-    J -.-> T["SubscriberDTO"]
-    K -.-> U["CampaignDTO"]
-    L -.-> V["GroupDTO"]
-    M -.-> W["FieldDTO"]
-    N -.-> X["SegmentDTO"]
-    O -.-> Y["AutomationDTO"]
-    P -.-> Z["WebhookDTO"]
-```
-
-### Supported MailerLite Resources
-
-- **Subscribers**: Create, update, delete, subscribe/unsubscribe, group management
-- **Campaigns**: Draft, schedule, send, A/B testing, analytics
-- **Groups**: Create, manage, subscriber assignment
-- **Fields**: Custom field creation and management
-- **Segments**: Dynamic subscriber segmentation with complex filters
-- **Automations**: Email sequences, triggers, conditions, actions
-- **Webhooks**: Real-time event notifications with security
-
----
 
 ## Installation
-
-### Composer Install
 
 ```bash
 composer require theihasan/laravel-mailerlite
@@ -129,25 +31,10 @@ The package will auto-register via Laravel's package discovery.
 ### Publish Config
 
 ```bash
-php artisan vendor:publish --provider="Ihasan\\LaravelMailerlite\\LaravelMailerliteServiceProvider" --tag=config
+php artisan vendor:publish --provider="Ihasan\LaravelMailerlite\LaravelMailerliteServiceProvider" --tag=config
 ```
-
-This publishes `config/mailerlite.php`.
-
-**Development workflow:**
-```bash
-# Pull latest changes
-git mailerlite-pull
-
-# Push your changes
-git mailerlite-push
-```
-
----
 
 ## Configuration
-
-### API Key Setup
 
 Add your MailerLite API key to `.env`:
 
@@ -166,394 +53,371 @@ return [
 ];
 ```
 
-### Runtime API Key Override
+## Subscribers
 
-For multi-tenant applications or dynamic API keys:
+### How to Get All Subscribers
 
-```php
-use Ihasan\LaravelMailerlite\Manager\MailerLiteManager;
-
-// Create manager with custom API key
-$manager = new MailerLiteManager('custom-api-key');
-$this->app->instance(MailerLiteManager::class, $manager);
-
-// Or with options
-$manager = new MailerLiteManager('custom-api-key', [
-    'timeout' => 60,
-    'base_url' => 'https://custom.api.url'
-]);
-```
-
----
-
-## Quick Start / Fluent API
-
-All operations use the `MailerLite` facade with fluent method chaining that reads like English.
-
-### Subscribers
-
-#### Create Subscriber
 ```php
 use Ihasan\LaravelMailerlite\Facades\MailerLite;
 
+// Get all subscribers (with pagination)
+$subscribers = MailerLite::subscribers()->all();
+
+// Get subscribers with filters
+$subscribers = MailerLite::subscribers()->list([
+    'filter[status]' => 'active',
+    'limit' => 50,
+    'page' => 1
+]);
+
+// Response structure
+/*
+{
+    "data": [
+        {
+            "id": "12345",
+            "email": "user@example.com",
+            "name": "John Doe",
+            "status": "active",
+            "created_at": "2024-01-15T10:30:00Z",
+            "fields": [...],
+            "groups": [...]
+        }
+    ],
+    "meta": {
+        "current_page": 1,
+        "per_page": 25,
+        "total": 150
+    },
+    "links": {
+        "first": "...",
+        "last": "...",
+        "next": "..."
+    }
+}
+*/
+```
+
+### How to Create a Subscriber
+
+```php
+// Basic subscriber creation
+$subscriber = MailerLite::subscribers()
+    ->email('user@example.com')
+    ->named('John Doe')
+    ->subscribe();
+
+// Advanced subscriber creation with custom fields and groups
 $subscriber = MailerLite::subscribers()
     ->email('jane@example.com')
-    ->named('Jane Doe')
-    ->withField('company', 'Acme Inc')
-    ->toGroup('Early Adopters')
+    ->named('Jane Smith')
+    ->withField('company', 'Acme Corp')
+    ->withField('phone', '+1234567890')
+    ->withFields([
+        'age' => 30,
+        'city' => 'New York'
+    ])
+    ->toGroup('newsletter-subscribers')
+    ->toGroups(['customers', 'vip-members'])
+    ->active()
+    ->withAutoresponders()
+    ->subscribe();
+
+// Create with resubscribe option
+$subscriber = MailerLite::subscribers()
+    ->email('existing@example.com')
+    ->named('Existing User')
+    ->resubscribeIfExists()
+    ->subscribe();
+
+// Create imported subscriber (bypasses double opt-in)
+$subscriber = MailerLite::subscribers()
+    ->email('import@example.com')
+    ->named('Imported User')
+    ->imported()
+    ->withoutAutoresponders()
     ->subscribe();
 ```
 
-**Step-by-step:**
-1. Start with `MailerLite::subscribers()` to get a `SubscriberBuilder`
-2. Chain fluent setters: `email()`, `named()`, `withField()`, `toGroup()`
-3. Call `subscribe()` to create the `SubscriberDTO` and send to API
-4. Returns subscriber data with ID
+### How to Fetch a Subscriber
 
-**Fluent API Flow:**
-
-```mermaid
-sequenceDiagram
-    participant U as User Code
-    participant F as MailerLite Facade
-    participant B as SubscriberBuilder
-    participant S as SubscriberService
-    participant M as MailerLiteManager
-    participant SDK as MailerLite SDK
-    participant API as MailerLite API
-    
-    U->>F: MailerLite::subscribers()
-    F->>B: new SubscriberBuilder()
-    U->>B: .email('user@example.com')
-    U->>B: .named('User Name')
-    U->>B: .toGroup('newsletter')
-    U->>B: .subscribe()
-    B->>B: toDTO()
-    B->>S: create(SubscriberDTO)
-    S->>M: getClient()
-    M->>SDK: return client
-    S->>SDK: subscribers.create(data)
-    SDK->>API: POST /subscribers
-    API-->>SDK: subscriber data
-    SDK-->>S: response
-    S->>S: transformResponse()
-    S-->>B: subscriber array
-    B-->>U: subscriber data
-```
-
-**Expected Result:**
 ```php
-[
-    'id' => '12345',
-    'email' => 'jane@example.com',
-    'name' => 'Jane Doe',
-    'status' => 'active',
-    'fields' => ['company' => 'Acme Inc'],
-    'groups' => [['id' => 'group-id', 'name' => 'Early Adopters']],
-    'created_at' => '2024-01-15T10:30:00Z'
-]
-```
-
-**Exception Handling:**
-```php
-try {
-    $subscriber = MailerLite::subscribers()
-        ->email('invalid-email')
-        ->subscribe();
-} catch (InvalidArgumentException $e) {
-    // DTO validation failed (invalid email, missing required fields)
-    logger()->warning('Invalid subscriber data', ['error' => $e->getMessage()]);
-} catch (Ihasan\LaravelMailerlite\Exceptions\MailerLiteAuthenticationException $e) {
-    // Invalid or missing API key
-    logger()->error('MailerLite authentication failed', ['error' => $e->getMessage()]);
-} catch (Ihasan\LaravelMailerlite\Exceptions\SubscriberCreateException $e) {
-    // Subscriber already exists, validation failed, etc.
-    logger()->error('Failed to create subscriber', [
-        'error' => $e->getMessage(),
-        'context' => $e->getContext()
-    ]);
-}
-```
-
-#### Find and Update Subscriber
-```php
-// Find by email
-$found = MailerLite::subscribers()
-    ->email('jane@example.com')
+// Find subscriber by email
+$subscriber = MailerLite::subscribers()
+    ->email('user@example.com')
     ->find();
 
-if ($found) {
-    // Update existing subscriber
-    $updated = MailerLite::subscribers()
-        ->email('jane@example.com')
-        ->named('Jane Z. Doe')
-        ->withField('plan', 'premium')
-        ->update();
+if ($subscriber) {
+    echo "Found: " . $subscriber['name'];
+} else {
+    echo "Subscriber not found";
 }
+
+// Find subscriber by ID
+$subscriber = MailerLite::subscribers()->findById('12345');
+
+// Alternative approach using service directly
+use Ihasan\LaravelMailerlite\Resources\Subscribers\SubscriberService;
+
+$service = app(SubscriberService::class);
+$subscriber = $service->getByEmail('user@example.com');
+$subscriber = $service->getById('12345');
 ```
 
-#### Subscribe/Unsubscribe Operations
+### How to Update a Subscriber
+
 ```php
-// Unsubscribe
+// Update subscriber by finding with email first
+$updated = MailerLite::subscribers()
+    ->email('user@example.com')
+    ->named('Updated Name')
+    ->withField('company', 'New Company')
+    ->withField('role', 'Manager')
+    ->active()
+    ->update();
+
+// Update subscriber by ID directly (if you already have the MailerLite ID)
+$updated = MailerLite::subscribers()
+    ->named('Direct Update')
+    ->withField('last_updated', now()->toDateString())
+    ->updateById('12345');
+```
+
+### How to Delete a Subscriber
+
+```php
+// Delete subscriber by finding with email first
+$deleted = MailerLite::subscribers()
+    ->email('user@example.com')
+    ->delete(); // Returns true if deleted, false if not found
+
+// Delete by ID directly using service
+use Ihasan\LaravelMailerlite\Resources\Subscribers\SubscriberService;
+
+$service = app(SubscriberService::class);
+$deleted = $service->delete('12345'); // Returns true on success
+```
+
+### How to Get Total Subscriber Count
+
+```php
+// Get total from the meta information when listing
+$result = MailerLite::subscribers()->list(['limit' => 1]);
+$total = $result['meta']['total'] ?? 0;
+
+// Get active subscribers count
+$result = MailerLite::subscribers()->list([
+    'filter[status]' => 'active',
+    'limit' => 1
+]);
+$activeCount = $result['meta']['total'] ?? 0;
+
+// Get count by status
+$unsubscribed = MailerLite::subscribers()->list([
+    'filter[status]' => 'unsubscribed',
+    'limit' => 1
+])['meta']['total'] ?? 0;
+
+$bounced = MailerLite::subscribers()->list([
+    'filter[status]' => 'bounced', 
+    'limit' => 1
+])['meta']['total'] ?? 0;
+```
+
+### How to Unsubscribe/Resubscribe a Subscriber
+
+```php
+// Unsubscribe subscriber
 $result = MailerLite::subscribers()
-    ->email('jane@example.com')
+    ->email('user@example.com')
     ->unsubscribe();
 
-// Resubscribe
+// Resubscribe subscriber
 $result = MailerLite::subscribers()
-    ->email('jane@example.com')
+    ->email('user@example.com')
     ->resubscribe();
-```
 
-#### Group Management
-
-**⚠️ Important: `toGroup()` vs `addToGroup()` - Common Confusion**
-
-These methods serve **different purposes** and are often confused:
-
-| Method | Purpose | When to Use | API Calls |
-|--------|---------|-------------|-----------|
-| `toGroup()` | Assign groups **during subscriber creation** | Creating new subscribers | None (builds data) |
-| `addToGroup()` | Add **existing subscriber** to group | Modifying existing subscribers | Immediate API call |
-
-**✅ Creating New Subscriber with Groups:**
-```php
-// Use toGroup() - groups assigned during creation
-$subscriber = MailerLite::subscribers()
-    ->email('newuser@example.com')
-    ->named('New User')
-    ->toGroup('12345')              // ← Assigns group during creation
-    ->toGroups(['67890', '11111'])  // ← Multiple groups
-    ->subscribe();                  // ← Creates subscriber WITH groups
-```
-
-**✅ Adding Existing Subscriber to Groups:**
-```php
-// Use addToGroup() - immediate group assignment  
+// Alternative: Update status directly
 $result = MailerLite::subscribers()
-    ->email('jane@example.com')     // ← Find existing subscriber
-    ->addToGroup('premium-users');  // ← Immediately adds to group
+    ->email('user@example.com')
+    ->unsubscribed() // Sets status to 'unsubscribed'
+    ->update();
 
-// Remove from group
-MailerLite::subscribers()
-    ->email('jane@example.com')
-    ->removeFromGroup('trial-users');
+$result = MailerLite::subscribers()
+    ->email('user@example.com')
+    ->active() // Sets status to 'active'
+    ->update();
 ```
 
-**❌ Common Mistake:**
+### How to Manage Subscriber Groups
+
 ```php
-// This WON'T work - toGroup() just builds data, doesn't execute
-MailerLite::subscribers()
-    ->email('existing@example.com')
-    ->toGroup('12345');  // ← No API call made! Data just stored in builder.
+// Add existing subscriber to a group
+$result = MailerLite::subscribers()
+    ->email('user@example.com')
+    ->addToGroup('group-id-123');
+
+// Remove subscriber from a group
+$result = MailerLite::subscribers()
+    ->email('user@example.com')
+    ->removeFromGroup('group-id-123');
+
+// Add to multiple groups during creation
+$subscriber = MailerLite::subscribers()
+    ->email('new@example.com')
+    ->named('New User')
+    ->toGroups(['newsletter', 'customers', 'weekly-digest'])
+    ->subscribe();
 ```
 
-**⚠️ Group IDs vs Names:**
-MailerLite requires **numeric group IDs**, not group names:
+### How to Import Subscribers in Bulk
+
 ```php
-// ❌ Wrong - using group name
-->toGroup('Newsletter Subscribers')
+// Import multiple subscribers to a group
+$subscribers = [
+    [
+        'email' => 'user1@example.com',
+        'name' => 'User One',
+        'fields' => ['company' => 'Company A']
+    ],
+    [
+        'email' => 'user2@example.com', 
+        'name' => 'User Two',
+        'fields' => ['company' => 'Company B']
+    ]
+];
 
-// ✅ Correct - using group ID  
-->toGroup('12345')
-
-// Find group ID first:
-$groups = MailerLite::groups()->list();
-foreach($groups['data'] as $group) {
-    if($group['name'] === 'Newsletter Subscribers') {
-        $groupId = $group['id']; // Use this ID
-        break;
-    }
-}
-```
-
-#### Alternative DTO Approach
-```php
-use Ihasan\LaravelMailerlite\DTOs\SubscriberDTO;
-
-$dto = new SubscriberDTO(
-    email: 'jane@example.com',
-    name: 'Jane Doe',
-    fields: ['company' => 'Acme Inc'],
-    groups: ['early-adopters']
+$import = MailerLite::subscribers()->importToGroup(
+    'group-id-123',
+    $subscribers,
+    [
+        'resubscribe' => true,
+        'autoresponders' => false
+    ]
 );
 
-$subscriber = app(Ihasan\LaravelMailerlite\Resources\Subscribers\SubscriberService::class)
-    ->create($dto);
+// Using batch builder pattern
+$import = MailerLite::subscribers()
+    ->email('batch1@example.com')
+    ->named('Batch User 1')
+    ->withField('source', 'import')
+    ->addToBatch()
+    ->email('batch2@example.com') 
+    ->named('Batch User 2')
+    ->withField('source', 'import')
+    ->addToBatch()
+    ->importBatchToGroup('group-id-123', ['resubscribe' => false]);
+
+// Get current batch before importing
+$currentBatch = MailerLite::subscribers()->getBatch();
+
+// Clear batch
+MailerLite::subscribers()->clearBatch();
 ```
 
----
+## Groups
 
-### Campaigns
+### How to Get All Groups
 
-#### Draft and Create Campaign
 ```php
-$campaign = MailerLite::campaigns()
-    ->subject('Spring Newsletter')
-    ->from('Newsletter Team', 'news@acme.com')
-    ->html('<h1>Spring Updates</h1><p>What\'s new this season...</p>')
-    ->plain('Spring Updates - What\'s new this season...')
-    ->toGroups(['newsletter', 'customers'])
+// Get all groups
+$groups = MailerLite::groups()->all();
+
+// Get groups with filters
+$groups = MailerLite::groups()->list([
+    'limit' => 50,
+    'page' => 1
+]);
+```
+
+### How to Create a Group
+
+```php
+// Basic group creation
+$group = MailerLite::groups()
+    ->name('Newsletter Subscribers')
     ->create();
-```
 
-**Step-by-step:**
-1. `MailerLite::campaigns()` returns a `CampaignBuilder`
-2. Set required fields: `subject()`, `from()`, content (`html()` or `plain()`)
-3. Add targeting with `toGroups()` or `toSegments()`
-4. `create()` builds `CampaignDTO` and creates draft campaign
-5. Returns campaign data with ID and status
-
-**Campaign Builder Flow:**
-
-```mermaid
-graph LR
-    A["User Code"] --> B["MailerLite::campaigns()"]
-    B --> C["CampaignBuilder"]
-    C --> D[".subject('Newsletter')"]
-    D --> E[".from('Team', 'email')"]
-    E --> F[".html('&lt;h1&gt;Content&lt;/h1&gt;')"]
-    F --> G[".toGroup('subscribers')"]
-    G --> H[".scheduleAt(tomorrow)"]
-    H --> I[".schedule()"]
-    I --> J["CampaignService"]
-    J --> K["MailerLite SDK"]
-    K --> L["API: Create Draft"]
-    L --> M["API: Schedule Campaign"]
-    M --> N["Scheduled Campaign"]
-```
-
-#### Schedule Campaign
-```php
-$scheduled = MailerLite::campaigns()
-    ->subject('Weekend Sale')
-    ->from('Sales Team', 'sales@acme.com')
-    ->html('<h1>50% Off Everything!</h1>')
-    ->toSegment('active-customers')
-    ->scheduleAt(now()->addDays(2))
-    ->schedule();
-```
-
-**Campaign Flow Diagram:**
-
-```mermaid
-stateDiagram-v2
-    [*] --> Draft: create()
-    Draft --> Scheduled: schedule(time)
-    Draft --> Sent: send()
-    Scheduled --> Sent: MailerLite sends at time
-    Scheduled --> Draft: cancel()
-    Sent --> [*]
-    Draft --> [*]: delete()
-    Scheduled --> [*]: delete()
-```
-
-#### Send Immediately
-```php
-$sent = MailerLite::campaigns()
-    ->subject('Breaking News')
-    ->from('News Team', 'news@acme.com')
-    ->html('<h1>Important Update</h1>')
-    ->toGroup('subscribers')
-    ->send(); // Creates and sends immediately
-```
-
-#### A/B Test Campaign
-```php
-$abTest = MailerLite::campaigns()
-    ->subject('A/B Test Subject')
-    ->from('Marketing', 'marketing@acme.com')
-    ->html('<h1>Version A Content</h1>')
-    ->toGroup('test-group')
-    ->abTest([
-        'test_type' => 'subject',
-        'send_size' => 25  // Test with 25% of recipients
-    ])
-    ->create();
-```
-
-#### Manage Existing Campaigns
-```php
-// Find campaign
-$campaign = MailerLite::campaigns()->find('campaign-id');
-
-// Update campaign
-MailerLite::campaigns()
-    ->subject('Updated Subject')
-    ->update('campaign-id');
-
-// Send existing campaign
-MailerLite::campaigns()->sendById('campaign-id');
-
-// Schedule existing campaign
-MailerLite::campaigns()->scheduleById('campaign-id', now()->addHour());
-
-// Cancel scheduled campaign
-MailerLite::campaigns()->cancel('campaign-id');
-
-// Get campaign stats
-$stats = MailerLite::campaigns()->stats('campaign-id');
-
-// Get campaign subscribers
-$subscribers = MailerLite::campaigns()->subscribers('campaign-id');
-
-// Delete campaign
-MailerLite::campaigns()->delete('campaign-id');
-```
-
----
-
-### Groups
-
-#### Create and Manage Groups
-```php
-// Create group
+// Advanced group creation
 $group = MailerLite::groups()
     ->name('VIP Customers')
     ->withDescription('High-value customers with premium access')
-    ->withTags(['premium', 'vip'])
     ->create();
-
-// Find group
-$found = MailerLite::groups()->find('group-id');
-
-// Update group
-$updated = MailerLite::groups()
-    ->name('Premium VIP Customers')
-    ->withDescription('Updated description')
-    ->update('group-id');
-
-// Delete group
-MailerLite::groups()->delete('group-id');
 ```
 
-#### Group Subscriber Management
+### How to Fetch a Group
+
 ```php
-// Get subscribers in group
-$subscribers = MailerLite::groups()->getSubscribers('group-id', ['limit' => 50]);
+// Find group by ID
+$group = MailerLite::groups()->find('group-id-123');
+
+// Find group by name
+$group = MailerLite::groups()->findByName('Newsletter Subscribers');
+```
+
+### How to Update a Group
+
+```php
+$updated = MailerLite::groups()
+    ->name('Updated Group Name')
+    ->withDescription('Updated description')
+    ->update('group-id-123');
+```
+
+### How to Delete a Group
+
+```php
+$deleted = MailerLite::groups()->delete('group-id-123');
+```
+
+### How to Manage Group Subscribers
+
+```php
+// Get subscribers in a group
+$subscribers = MailerLite::groups()->getSubscribers('group-id-123', [
+    'limit' => 50,
+    'page' => 1
+]);
 
 // Add subscribers to group
-MailerLite::groups()->addSubscribers('group-id', ['subscriber-1', 'subscriber-2']);
+$result = MailerLite::groups()->addSubscribers('group-id-123', [
+    'subscriber-id-1',
+    'subscriber-id-2'
+]);
 
-// Remove subscribers from group
-MailerLite::groups()->removeSubscribers('group-id', ['subscriber-1']);
+// Remove subscribers from group  
+$result = MailerLite::groups()->removeSubscribers('group-id-123', [
+    'subscriber-id-1'
+]);
 ```
 
----
+## Fields
 
-### Fields
+### How to Get All Fields
 
-#### Create Custom Fields
+```php
+// Get all custom fields
+$fields = MailerLite::fields()->all();
+
+// Get fields with pagination
+$fields = MailerLite::fields()->list([
+    'limit' => 25,
+    'page' => 1
+]);
+```
+
+### How to Create a Field
+
 ```php
 // Text field
-$textField = MailerLite::fields()
+$field = MailerLite::fields()
     ->name('company')
     ->asText()
     ->withTitle('Company Name')
     ->create();
 
 // Number field
-$numberField = MailerLite::fields()
+$field = MailerLite::fields()
     ->name('age')
     ->asNumber()
     ->withTitle('Age')
@@ -561,53 +425,172 @@ $numberField = MailerLite::fields()
     ->create();
 
 // Date field
-$dateField = MailerLite::fields()
+$field = MailerLite::fields()
     ->name('birthday')
     ->asDate()
     ->withTitle('Date of Birth')
     ->create();
 
 // Boolean field
-$boolField = MailerLite::fields()
+$field = MailerLite::fields()
     ->name('newsletter_opt_in')
     ->asBoolean()
     ->withTitle('Newsletter Subscription')
     ->withDefault(true)
     ->create();
 
-// Select field
-$selectField = MailerLite::fields()
+// Select field with options
+$field = MailerLite::fields()
     ->name('plan')
     ->asSelect(['basic', 'pro', 'enterprise'])
     ->withTitle('Subscription Plan')
     ->create();
 ```
 
-#### Field Management
+### How to Fetch a Field
+
 ```php
 // Find field by ID
-$field = MailerLite::fields()->find('field-id');
+$field = MailerLite::fields()->find('field-id-123');
 
 // Find field by name
 $field = MailerLite::fields()->findByName('company');
-
-// Update field
-MailerLite::fields()
-    ->withTitle('Updated Title')
-    ->update('field-id');
-
-// Get field usage stats
-$usage = MailerLite::fields()->getUsage('field-id');
-
-// Delete field
-MailerLite::fields()->delete('field-id');
 ```
 
----
+### How to Update a Field
 
-### Segments
+```php
+$updated = MailerLite::fields()
+    ->withTitle('Updated Company Name')
+    ->update('field-id-123');
+```
 
-#### Create Dynamic Segments
+### How to Delete a Field
+
+```php
+$deleted = MailerLite::fields()->delete('field-id-123');
+```
+
+### How to Get Field Usage Stats
+
+```php
+$usage = MailerLite::fields()->getUsage('field-id-123');
+
+// Response includes:
+/*
+{
+    "subscribers_count": 150,
+    "filled_count": 120,
+    "empty_count": 30
+}
+*/
+```
+
+## Campaigns
+
+### How to Get All Campaigns
+
+```php
+// Get all campaigns
+$campaigns = MailerLite::campaigns()->all();
+
+// Get campaigns with filters
+$campaigns = MailerLite::campaigns()->list([
+    'filter[status]' => 'sent',
+    'limit' => 25
+]);
+```
+
+### How to Create a Campaign
+
+```php
+// Create draft campaign
+$campaign = MailerLite::campaigns()
+    ->subject('Weekly Newsletter')
+    ->from('Newsletter Team', 'newsletter@company.com')
+    ->html('<h1>Newsletter</h1><p>Content here...</p>')
+    ->plain('Newsletter - Content here...')
+    ->toGroups(['newsletter-subscribers', 'customers'])
+    ->create();
+
+// Create and send immediately
+$campaign = MailerLite::campaigns()
+    ->subject('Breaking News')
+    ->from('News Team', 'news@company.com')
+    ->html('<h1>Important Update</h1>')
+    ->toGroup('subscribers')
+    ->send();
+
+// Create and schedule
+$campaign = MailerLite::campaigns()
+    ->subject('Weekend Sale')
+    ->from('Sales Team', 'sales@company.com')
+    ->html('<h1>50% Off Everything!</h1>')
+    ->toSegment('active-customers')
+    ->scheduleAt(now()->addDays(2))
+    ->schedule();
+```
+
+### How to Fetch a Campaign
+
+```php
+$campaign = MailerLite::campaigns()->find('campaign-id-123');
+```
+
+### How to Update a Campaign
+
+```php
+$updated = MailerLite::campaigns()
+    ->subject('Updated Subject')
+    ->html('<h1>Updated content</h1>')
+    ->update('campaign-id-123');
+```
+
+### How to Delete a Campaign
+
+```php
+$deleted = MailerLite::campaigns()->delete('campaign-id-123');
+```
+
+### How to Manage Campaign Operations
+
+```php
+// Send existing campaign
+MailerLite::campaigns()->sendById('campaign-id-123');
+
+// Schedule existing campaign
+MailerLite::campaigns()->scheduleById('campaign-id-123', now()->addHour());
+
+// Cancel scheduled campaign
+MailerLite::campaigns()->cancel('campaign-id-123');
+
+// Get campaign statistics
+$stats = MailerLite::campaigns()->stats('campaign-id-123');
+
+// Get campaign subscribers
+$subscribers = MailerLite::campaigns()->subscribers('campaign-id-123', [
+    'limit' => 100,
+    'filter[status]' => 'sent'
+]);
+```
+
+## Segments
+
+### How to Get All Segments
+
+```php
+// Get all segments
+$segments = MailerLite::segments()->all();
+
+// Get segments with filters
+$segments = MailerLite::segments()->list([
+    'filter[status]' => 'active',
+    'limit' => 25
+]);
+```
+
+### How to Create a Segment
+
 ```php
 // Field-based segment
 $segment = MailerLite::segments()
@@ -617,77 +600,89 @@ $segment = MailerLite::segments()
     ->create();
 
 // Email activity segment
-$engagedSegment = MailerLite::segments()
+$segment = MailerLite::segments()
     ->name('Highly Engaged')
     ->whoOpened(null, 30) // Opened any email in last 30 days
     ->andWhoClicked(null, 30) // And clicked in last 30 days
     ->create();
 
 // Group-based segment
-$groupSegment = MailerLite::segments()
+$segment = MailerLite::segments()
     ->name('Newsletter VIPs')
     ->inGroup('newsletter-subscribers')
     ->andWhereField('engagement_score', 'greater_than', 80)
     ->create();
 
 // Date-based segment
-$recentSegment = MailerLite::segments()
+$segment = MailerLite::segments()
     ->name('Recent Subscribers')
     ->createdAfter('2024-01-01')
     ->subscribedAfter('2024-01-01')
     ->create();
 ```
 
-**Segment Filter Types:**
-- **Field filters**: `whereField(field, operator, value)`
-- **Group filters**: `inGroup(groupId)`, `notInGroup(groupId)`
-- **Date filters**: `createdAfter(date)`, `subscribedBefore(date)`
-- **Activity filters**: `whoOpened()`, `whoClicked()`, `whoDidntOpen()`
+### How to Fetch a Segment
 
-**Segment Building Process:**
-
-```mermaid
-graph TD
-    A["SegmentBuilder"] --> B["name('Active Users')"]
-    B --> C["whereField('last_login', 'after', '2024-01-01')"]
-    C --> D["andWhereField('plan', 'equals', 'premium')"]
-    D --> E["whoOpened(campaignId, 30)"]
-    E --> F["inGroup('newsletter')"]
-    F --> G["create()"]
-    
-    G --> H["SegmentDTO"]
-    H --> I["filters: [<br/>  {type: 'field', field: 'last_login', operator: 'after', value: '2024-01-01'},<br/>  {type: 'field', field: 'plan', operator: 'equals', value: 'premium'},<br/>  {type: 'email_activity', activity: 'opened', days: 30},<br/>  {type: 'group', group_id: 'newsletter', operator: 'in'}<br/>]"]
-    
-    I --> J["SegmentService"]
-    J --> K["MailerLite API"]
-    K --> L["Dynamic Segment<br/>Calculates matching subscribers"]
+```php
+$segment = MailerLite::segments()->find('segment-id-123');
 ```
 
-#### Segment Management
+### How to Update a Segment
+
+```php
+$updated = MailerLite::segments()
+    ->name('Updated Segment Name')
+    ->whereField('status', 'equals', 'active')
+    ->update('segment-id-123');
+```
+
+### How to Delete a Segment
+
+```php
+$deleted = MailerLite::segments()->delete('segment-id-123');
+```
+
+### How to Manage Segment Operations
+
 ```php
 // Get segment subscribers
-$subscribers = MailerLite::segments()->getSubscribers('segment-id');
+$subscribers = MailerLite::segments()->getSubscribers('segment-id-123', [
+    'limit' => 100
+]);
 
-// Refresh segment (recalculate)
-MailerLite::segments()->refresh('segment-id');
+// Refresh segment (recalculate matches)
+MailerLite::segments()->refresh('segment-id-123');
 
 // Get segment statistics
-$stats = MailerLite::segments()->getStats('segment-id');
+$stats = MailerLite::segments()->getStats('segment-id-123');
 
-// Activate/deactivate
-MailerLite::segments()->activate('segment-id');
-MailerLite::segments()->deactivate('segment-id');
+// Activate/deactivate segment
+MailerLite::segments()->activate('segment-id-123');
+MailerLite::segments()->deactivate('segment-id-123');
 ```
 
----
+## Automations
 
-### Automations
+### How to Get All Automations
 
-#### Create Welcome Automation
 ```php
+// Get all automations
+$automations = MailerLite::automations()->all();
+
+// Get automations with filters
+$automations = MailerLite::automations()->list([
+    'filter[status]' => 'active',
+    'limit' => 25
+]);
+```
+
+### How to Create an Automation
+
+```php
+// Welcome series automation
 $automation = MailerLite::automations()
     ->create('Welcome Series')
-    ->description('Welcome new subscribers with helpful content')
+    ->description('Welcome new subscribers')
     ->whenSubscriberJoinsGroup('newsletter')
     ->sendEmail('welcome-template')
     ->delayDays(3)
@@ -695,704 +690,147 @@ $automation = MailerLite::automations()
     ->delayWeeks(1)
     ->sendEmail('tips-template')
     ->start();
-```
 
-#### Advanced Automation with Conditions
-```php
-$conditional = MailerLite::automations()
+// Conditional automation
+$automation = MailerLite::automations()
     ->create('Smart Follow-up')
     ->whenSubscriberUpdatesField('purchase_status')
     ->delayHours(2)
     ->ifField('country', 'equals', 'US')
     ->sendEmail('us-specific-template')
     ->addTag('us-customer')
-    ->delayDays(7)
-    ->condition([
-        ['field' => 'engagement_score', 'operator' => 'greater_than', 'value' => 50]
-    ])
-    ->sendEmail('high-engagement-template')
     ->start();
-```
 
-#### Date-Based Automation
-```php
-$birthday = MailerLite::automations()
+// Birthday automation
+$automation = MailerLite::automations()
     ->create('Birthday Campaign')
-    ->whenDateReached('birthday', 0) // Trigger on birthday
+    ->whenDateReached('birthday', 0)
     ->sendEmail('birthday-template')
     ->addTag('birthday-sent')
     ->updateField('last_birthday_email', now()->toDateString())
     ->start();
 ```
 
-**Automation Trigger Flow:**
+### How to Fetch an Automation
 
-```mermaid
-graph TD
-    A["Trigger Event"] --> B{"Automation<br/>Conditions"}
-    B -->|Pass| C["Step 1: Email"]
-    B -->|Fail| D["Skip Automation"]
-    C --> E["Step 2: Delay"]
-    E --> F["Step 3: Condition"]
-    F -->|True| G["Step 4: Send Email"]
-    F -->|False| H["Step 5: Add Tag"]
-    G --> I["Step 6: Update Field"]
-    H --> I
-    I --> J["Complete"]
-    
-    K["subscriber.joins_group"] --> A
-    L["date.reached"] --> A
-    M["api.called"] --> A
-    N["webhook.received"] --> A
+```php
+$automation = MailerLite::automations()->find('automation-id-123');
 ```
 
-#### Automation Management
-```php
-// Find automation
-$automation = MailerLite::automations()->find('automation-id');
+### How to Update an Automation
 
+```php
+$updated = MailerLite::automations()
+    ->description('Updated automation description')
+    ->update('automation-id-123');
+```
+
+### How to Delete an Automation
+
+```php
+$deleted = MailerLite::automations()->delete('automation-id-123');
+```
+
+### How to Manage Automation Operations
+
+```php
 // Control automation state
-MailerLite::automations()->startById('automation-id');
-MailerLite::automations()->stopById('automation-id');
-MailerLite::automations()->pauseById('automation-id');
-MailerLite::automations()->resumeById('automation-id');
+MailerLite::automations()->startById('automation-id-123');
+MailerLite::automations()->stopById('automation-id-123');
+MailerLite::automations()->pauseById('automation-id-123');
+MailerLite::automations()->resumeById('automation-id-123');
 
 // Get automation analytics
-$stats = MailerLite::automations()->stats('automation-id');
-$activity = MailerLite::automations()->activity('automation-id');
-$subscribers = MailerLite::automations()->subscribers('automation-id');
+$stats = MailerLite::automations()->stats('automation-id-123');
+$activity = MailerLite::automations()->activity('automation-id-123');
+$subscribers = MailerLite::automations()->subscribers('automation-id-123');
 ```
 
----
+## Webhooks
 
-### Webhooks
+### How to Get All Webhooks
 
-#### Create Event Webhooks
 ```php
-// Subscriber events
+// Get all webhooks
+$webhooks = MailerLite::webhooks()->all();
+
+// Get webhooks with filters
+$webhooks = MailerLite::webhooks()->list([
+    'limit' => 25
+]);
+```
+
+### How to Create a Webhook
+
+```php
+// Basic webhook
 $webhook = MailerLite::webhooks()
-    ->onSubscriberCreated('https://app.example.com/webhooks/new-subscriber')
+    ->onSubscriberCreated('https://app.example.com/webhooks/subscriber-created')
+    ->create();
+
+// Advanced webhook with security
+$webhook = MailerLite::webhooks()
+    ->on('campaign.opened')
+    ->url('https://app.example.com/webhooks/campaign-opened')
+    ->named('Campaign Open Tracking')
     ->withSecret('webhook-secret-key')
-    ->create();
-
-// Campaign events
-MailerLite::webhooks()
-    ->onCampaignOpened('https://app.example.com/webhooks/campaign-opened')
-    ->asJson()
-    ->timeout(60)
-    ->create();
-
-// Custom event with headers
-MailerLite::webhooks()
-    ->on('automation.subscriber_completed')
-    ->url('https://app.example.com/webhooks/automation')
     ->withHeaders([
         'Authorization' => 'Bearer your-token',
         'X-App-ID' => 'your-app-id'
     ])
+    ->timeout(60)
     ->verifySSL(true)
     ->create();
 ```
 
-#### Webhook Security and Configuration
-```php
-$secureWebhook = MailerLite::webhooks()
-    ->on('subscriber.created')
-    ->url('https://app.example.com/webhooks/secure')
-    ->named('Secure Subscriber Webhook')
-    ->withSecret('your-webhook-secret')
-    ->timeout(120)
-    ->retries(5)
-    ->asJson()
-    ->verifySSL(true)
-    ->create();
-```
-
-#### Handle Webhook Payload
-
-**Webhook Processing Flow:**
-
-```mermaid
-graph TD
-    A["MailerLite Event"] --> B["Webhook Endpoint"]
-    B --> C{"Verify Signature"}
-    C -->|Valid| D["Process Event"]
-    C -->|Invalid| E["Return 403"]
-    
-    D --> F{"Event Type"}
-    F -->|subscriber.created| G["Handle New Subscriber"]
-    F -->|campaign.opened| H["Track Engagement"]
-    F -->|automation.completed| I["Update Customer Journey"]
-    F -->|webhook.test| J["Log Test Event"]
-    
-    G --> K["Update CRM"]
-    G --> L["Send Welcome Email"]
-    G --> M["Add to Segment"]
-    
-    H --> N["Update Analytics"]
-    H --> O["Trigger Follow-up"]
-    
-    I --> P["Mark Journey Complete"]
-    I --> Q["Start Next Phase"]
-```
+### How to Fetch a Webhook
 
 ```php
-// Laravel route example
-Route::post('/webhooks/mailerlite', function (Illuminate\Http\Request $request) {
-    // Verify signature if using secrets
-    $signature = $request->header('X-MailerLite-Signature');
-    $payload = $request->getContent();
-    $secret = config('app.mailerlite_webhook_secret');
-    
-    if ($secret && $signature) {
-        $expectedSignature = hash_hmac('sha256', $payload, $secret);
-        if (!hash_equals($expectedSignature, $signature)) {
-            abort(403, 'Invalid webhook signature');
-        }
-    }
-    
-    // Process webhook data
-    $data = $request->json()->all();
-    
-    match($data['event']) {
-        'subscriber.created' => handleNewSubscriber($data['data']),
-        'campaign.opened' => handleCampaignOpen($data['data']),
-        'automation.completed' => handleAutomationComplete($data['data']),
-        default => logger()->info('Unhandled webhook event', $data)
-    };
-    
-    return response()->json(['status' => 'success']);
-});
-```
-
-#### Webhook Management
-```php
-// Test webhook
-$testResult = MailerLite::webhooks()->test('webhook-id');
-
-// Get delivery logs
-$logs = MailerLite::webhooks()->logs('webhook-id');
-
-// Get webhook stats
-$stats = MailerLite::webhooks()->stats('webhook-id');
-
-// Enable/disable
-MailerLite::webhooks()->enable('webhook-id');
-MailerLite::webhooks()->disable('webhook-id');
+$webhook = MailerLite::webhooks()->find('webhook-id-123');
 
 // Find by URL
 $webhook = MailerLite::webhooks()->findByUrl('https://app.example.com/webhook');
 ```
 
----
+### How to Update a Webhook
 
-## Resources Reference
-
-### Subscribers Reference
-
-#### DTO Properties
-| Property | Type | Required | Validation | Description |
-|----------|------|----------|------------|-------------|
-| email | string | ✅ | Valid email, not disposable | Subscriber email address |
-| name | string\|null | ❌ | Max 255 chars | Full name |
-| fields | array | ❌ | Scalar/null values only | Custom field key-value pairs |
-| groups | array<string\|int> | ❌ | Non-empty IDs | Group IDs to assign |
-| status | string | ❌ | active, unsubscribed, unconfirmed, bounced, junk | Subscription status |
-| resubscribe | bool | ❌ | - | Resubscribe if already exists |
-| type | string\|null | ❌ | regular, unsubscribed, imported | Subscriber type |
-| segments | array<string\|int> | ❌ | Non-empty IDs | Segment IDs to assign |
-| autoresponders | bool | ❌ | - | Send autoresponders |
-
-#### Service Methods
-| Method | Returns | Throws |
-|--------|---------|--------|
-| `create(SubscriberDTO $dto)` | array | SubscriberCreateException |
-| `getByEmail(string $email)` | array\|null | MailerLiteAuthenticationException |
-| `getById(string $id)` | array\|null | MailerLiteAuthenticationException |
-| `update(string $id, SubscriberDTO $dto)` | array | SubscriberUpdateException, SubscriberNotFoundException |
-| `delete(string $id)` | bool | SubscriberDeleteException, SubscriberNotFoundException |
-| `list(array $filters = [])` | array | MailerLiteAuthenticationException |
-| `addToGroup(string $subscriberId, string $groupId)` | array | SubscriberNotFoundException |
-| `removeFromGroup(string $subscriberId, string $groupId)` | bool | SubscriberNotFoundException |
-| `unsubscribe(string $id)` | array | SubscriberUpdateException, SubscriberNotFoundException |
-| `resubscribe(string $id)` | array | SubscriberUpdateException, SubscriberNotFoundException |
-
-#### Builder Methods
-
-**Key Distinction:**
-- **`toGroup()`** - Assigns groups during subscriber **creation** (no immediate API call)
-- **`addToGroup()`** - Adds **existing** subscriber to group (immediate API call)
-
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `email(string $email)` | self | Set email address |
-| `named(string $name)` | self | Set subscriber name |
-| `withField(string $key, mixed $value)` | self | Add custom field |
-| `withFields(array $fields)` | self | Add multiple fields |
-| `toGroup(string\|array $groups)` | self | Assign to groups (for new subscribers) |
-| `toSegment(string\|array $segments)` | self | Assign to segments |
-| `active()` | self | Set status to active |
-| `unsubscribed()` | self | Set status to unsubscribed |
-| `imported()` | self | Set type to imported |
-| `resubscribeIfExists()` | self | Enable resubscribe flag |
-| `withoutAutoresponders()` | self | Disable autoresponders |
-| `subscribe()` | array | Create subscriber |
-| `update()` | array\|null | Update existing subscriber |
-| `find()` | array\|null | Find subscriber by email |
-| `addToGroup(string $groupId)` | array\|null | Add existing subscriber to group |
-| `removeFromGroup(string $groupId)` | bool | Remove existing subscriber from group |
-| `unsubscribe()` | array\|null | Unsubscribe subscriber |
-| `delete()` | bool | Delete subscriber |
-
----
-
-### Campaigns Reference
-
-#### DTO Properties
-| Property | Type | Required | Validation | Description |
-|----------|------|----------|------------|-------------|
-| subject | string | ✅ | Max 255 chars, not empty | Email subject line |
-| fromName | string | ✅ | Max 100 chars, not empty | Sender name |
-| fromEmail | string | ✅ | Valid email | Sender email |
-| html | string\|null | One required | Not empty if provided | HTML content |
-| plain | string\|null | One required | Not empty if provided | Plain text content |
-| groups | array<string\|int> | ❌ | Valid group IDs | Target groups |
-| segments | array<string\|int> | ❌ | Valid segment IDs | Target segments |
-| scheduleAt | DateTimeInterface\|null | ❌ | Future date only | Schedule time |
-| type | string | ❌ | regular, ab, resend | Campaign type |
-| settings | array | ❌ | - | Additional settings |
-| abSettings | array | Required for AB | test_type, send_size required | A/B test configuration |
-
-#### Service Methods
-| Method | Returns | Throws |
-|--------|---------|--------|
-| `create(CampaignDTO $dto)` | array | CampaignCreateException |
-| `getById(string $id)` | array\|null | MailerLiteAuthenticationException |
-| `update(string $id, CampaignDTO $dto)` | array | CampaignUpdateException, CampaignNotFoundException |
-| `delete(string $id)` | bool | CampaignDeleteException, CampaignNotFoundException |
-| `schedule(string $id, DateTimeInterface $when)` | array | CampaignSendException, CampaignNotFoundException |
-| `send(string $id)` | array | CampaignSendException, CampaignNotFoundException |
-| `cancel(string $id)` | array | CampaignUpdateException, CampaignNotFoundException |
-| `getStats(string $id)` | array | CampaignNotFoundException |
-| `getSubscribers(string $id, array $filters)` | array | CampaignNotFoundException |
-
-#### Builder Methods
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `subject(string $subject)` | self | Set campaign subject |
-| `from(string $name, string $email)` | self | Set sender info |
-| `html(string $html)` | self | Set HTML content |
-| `plain(string $plain)` | self | Set plain text content |
-| `content(string $html, string $plain = null)` | self | Set both content types |
-| `toGroup(string\|array $groups)` | self | Target groups |
-| `toSegment(string\|array $segments)` | self | Target segments |
-| `scheduleAt(DateTimeInterface $when)` | self | Set schedule time |
-| `scheduleIn(int $minutes)` | self | Schedule in X minutes |
-| `regular()` | self | Set as regular campaign |
-| `abTest(array $settings)` | self | Set as A/B test |
-| `create()` | array | Create draft campaign |
-| `send()` | array | Create and send immediately |
-| `schedule()` | array | Create and schedule |
-
----
-
-### Groups Reference
-
-#### DTO Properties
-| Property | Type | Required | Validation | Description |
-|----------|------|----------|------------|-------------|
-| name | string | ✅ | Max 255 chars, no special chars | Group name |
-| description | string\|null | ❌ | Max 1000 chars | Group description |
-| tags | array<string> | ❌ | Non-empty strings, max 100 chars each | Associated tags |
-| settings | array | ❌ | Valid key-value pairs | Group settings |
-
-#### Service Methods
-| Method | Returns | Throws |
-|--------|---------|--------|
-| `create(GroupDTO $dto)` | array | GroupCreateException |
-| `getById(string $id)` | array\|null | MailerLiteAuthenticationException |
-| `getByName(string $name)` | array\|null | MailerLiteAuthenticationException |
-| `update(string $id, GroupDTO $dto)` | array | GroupUpdateException, GroupNotFoundException |
-| `delete(string $id)` | bool | GroupDeleteException, GroupNotFoundException |
-| `getSubscribers(string $id, array $filters)` | array | GroupNotFoundException |
-| `assignSubscribers(string $id, array $subscriberIds)` | array | GroupNotFoundException |
-| `unassignSubscribers(string $id, array $subscriberIds)` | array | GroupNotFoundException |
-
----
-
-### Fields Reference
-
-#### DTO Properties
-| Property | Type | Required | Validation | Description |
-|----------|------|----------|------------|-------------|
-| name | string | ✅ | Identifier format, max 100 chars | Field API name |
-| type | string | ✅ | text, number, date, boolean | Field data type |
-| title | string\|null | ❌ | Max 255 chars | Display title |
-| defaultValue | mixed | ❌ | Type-specific validation | Default value |
-| options | array | ❌ | Valid structure | Field options/settings |
-| required | bool | ❌ | - | Whether field is required |
-
-#### Service Methods
-| Method | Returns | Throws |
-|--------|---------|--------|
-| `create(FieldDTO $dto)` | array | FieldCreateException |
-| `getById(string $id)` | array\|null | MailerLiteAuthenticationException |
-| `update(string $id, FieldDTO $dto)` | array | FieldUpdateException, FieldNotFoundException |
-| `delete(string $id)` | bool | FieldDeleteException, FieldNotFoundException |
-| `findByName(string $name)` | array\|null | MailerLiteAuthenticationException |
-| `getUsage(string $id)` | array | FieldNotFoundException |
-
----
-
-### Segments Reference
-
-#### DTO Properties
-| Property | Type | Required | Validation | Description |
-|----------|------|----------|------------|-------------|
-| name | string | ✅ | Max 255 chars, no special chars | Segment name |
-| filters | array<array> | ✅ | Type-specific validation | Filter conditions |
-| description | string\|null | ❌ | Max 1000 chars | Segment description |
-| tags | array<string> | ❌ | Non-empty strings | Associated tags |
-| options | array | ❌ | Valid structure | Segment options |
-| active | bool | ❌ | - | Whether segment is active |
-
-#### Service Methods
-| Method | Returns | Throws |
-|--------|---------|--------|
-| `create(SegmentDTO $dto)` | array | SegmentCreateException |
-| `getById(string $id)` | array\|null | MailerLiteAuthenticationException |
-| `update(string $id, SegmentDTO $dto)` | array | SegmentUpdateException, SegmentNotFoundException |
-| `delete(string $id)` | bool | SegmentDeleteException, SegmentNotFoundException |
-| `getSubscribers(string $id, array $filters)` | array | SegmentNotFoundException |
-| `refresh(string $id)` | array | SegmentNotFoundException |
-| `getStats(string $id)` | array | SegmentNotFoundException |
-| `activate(string $id)` | array | SegmentUpdateException, SegmentNotFoundException |
-| `deactivate(string $id)` | array | SegmentUpdateException, SegmentNotFoundException |
-
----
-
-### Automations Reference
-
-#### DTO Properties
-| Property | Type | Required | Validation | Description |
-|----------|------|----------|------------|-------------|
-| name | string | ✅ | Max 255 chars | Automation name |
-| enabled | bool | ❌ | - | Whether automation is enabled |
-| triggers | array | ✅ | Type-specific validation | Trigger conditions |
-| steps | array | ✅ | Type-specific validation | Action steps |
-| description | string\|null | ❌ | - | Automation description |
-| settings | array | ❌ | timezone, send_time, frequency_cap | Configuration settings |
-| conditions | array | ❌ | field, operator, value | Entry conditions |
-| status | string | ❌ | draft, active, paused, completed, disabled | Automation status |
-
-#### Service Methods
-| Method | Returns | Throws |
-|--------|---------|--------|
-| `create(AutomationDTO $dto)` | array | AutomationCreateException |
-| `getById(string $id)` | array\|null | MailerLiteAuthenticationException |
-| `update(string $id, AutomationDTO $dto)` | array | AutomationUpdateException, AutomationNotFoundException |
-| `delete(string $id)` | bool | AutomationDeleteException, AutomationNotFoundException |
-| `start(string $id)` | array | AutomationStateException, AutomationNotFoundException |
-| `stop(string $id)` | array | AutomationStateException, AutomationNotFoundException |
-| `pause(string $id)` | array | AutomationStateException, AutomationNotFoundException |
-| `resume(string $id)` | array | AutomationStateException, AutomationNotFoundException |
-| `getStats(string $id)` | array | AutomationNotFoundException |
-| `getSubscribers(string $id, array $filters)` | array | AutomationNotFoundException |
-| `getActivity(string $id, array $filters)` | array | AutomationNotFoundException |
-
----
-
-### Webhooks Reference
-
-#### DTO Properties
-| Property | Type | Required | Validation | Description |
-|----------|------|----------|------------|-------------|
-| event | string | ✅ | Valid event from list | Event to listen for |
-| url | string | ✅ | HTTPS URL, max 2048 chars | Target endpoint |
-| enabled | bool | ❌ | - | Whether webhook is enabled |
-| name | string\|null | ❌ | - | Webhook identifier |
-| settings | array | ❌ | content_type, verify_ssl | Configuration settings |
-| headers | array<string,string> | ❌ | Valid header format | Custom headers |
-| secret | string\|null | ❌ | - | HMAC signature secret |
-| timeout | int | ❌ | 1-300 seconds | Request timeout |
-| retryCount | int | ❌ | 0-10 retries | Retry attempts |
-
-#### Valid Events
-| Category | Events |
-|----------|--------|
-| Subscriber | subscriber.created, subscriber.updated, subscriber.unsubscribed, subscriber.bounced, subscriber.complained, subscriber.deleted |
-| Campaign | campaign.sent, campaign.opened, campaign.clicked, campaign.bounced, campaign.delivered, campaign.soft_bounced, campaign.hard_bounced |
-| Automation | automation.subscriber_added, automation.subscriber_completed, automation.email_sent, automation.started, automation.stopped |
-| Form | form.submitted |
-| Group | group.subscriber_added, group.subscriber_removed |
-| Test | webhook.test |
-
-#### Service Methods
-| Method | Returns | Throws |
-|--------|---------|--------|
-| `create(WebhookDTO $dto)` | array | WebhookCreateException |
-| `getById(string $id)` | array\|null | MailerLiteAuthenticationException |
-| `update(string $id, WebhookDTO $dto)` | array | WebhookUpdateException, WebhookNotFoundException |
-| `delete(string $id)` | bool | WebhookDeleteException, WebhookNotFoundException |
-| `enable(string $id)` | array | WebhookUpdateException, WebhookNotFoundException |
-| `disable(string $id)` | array | WebhookUpdateException, WebhookNotFoundException |
-| `test(string $id)` | array | WebhookNotFoundException |
-| `getLogs(string $id, array $filters)` | array | WebhookNotFoundException |
-| `getStats(string $id)` | array | WebhookNotFoundException |
-| `findByUrl(string $url, string $event = null)` | array\|null | MailerLiteAuthenticationException |
-
----
-
-## Exception Reference
-
-### Exception Hierarchy
-
-All exceptions extend `MailerLiteException` which provides:
-- `getContext()`: Additional error context
-- `withContext(array $context)`: Add context data
-
-```mermaid
-graph TD
-    A["MailerLiteException<br/>(Base)"] --> B["MailerLiteAuthenticationException"]
-    A --> C["SubscriberCreateException"]
-    A --> D["SubscriberUpdateException"]
-    A --> E["SubscriberDeleteException"]
-    A --> F["SubscriberNotFoundException"]
-    A --> G["CampaignCreateException"]
-    A --> H["CampaignUpdateException"]
-    A --> I["CampaignDeleteException"]
-    A --> J["CampaignSendException"]
-    A --> K["CampaignNotFoundException"]
-    A --> L["GroupCreateException"]
-    A --> M["GroupUpdateException"]
-    A --> N["GroupDeleteException"]
-    A --> O["GroupNotFoundException"]
-    A --> P["FieldCreateException"]
-    A --> Q["FieldUpdateException"]
-    A --> R["FieldDeleteException"]
-    A --> S["FieldNotFoundException"]
-    A --> T["SegmentCreateException"]
-    A --> U["SegmentUpdateException"]
-    A --> V["SegmentDeleteException"]
-    A --> W["SegmentNotFoundException"]
-    A --> X["AutomationCreateException"]
-    A --> Y["AutomationUpdateException"]
-    A --> Z["AutomationDeleteException"]
-    A --> AA["AutomationStateException"]
-    A --> BB["AutomationNotFoundException"]
-    A --> CC["WebhookCreateException"]
-    A --> DD["WebhookUpdateException"]
-    A --> EE["WebhookDeleteException"]
-    A --> FF["WebhookNotFoundException"]
-```
-
-### Authentication Exceptions
-| Exception | When Thrown | Context |
-|-----------|-------------|---------|
-| `MailerLiteAuthenticationException::missingApiKey()` | API key not configured | type: missing_api_key |
-| `MailerLiteAuthenticationException::invalidApiKey()` | API key invalid/revoked | type: invalid_api_key |
-| `MailerLiteAuthenticationException::insufficientPermissions($resource)` | API key lacks permissions | type: insufficient_permissions, resource |
-
-### Resource-Specific Exceptions
-| Resource | Create | Update | Delete | NotFound | State |
-|----------|--------|--------|--------|----------|--------|
-| Subscriber | SubscriberCreateException | SubscriberUpdateException | SubscriberDeleteException | SubscriberNotFoundException | - |
-| Campaign | CampaignCreateException | CampaignUpdateException | CampaignDeleteException | CampaignNotFoundException | CampaignSendException |
-| Group | GroupCreateException | GroupUpdateException | GroupDeleteException | GroupNotFoundException | - |
-| Field | FieldCreateException | FieldUpdateException | FieldDeleteException | FieldNotFoundException | - |
-| Segment | SegmentCreateException | SegmentUpdateException | SegmentDeleteException | SegmentNotFoundException | - |
-| Automation | AutomationCreateException | AutomationUpdateException | AutomationDeleteException | AutomationNotFoundException | AutomationStateException |
-| Webhook | WebhookCreateException | WebhookUpdateException | WebhookDeleteException | WebhookNotFoundException | - |
-
-### Exception Handling Examples
-
-#### Basic Exception Handling
 ```php
-try {
-    $subscriber = MailerLite::subscribers()
-        ->email('user@example.com')
-        ->named('User Name')
-        ->subscribe();
-} catch (InvalidArgumentException $e) {
-    // Builder validation failed (missing email, invalid format, etc.)
-    return response()->json(['error' => 'Invalid data: ' . $e->getMessage()], 422);
-} catch (Ihasan\LaravelMailerlite\Exceptions\MailerLiteAuthenticationException $e) {
-    // API key issues
-    logger()->error('MailerLite authentication failed', ['error' => $e->getMessage()]);
-    return response()->json(['error' => 'Service unavailable'], 503);
-} catch (Ihasan\LaravelMailerlite\Exceptions\SubscriberCreateException $e) {
-    // Subscriber creation failed (already exists, validation, etc.)
-    $context = $e->getContext();
-    if ($context['type'] === 'subscriber_create_failed') {
-        return response()->json(['error' => 'Subscriber already exists'], 409);
-    }
-    return response()->json(['error' => 'Failed to create subscriber'], 500);
-}
+$updated = MailerLite::webhooks()
+    ->url('https://app.example.com/new-webhook-url')
+    ->timeout(120)
+    ->update('webhook-id-123');
 ```
 
-#### Campaign Exception Handling
+### How to Delete a Webhook
+
 ```php
-try {
-    $campaign = MailerLite::campaigns()
-        ->subject('Test Campaign')
-        ->from('Sender', 'sender@example.com')
-        ->html('<h1>Test</h1>')
-        ->send();
-} catch (Ihasan\LaravelMailerlite\Exceptions\CampaignCreateException $e) {
-    logger()->error('Campaign creation failed', ['error' => $e->getMessage()]);
-} catch (Ihasan\LaravelMailerlite\Exceptions\CampaignSendException $e) {
-    $context = $e->getContext();
-    if (str_contains($e->getMessage(), 'no recipients')) {
-        return response()->json(['error' => 'Campaign has no recipients'], 422);
-    }
-}
+$deleted = MailerLite::webhooks()->delete('webhook-id-123');
 ```
 
-#### Edge Cases and Error Scenarios
+### How to Manage Webhook Operations
 
-**Rate Limiting:**
 ```php
-try {
-    $result = MailerLite::subscribers()->email('test@example.com')->subscribe();
-} catch (\Exception $e) {
-    if (str_contains($e->getMessage(), '429') || str_contains($e->getMessage(), 'rate limit')) {
-        // Implement exponential backoff
-        sleep(2 ** $retryAttempt);
-        // Retry logic here
-    }
-}
-```
+// Test webhook
+$testResult = MailerLite::webhooks()->test('webhook-id-123');
 
-**Network Issues:**
-```php
-try {
-    $campaigns = MailerLite::campaigns()->list();
-} catch (\Exception $e) {
-    if (str_contains($e->getMessage(), 'timeout') || str_contains($e->getMessage(), 'connection')) {
-        logger()->warning('MailerLite API timeout', ['error' => $e->getMessage()]);
-        // Fallback behavior or queue for retry
-    }
-}
-```
+// Enable/disable webhook
+MailerLite::webhooks()->enable('webhook-id-123');
+MailerLite::webhooks()->disable('webhook-id-123');
 
----
+// Get webhook logs
+$logs = MailerLite::webhooks()->logs('webhook-id-123', [
+    'limit' => 100,
+    'filter[status]' => 'success'
+]);
+
+// Get webhook stats
+$stats = MailerLite::webhooks()->stats('webhook-id-123');
+```
 
 ## Testing
 
-The package includes comprehensive test coverage using Pest PHP. Here's how to test your usage:
-
-### DTO Testing
-```php
-use Ihasan\LaravelMailerlite\DTOs\SubscriberDTO;
-
-test('subscriber DTO validates email', function () {
-    expect(fn() => new SubscriberDTO('invalid-email'))
-        ->toThrow(InvalidArgumentException::class, 'Invalid email address');
-});
-
-test('subscriber DTO creates successfully', function () {
-    $dto = new SubscriberDTO(
-        email: 'test@example.com',
-        name: 'Test User',
-        fields: ['company' => 'Test Corp']
-    );
-    
-    expect($dto->email)->toBe('test@example.com');
-    expect($dto->name)->toBe('Test User');
-    expect($dto->fields)->toBe(['company' => 'Test Corp']);
-});
-```
-
-### Builder Testing
-```php
-use Ihasan\LaravelMailerlite\Resources\Subscribers\SubscriberBuilder;
-use Ihasan\LaravelMailerlite\Resources\Subscribers\SubscriberService;
-
-test('subscriber builder chains fluently', function () {
-    $service = Mockery::mock(SubscriberService::class);
-    $builder = new SubscriberBuilder($service);
-    
-    $service->shouldReceive('create')
-        ->once()
-        ->with(Mockery::type(SubscriberDTO::class))
-        ->andReturn(['id' => '123']);
-    
-    $result = $builder
-        ->email('test@example.com')
-        ->named('Test User')
-        ->subscribe();
-    
-    expect($result['id'])->toBe('123');
-});
-```
-
-### Service Testing with Mocked Manager
-```php
-use Ihasan\LaravelMailerlite\Manager\MailerLiteManager;
-use Ihasan\LaravelMailerlite\Resources\Subscribers\SubscriberService;
-
-test('subscriber service handles API calls', function () {
-    $manager = Mockery::mock(MailerLiteManager::class);
-    $client = Mockery::mock(\MailerLite\MailerLite::class);
-    $subscribersApi = Mockery::mock();
-    
-    $manager->shouldReceive('getClient')->andReturn($client);
-    $client->subscribers = $subscribersApi;
-    
-    $subscribersApi->shouldReceive('create')
-        ->with(['email' => 'test@example.com', 'name' => 'Test'])
-        ->andReturn(['id' => '123', 'email' => 'test@example.com']);
-    
-    $service = new SubscriberService($manager);
-    $dto = new SubscriberDTO('test@example.com', 'Test');
-    
-    $result = $service->create($dto);
-    expect($result['id'])->toBe('123');
-});
-```
-
-### Facade Testing
-```php
-use Ihasan\LaravelMailerlite\Facades\MailerLite;
-
-test('facade returns correct builder instances', function () {
-    expect(MailerLite::subscribers())->toBeInstanceOf(SubscriberBuilder::class);
-    expect(MailerLite::campaigns())->toBeInstanceOf(CampaignBuilder::class);
-    expect(MailerLite::groups())->toBeInstanceOf(GroupBuilder::class);
-    expect(MailerLite::fields())->toBeInstanceOf(FieldBuilder::class);
-    expect(MailerLite::segments())->toBeInstanceOf(SegmentBuilder::class);
-    expect(MailerLite::automations())->toBeInstanceOf(AutomationBuilder::class);
-    expect(MailerLite::webhooks())->toBeInstanceOf(WebhookBuilder::class);
-});
-```
-
-### Integration Testing with Fakes
-```php
-// In your application tests
-test('newsletter subscription workflow', function () {
-    // Mock the MailerLite service
-    $this->mock(MailerLiteManager::class, function ($mock) {
-        $client = Mockery::mock(\MailerLite\MailerLite::class);
-        $subscribersApi = Mockery::mock();
-        
-        $mock->shouldReceive('getClient')->andReturn($client);
-        $client->subscribers = $subscribersApi;
-        
-        $subscribersApi->shouldReceive('create')
-            ->andReturn(['id' => '123', 'email' => 'test@example.com']);
-    });
-    
-    // Test your application code
-    $response = $this->post('/newsletter/subscribe', [
-        'email' => 'test@example.com',
-        'name' => 'Test User'
-    ]);
-    
-    $response->assertStatus(200);
-});
-```
-
 ### Running Tests
+
 ```bash
 # Run all tests
 composer test
@@ -1407,134 +845,55 @@ composer test-coverage
 composer analyse
 ```
 
----
+### Example Test
 
-## Advanced Usage Examples
-
-### Complex Automation Workflow
 ```php
-// Multi-step onboarding with conditions and branching
-$onboarding = MailerLite::automations()
-    ->create('Advanced Onboarding')
-    ->description('Personalized onboarding based on user preferences')
-    ->whenSubscriberJoinsGroup('trial-users')
-    ->sendEmail('welcome-template')
-    ->delayHours(24)
-    ->ifField('industry', 'equals', 'tech')
-    ->sendEmail('tech-industry-template')
-    ->addTag('tech-user')
-    ->delayDays(3)
-    ->condition([
-        ['field' => 'company_size', 'operator' => 'greater_than', 'value' => 50],
-        ['field' => 'budget', 'operator' => 'greater_than', 'value' => 10000]
-    ])
-    ->sendEmail('enterprise-template')
-    ->callWebhook('https://app.example.com/api/mark-enterprise')
-    ->delayWeeks(1)
-    ->ifField('trial_active', 'equals', true)
-    ->sendEmail('trial-ending-template')
-    ->updateField('trial_reminder_sent', true)
-    ->withSettings([
-        'timezone' => 'America/New_York',
-        'send_time' => ['start' => '09:00', 'end' => '17:00'],
-        'frequency_cap' => 5
-    ])
-    ->start();
+use Ihasan\LaravelMailerlite\DTOs\SubscriberDTO;
+use Ihasan\LaravelMailerlite\Facades\MailerLite;
+
+test('subscriber can be created with fluent API', function () {
+    $subscriber = MailerLite::subscribers()
+        ->email('test@example.com')
+        ->named('Test User')
+        ->withField('company', 'Test Corp')
+        ->subscribe();
+        
+    expect($subscriber['email'])->toBe('test@example.com');
+    expect($subscriber['name'])->toBe('Test User');
+});
 ```
 
-### Natural Language API Examples
+## Error Handling
+
+The package provides granular exception handling:
+
 ```php
-// Reads like English with "and" chaining
-MailerLite::subscribers()
-    ->email('customer@example.com')
-    ->andNamed('Valued Customer')
-    ->andWithFields([
-        'source' => 'website',
-        'signup_date' => now()->toDateString()
-    ])
-    ->andToGroups(['newsletter', 'customers'])
-    ->andImported()
-    ->andResubscribeIfExists()
-    ->subscribe();
+use Ihasan\LaravelMailerlite\Exceptions\{
+    MailerLiteAuthenticationException,
+    SubscriberCreateException,
+    SubscriberNotFoundException,
+    CampaignSendException
+};
 
-// Campaign creation with natural flow
-MailerLite::campaigns()
-    ->subject('Weekly Product Updates')
-    ->andFrom('Product Team', 'products@acme.com')
-    ->andHtml('<h1>This Week in Products</h1>')
-    ->andToSegment('engaged-users')
-    ->andScheduleIn(60) // 1 hour from now
-    ->schedule();
-
-// Automation with natural language
-MailerLite::automations()
-    ->create('Customer Journey')
-    ->andDescription('Guide customers through our product')
-    ->andWhenSubscriberJoinsGroup('trial')
-    ->thenSendEmail('trial-welcome')
-    ->thenDelayDays(3)
-    ->thenIfField('trial_usage', 'greater_than', 5)
-    ->thenSendEmail('power-user-tips')
-    ->thenAddTag('engaged-trial-user')
-    ->start();
+try {
+    // Your MailerLite operations here
+} catch (MailerLiteAuthenticationException $e) {
+    // Handle authentication issues
+} catch (SubscriberCreateException $e) {
+    // Handle subscriber creation failures
+} catch (SubscriberNotFoundException $e) {
+    // Handle missing subscribers
+} catch (\InvalidArgumentException $e) {
+    // Handle validation errors
+}
 ```
 
----
+## License
 
-## Versioning & Changelog
-
-### Semantic Versioning
-This package follows [SemVer](https://semver.org/) guidelines:
-- **Major versions** (X.0.0): Breaking changes to DTOs, builders, or service interfaces
-- **Minor versions** (X.Y.0): New features, additional methods, new resources
-- **Patch versions** (X.Y.Z): Bug fixes, documentation updates, internal improvements
-
-### Git Subtree Workflow
-
-**Subtree Development Flow:**
-
-```mermaid
-graph LR
-    A["Main Repository"] --> B["git subtree pull"]
-    B --> C["Package Updates<br/>Merged to Main"]
-    
-    D["Local Changes<br/>in packages/laravel-mailerlite"] --> E["git subtree push"]
-    E --> F["Package Repository<br/>Updated"]
-    
-    G["Development Workflow"] --> H["1. Pull latest: git mailerlite-pull"]
-    H --> I["2. Make changes in packages/"]
-    I --> J["3. Commit changes"]
-    J --> K["4. Push upstream: git mailerlite-push"]
-```
-
-For maintainers using git subtree:
-
-```bash
-# Setup (one-time)
-git remote add mailerlite-upstream https://github.com/theihasan/laravel-mailerlite.git
-
-# Pull upstream changes
-git subtree pull --prefix=packages/laravel-mailerlite mailerlite-upstream main --squash
-
-# Push changes upstream
-git subtree push --prefix=packages/laravel-mailerlite mailerlite-upstream main
-```
-
-### Changelog
-See [CHANGELOG.md](CHANGELOG.md) for detailed release notes including:
-- New features and improvements
-- Breaking changes and migration guides
-- Bug fixes and performance improvements
-- Deprecated features and removal timelines
-
----
+The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
 
 ## Credits
 
 - [Abul Hassan](https://github.com/theihasan) - Package Author
 - Built on [MailerLite PHP SDK](https://github.com/mailerlite/mailerlite-php)
 - Powered by [Spatie Laravel Package Tools](https://github.com/spatie/laravel-package-tools)
-
-## License
-
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
