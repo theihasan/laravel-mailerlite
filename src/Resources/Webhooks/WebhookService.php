@@ -40,8 +40,12 @@ class WebhookService implements WebhooksInterface
         try {
             $client = $this->manager->getClient();
             $response = $client->webhooks->create($webhook->toArray());
+            
+            // MailerLite SDK response structure: response['body']['data']
+            $body = $response['body'] ?? $response;
+            $webhookData = $body['data'] ?? $body;
 
-            return $this->transformWebhookResponse($response);
+            return $this->transformWebhookResponse($webhookData);
         } catch (\Exception $e) {
             $this->handleCreateException($webhook->url, $e);
         }
@@ -57,8 +61,16 @@ class WebhookService implements WebhooksInterface
         try {
             $client = $this->manager->getClient();
             $response = $client->webhooks->find($id);
+            
+            if (!$response) {
+                return null;
+            }
+            
+            // MailerLite SDK response structure: response['body']['data']
+            $body = $response['body'] ?? $response;
+            $webhookData = $body['data'] ?? $body;
 
-            return $response ? $this->transformWebhookResponse($response) : null;
+            return $this->transformWebhookResponse($webhookData);
         } catch (\Exception $e) {
             if ($this->isNotFoundError($e)) {
                 return null;
@@ -80,8 +92,12 @@ class WebhookService implements WebhooksInterface
         try {
             $client = $this->manager->getClient();
             $response = $client->webhooks->update($id, $webhook->toArray());
+            
+            // MailerLite SDK response structure: response['body']['data']
+            $body = $response['body'] ?? $response;
+            $webhookData = $body['data'] ?? $body;
 
-            return $this->transformWebhookResponse($response);
+            return $this->transformWebhookResponse($webhookData);
         } catch (\Exception $e) {
             if ($this->isNotFoundError($e)) {
                 throw WebhookNotFoundException::withId($id);
@@ -124,11 +140,14 @@ class WebhookService implements WebhooksInterface
         try {
             $client = $this->manager->getClient();
             $response = $client->webhooks->get($filters);
+            
+            // The MailerLite SDK wraps the API response in a 'body' key
+            $body = $response['body'] ?? $response;
 
             return [
-                'data' => array_map([$this, 'transformWebhookResponse'], $response['data'] ?? []),
-                'meta' => $response['meta'] ?? [],
-                'links' => $response['links'] ?? [],
+                'data' => array_map([$this, 'transformWebhookResponse'], $body['data'] ?? []),
+                'meta' => $body['meta'] ?? [],
+                'links' => $body['links'] ?? [],
             ];
         } catch (\Exception $e) {
             $this->handleException($e);
@@ -147,8 +166,12 @@ class WebhookService implements WebhooksInterface
         try {
             $client = $this->manager->getClient();
             $response = $client->webhooks->update($id, ['enabled' => true]);
+            
+            // MailerLite SDK response structure: response['body']['data']
+            $body = $response['body'] ?? $response;
+            $webhookData = $body['data'] ?? $body;
 
-            return $this->transformWebhookResponse($response);
+            return $this->transformWebhookResponse($webhookData);
         } catch (\Exception $e) {
             if ($this->isNotFoundError($e)) {
                 throw WebhookNotFoundException::withId($id);
@@ -170,8 +193,12 @@ class WebhookService implements WebhooksInterface
         try {
             $client = $this->manager->getClient();
             $response = $client->webhooks->update($id, ['enabled' => false]);
+            
+            // MailerLite SDK response structure: response['body']['data']
+            $body = $response['body'] ?? $response;
+            $webhookData = $body['data'] ?? $body;
 
-            return $this->transformWebhookResponse($response);
+            return $this->transformWebhookResponse($webhookData);
         } catch (\Exception $e) {
             if ($this->isNotFoundError($e)) {
                 throw WebhookNotFoundException::withId($id);
@@ -301,7 +328,9 @@ class WebhookService implements WebhooksInterface
         return [
             'id' => $response['id'] ?? null,
             'account_id' => $response['account_id'] ?? null,
-            'event' => $response['event'] ?? null,
+            'event' => isset($response['events']) && is_array($response['events']) 
+                ? $response['events'][0] ?? null 
+                : ($response['event'] ?? null),
             'url' => $response['url'] ?? null,
             'name' => $response['name'] ?? null,
             'enabled' => $response['enabled'] ?? false,
