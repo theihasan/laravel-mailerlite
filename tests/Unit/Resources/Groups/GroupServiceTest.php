@@ -10,13 +10,24 @@ use Ihasan\LaravelMailerlite\Exceptions\GroupUpdateException;
 use Ihasan\LaravelMailerlite\Exceptions\MailerLiteAuthenticationException;
 use Ihasan\LaravelMailerlite\Manager\MailerLiteManager;
 use Ihasan\LaravelMailerlite\Resources\Groups\GroupService;
-use MailerLiteApi\MailerLite;
+use MailerLite\MailerLite;
+use MailerLite\Endpoints\Group;
 
 describe('GroupService', function () {
     beforeEach(function () {
-        $this->mockClient = Mockery::mock(MailerLite::class);
-        $this->mockGroupsEndpoint = Mockery::mock();
-        $this->mockClient->groups = $this->mockGroupsEndpoint;
+        $this->mockGroupsEndpoint = Mockery::mock(Group::class);
+        
+        // Create a mock that extends MailerLite properly
+        $this->mockClient = new class extends MailerLite {
+            public function __construct() {
+                // Don't call parent constructor to avoid API key requirements
+            }
+            
+            public function initializeGroups($groupEndpoint) {
+                $this->groups = $groupEndpoint;
+            }
+        };
+        $this->mockClient->initializeGroups($this->mockGroupsEndpoint);
 
         $this->mockManager = Mockery::mock(MailerLiteManager::class);
         $this->mockManager->shouldReceive('getClient')
