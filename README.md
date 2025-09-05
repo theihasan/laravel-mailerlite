@@ -117,8 +117,8 @@ $subscriber = MailerLite::subscribers()
         'age' => 30,
         'city' => 'New York'
     ])
-    ->toGroup('newsletter-subscribers')
-    ->toGroups(['customers', 'vip-members'])
+    ->toGroup('mailerlite group id')
+    ->toGroups(['mailerlite group id', 'mailerlite group id'])
     ->active()
     ->withAutoresponders()
     ->subscribe();
@@ -156,12 +156,6 @@ if ($subscriber) {
 // Find subscriber by ID
 $subscriber = MailerLite::subscribers()->findById('12345');
 
-// Alternative approach using service directly
-use Ihasan\LaravelMailerlite\Resources\Subscribers\SubscriberService;
-
-$service = app(SubscriberService::class);
-$subscriber = $service->getByEmail('user@example.com');
-$subscriber = $service->getById('12345');
 ```
 
 ### How to Update a Subscriber
@@ -190,12 +184,6 @@ $updated = MailerLite::subscribers()
 $deleted = MailerLite::subscribers()
     ->email('user@example.com')
     ->delete(); // Returns true if deleted, false if not found
-
-// Delete by ID directly using service
-use Ihasan\LaravelMailerlite\Resources\Subscribers\SubscriberService;
-
-$service = app(SubscriberService::class);
-$deleted = $service->delete('12345'); // Returns true on success
 ```
 
 ### How to Get Total Subscriber Count
@@ -263,10 +251,12 @@ $result = MailerLite::subscribers()
     ->removeFromGroup('group-id-123');
 
 // Add to multiple groups during creation
+//https://dashboard.mailerlite.com/subscribers?rules=W1t7Im9wZXJhdG9yIjoiaW5fYW55IiwiY29uZGl0aW9uIjoiZ3JvdXBzIiwiYXJncyI6WyJncm91cHMiLFsiMTY0NjM3OTY3MjkyMzAyNjQxIl1dfV1d&group=164637967292302641
+//This is your group id: &group=164637967292302641
 $subscriber = MailerLite::subscribers()
     ->email('new@example.com')
     ->named('New User')
-    ->toGroups(['newsletter', 'customers', 'weekly-digest'])
+    ->toGroups(['group id', 'group id', 'group id'])
     ->subscribe();
 ```
 
