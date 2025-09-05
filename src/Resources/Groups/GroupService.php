@@ -185,11 +185,14 @@ class GroupService implements GroupsInterface
         try {
             $client = $this->manager->getClient();
             $response = $client->groups->getSubscribers($groupId, $filters);
+            
+            // The MailerLite SDK wraps the API response in a 'body' key
+            $body = $response['body'] ?? $response;
 
             return [
-                'data' => $response['data'] ?? [],
-                'meta' => $response['meta'] ?? [],
-                'links' => $response['links'] ?? [],
+                'data' => $body['data'] ?? [],
+                'meta' => $body['meta'] ?? [],
+                'links' => $body['links'] ?? [],
             ];
         } catch (\Exception $e) {
             if ($this->isNotFoundError($e)) {
@@ -221,9 +224,16 @@ class GroupService implements GroupsInterface
     {
         try {
             $client = $this->manager->getClient();
-            $response = $client->groups->assignSubscriber($groupId, $subscriberIds);
+            $results = [];
+            
+            // The MailerLite SDK expects individual subscriber IDs, not an array
+            $results = collect($subscriberIds)
+                ->map(function ($subscriberId) use ($client, $groupId) {
+                    return $client->groups->assignSubscriber($groupId, $subscriberId);
+                })
+                ->all();
 
-            return $response;
+            return ['results' => $results, 'assigned' => count($subscriberIds)];
         } catch (\Exception $e) {
             if ($this->isNotFoundError($e)) {
                 throw GroupNotFoundException::withId($groupId);
@@ -256,9 +266,16 @@ class GroupService implements GroupsInterface
     {
         try {
             $client = $this->manager->getClient();
-            $response = $client->groups->unassignSubscriber($groupId, $subscriberIds);
+            $results = [];
+            
+            // The MailerLite SDK expects individual subscriber IDs, not an array
+            $results = collect($subscriberIds)
+                ->map(function ($subscriberId) use ($client, $groupId) {
+                    return $client->groups->unassignSubscriber($groupId, $subscriberId);
+                })
+                ->all();
 
-            return $response;
+            return ['results' => $results, 'unassigned' => count($subscriberIds)];
         } catch (\Exception $e) {
             if ($this->isNotFoundError($e)) {
                 throw GroupNotFoundException::withId($groupId);
@@ -278,6 +295,7 @@ class GroupService implements GroupsInterface
          return [
              'id' => $data['id'] ?? null,
              'name' => $data['name'] ?? null,
+             'description' => $data['description'] ?? null,
              'active_count' => $data['active_count'] ?? 0,
              'sent_count' => $data['sent_count'] ?? 0,
              'opens_count' => $data['opens_count'] ?? 0,
