@@ -67,6 +67,11 @@ class SubscriberBuilder
     protected bool $autoresponders = true;
 
     /**
+     * Collection of subscribers for batch operations
+     */
+    protected array $batchSubscribers = [];
+
+    /**
      * Create a new subscriber builder instance.
      */
     public function __construct(
@@ -315,6 +320,14 @@ class SubscriberBuilder
     }
 
     /**
+     * Find subscriber by ID.
+     */
+    public function findById(string $id): ?array
+    {
+        return $this->service->getById($id);
+    }
+
+    /**
      * Find subscriber by current email and unsubscribe.
      *
      * @throws \Ihasan\LaravelMailerlite\Exceptions\SubscriberNotFoundException
@@ -413,6 +426,75 @@ class SubscriberBuilder
     }
 
     /**
+     * Import multiple subscribers to a group.
+     *
+     * @param array $subscribers Array of subscriber data
+     * @param array $options Import options (resubscribe, autoresponders)
+     * @throws \InvalidArgumentException
+     */
+    public function importToGroup(string $groupId, array $subscribers, array $options = []): array
+    {
+        if (empty($subscribers)) {
+            throw new \InvalidArgumentException('Subscribers array cannot be empty');
+        }
+
+        return $this->service->importSubscribers($groupId, $subscribers, $options);
+    }
+
+    /**
+     * Add current subscriber data to batch collection.
+     */
+    public function addToBatch(): static
+    {
+        if (!$this->email) {
+            throw new \InvalidArgumentException('Email is required to add subscriber to batch');
+        }
+
+        $this->batchSubscribers[] = [
+            'email' => $this->email,
+            'name' => $this->name,
+            'fields' => $this->fields,
+            'status' => $this->status,
+        ];
+
+        return $this;
+    }
+
+    /**
+     * Import all subscribers in the batch to a group.
+     */
+    public function importBatchToGroup(string $groupId, array $options = []): array
+    {
+        if (empty($this->batchSubscribers)) {
+            throw new \InvalidArgumentException('No subscribers in batch to import');
+        }
+
+        $result = $this->service->importSubscribers($groupId, $this->batchSubscribers, $options);
+        
+        // Clear batch after import
+        $this->batchSubscribers = [];
+        
+        return $result;
+    }
+
+    /**
+     * Clear the batch collection.
+     */
+    public function clearBatch(): static
+    {
+        $this->batchSubscribers = [];
+        return $this;
+    }
+
+    /**
+     * Get the current batch collection.
+     */
+    public function getBatch(): array
+    {
+        return $this->batchSubscribers;
+    }
+
+    /**
      * Get subscribers list with filters.
      */
     public function list(array $filters = []): array
@@ -466,6 +548,7 @@ class SubscriberBuilder
         $this->type = null;
         $this->segments = [];
         $this->autoresponders = true;
+        $this->batchSubscribers = [];
 
         return $this;
     }
