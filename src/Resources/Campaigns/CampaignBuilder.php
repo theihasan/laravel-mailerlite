@@ -280,7 +280,7 @@ class CampaignBuilder
     }
 
     /**
-     * Set the campaign type to regular.
+     * Set the campaign type to regular (works on all plans including Free).
      */
     public function regular(): static
     {
@@ -290,7 +290,21 @@ class CampaignBuilder
     }
 
     /**
-     * Set the campaign type to A/B test.
+     * Create a campaign optimized for free plan users.
+     * Uses 'regular' type with basic features that work on all plans.
+     */
+    public function forFreePlan(): static
+    {
+        $this->type = 'regular';
+        // Clear any advanced settings that might cause plan restrictions
+        $this->abSettings = [];
+        $this->settings = [];
+
+        return $this;
+    }
+
+    /**
+     * Set the campaign type to A/B test (requires Growing Business or Advanced Plan).
      */
     public function abTest(array $settings = []): static
     {
@@ -301,7 +315,7 @@ class CampaignBuilder
     }
 
     /**
-     * Set the campaign type to resend.
+     * Set the campaign type to resend (requires Growing Business or Advanced Plan).
      */
     public function resend(): static
     {

@@ -366,7 +366,39 @@ class CampaignService implements CampaignsInterface
             throw CampaignCreateException::invalidData($subject, ['Validation failed']);
         }
 
+        // Handle plan-related restrictions with helpful messages
+        if (str_contains($message, 'advanced plan') || str_contains($message, 'content submission')) {
+            throw CampaignCreateException::planRestricted($subject, $this->getPlanUpgradeMessage($message));
+        }
+
+        if (str_contains($message, 'growing') || str_contains($message, 'multivariate') || str_contains($message, 'resend')) {
+            throw CampaignCreateException::planRestricted($subject, $this->getFeatureRestrictedMessage($message));
+        }
+
         throw CampaignCreateException::make($subject, $e->getMessage(), $e);
+    }
+
+    /**
+     * Get plan upgrade message with alternatives.
+     */
+    protected function getPlanUpgradeMessage(string $originalMessage): string
+    {
+        return "Campaign creation via API requires MailerLite Advanced Plan. " .
+               "Alternatives: 1) Upgrade your plan at https://dashboard.mailerlite.com/billing " .
+               "2) Create campaigns using MailerLite web interface " .
+               "3) Try using 'regular' campaign type instead of advanced features. " .
+               "Original error: {$originalMessage}";
+    }
+
+    /**
+     * Get feature-specific restriction message.
+     */
+    protected function getFeatureRestrictedMessage(string $originalMessage): string
+    {
+        return "This campaign feature requires MailerLite Growing Business or Advanced Plan. " .
+               "Try creating a 'regular' campaign instead of 'multivariate' or 'resend' types. " .
+               "Or create campaigns through MailerLite web interface. " .
+               "Original error: {$originalMessage}";
     }
 
     /**

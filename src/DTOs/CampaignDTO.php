@@ -473,11 +473,12 @@ class CampaignDTO
      */
     private function validateType(string $type): void
     {
-        $validTypes = ['regular', 'ab', 'resend'];
+        $validTypes = ['regular', 'ab', 'resend', 'multivariate'];
 
         if (! in_array($type, $validTypes, true)) {
             throw new InvalidArgumentException(
-                "Invalid campaign type '{$type}'. Valid types: ".implode(', ', $validTypes)
+                "Invalid campaign type '{$type}'. Valid types: ".implode(', ', $validTypes).
+                ". Note: 'regular' works on all plans, while 'resend' and 'multivariate' require Growing Business or Advanced Plan."
             );
         }
     }
