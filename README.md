@@ -7,6 +7,8 @@
 
 A comprehensive, fluent Laravel wrapper for the official MailerLite PHP SDK. Provides strongly-typed DTOs, expressive builders that read like English, robust services with granular exception handling, contracts for testability, and comprehensive test coverage.
 
+> **⚠️ Plan Requirements**: Campaign and Automation features require **MailerLite Advanced Plan**. Subscribers, Groups, Fields, and Webhooks work on all plans including Free.
+
 ## Table of Contents
 
 - [Installation](#installation)
@@ -14,10 +16,11 @@ A comprehensive, fluent Laravel wrapper for the official MailerLite PHP SDK. Pro
 - [Subscribers](#subscribers)
 - [Groups](#groups)
 - [Fields](#fields)
-- [Campaigns](#campaigns)
+- [Campaigns](#campaigns) ⚠️ *Advanced Plan Required*
 - [Segments](#segments)
-- [Automations](#automations)
+- [Automations](#automations) ⚠️ *Advanced Plan Required*
 - [Webhooks](#webhooks)
+- [API Limitations & Plan Requirements](#api-limitations--important-notes)
 - [Testing](#testing)
 
 ## Installation
@@ -478,6 +481,13 @@ $usage = MailerLite::fields()->getUsage('field-id-123');
 
 ## Campaigns
 
+> **📋 Plan Requirements**: Campaign features vary by MailerLite plan:
+> - **Free Plan**: Can create `regular` campaigns (basic email campaigns)  
+> - **Growing Business Plan**: Adds `resend` and `multivariate` campaign types
+> - **Advanced Plan**: Full API access + advanced content features
+> 
+> **💡 Quick Start for Free Users**: Use `.forFreePlan()` method for guaranteed compatibility.
+
 ### How to Get All Campaigns
 
 ```php
@@ -494,13 +504,23 @@ $campaigns = MailerLite::campaigns()->list([
 ### How to Create a Campaign
 
 ```php
-// Basic campaign (name auto-generated from subject)
+// ✅ Free Plan Compatible - Basic campaign (works on all plans)
 $campaign = MailerLite::campaigns()
     ->subject('Weekly Newsletter')
     ->from('Newsletter Team', 'newsletter@company.com')
     ->html('<h1>Newsletter</h1><p>Content here...</p>')
     ->plain('Newsletter - Content here...')
     ->toGroups(['12345', '67890']) // Use group IDs or names (auto-resolved)
+    ->forFreePlan() // Ensures compatibility with free plans
+    ->create();
+
+// ✅ Alternative - Explicit regular campaign
+$campaign = MailerLite::campaigns()
+    ->subject('Weekly Newsletter')
+    ->from('Newsletter Team', 'newsletter@company.com')
+    ->html('<h1>Newsletter</h1><p>Content here...</p>')
+    ->regular() // Explicitly set as regular campaign
+    ->toGroups(['12345', '67890'])
     ->create();
 
 // Campaign with custom name
@@ -528,12 +548,52 @@ $campaign = MailerLite::campaigns()
     ->toSegment('active-customers')
     ->scheduleAt(now()->addDays(2))
     ->schedule();
+// ⚠️ Growing Business/Advanced Plan Required
+$campaign = MailerLite::campaigns()
+    ->subject('A/B Test Newsletter')
+    ->from('Team', 'team@company.com')
+    ->html('<h1>Version A</h1>')
+    ->abTest([
+        'test_type' => 'subject',
+        'send_size' => 20
+    ])
+    ->toGroups(['subscribers'])
+    ->create();
+
+$campaign = MailerLite::campaigns()
+    ->subject('Resend Campaign')
+    ->from('Team', 'team@company.com') 
+    ->html('<h1>Resend Content</h1>')
+    ->resend() // Requires Growing Business or Advanced Plan
+    ->toGroups(['subscribers'])
+    ->create();
+```
+
+### **Plan-Specific Error Handling**
+
+```php
+try {
+    $campaign = MailerLite::campaigns()
+        ->subject('Test Campaign')
+        ->from('Team', 'team@company.com')
+        ->html('<h1>Content</h1>')
+        ->create();
+} catch (\Ihasan\LaravelMailerlite\Exceptions\CampaignCreateException $e) {
+    if ($e->getCode() === 403) {
+        // Plan restriction - helpful guidance provided
+        echo $e->getMessage();
+        // Suggests alternatives like using regular campaigns or upgrading plan
+    }
+}
 ```
 
 > **💡 Pro Tips:**
+> - Use `.forFreePlan()` method for guaranteed free plan compatibility
 > - Campaign **name** is required by MailerLite API (auto-generated from subject if not provided)
 > - Use **group IDs** for better performance, or **group names** (auto-resolved to IDs)
 > - Both **HTML** and **plain text** content are recommended but only one is required
+> - `regular` campaigns work on **all plans including Free**
+> - `resend` and `multivariate` require **Growing Business or Advanced Plan**
 
 ### How to Fetch a Campaign
 
@@ -734,6 +794,8 @@ $subscribers = MailerLite::segments()->getSubscribers('segment-id-123', [
 | **Activate/deactivate** | ❌ | Use [web interface](https://dashboard.mailerlite.com/) |
 
 ## Automations
+
+> **⚠️ MailerLite Plan Requirement**: Automation creation and management requires a **MailerLite Advanced Plan** or higher. Free and Basic plans may have limited automation features. Some operations may fail with plan-related restrictions.
 
 ### How to Get All Automations
 
@@ -962,6 +1024,34 @@ test('subscriber can be created with fluent API', function () {
 
 ## API Limitations & Important Notes
 
+### MailerLite Plan Requirements
+
+**⚠️ Important**: Some features require specific MailerLite subscription plans:
+
+| Feature | Free Plan | Growing Business Plan | Advanced Plan | Required For |
+|---------|-----------|----------------------|---------------|--------------|
+| **Subscribers** | ✅ Full Access | ✅ Full Access | ✅ Full Access | All operations |
+| **Groups** | ✅ Full Access | ✅ Full Access | ✅ Full Access | All operations |
+| **Fields** | ✅ Full Access | ✅ Full Access | ✅ Full Access | All operations |
+| **Segments** | ✅ View Only | ✅ Full Access | ✅ Full Access | Create/Update via web UI |
+| **Campaigns** | ✅ Regular Only | ✅ + Resend/Multivariate | ✅ **Full Access** | **API Creation/Management** |
+| **Automations** | ❌ Limited | ✅ Basic | ✅ **Full Access** | **Advanced Features** |
+| **Webhooks** | ✅ Full Access | ✅ Full Access | ✅ Full Access | All operations |
+
+#### Common Plan-Related Errors:
+
+```php
+// ❌ These may fail on Free/Basic plans:
+$campaign = MailerLite::campaigns()->abTest([...])->create(); // Requires Growing Business+
+$campaign = MailerLite::campaigns()->resend()->create();      // Requires Growing Business+
+
+// ✅ These work on all plans including Free:
+$campaign = MailerLite::campaigns()->forFreePlan()->create(); // Free plan compatible
+$campaign = MailerLite::campaigns()->regular()->create();     // Regular campaigns
+$campaigns = MailerLite::campaigns()->all();                  // View existing campaigns
+$subscribers = MailerLite::subscribers()->all();              // Full subscriber management
+```
+
 ### MailerLite API Resource Limitations
 
 Due to MailerLite API constraints, some resources don't have direct "get by ID" endpoints. This package implements intelligent workarounds using search-through-list functionality:
@@ -1122,12 +1212,49 @@ try {
 } catch (SubscriberCreateException $e) {
     // Handle subscriber creation failures
 } catch (CampaignCreateException $e) {
-    // Handle campaign creation issues (missing name, invalid data, etc.)
+    // Handle campaign creation issues (missing name, invalid data, plan restrictions, etc.)
+    if (str_contains($e->getMessage(), 'advanced plan')) {
+        // Plan upgrade required for campaign creation
+        echo "Campaign creation requires MailerLite Advanced Plan";
+    }
 } catch (\BadMethodCallException $e) {
     // Handle unsupported operations (like segment creation)
 } catch (\InvalidArgumentException $e) {
     // Handle validation errors
 }
+```
+
+### Common Plan-Related Errors & Solutions
+
+```php
+// ❌ Plan-Related Campaign Errors
+try {
+    $campaign = MailerLite::campaigns()
+        ->subject('Newsletter')
+        ->from('Team', 'team@company.com')
+        ->html('<h1>Content</h1>')
+        ->abTest(['test_type' => 'subject']) // This requires higher plan
+        ->create();
+} catch (CampaignCreateException $e) {
+    if ($e->getCode() === 403) { // Plan restriction error
+        echo $e->getMessage(); // Gets helpful guidance message
+        
+        // Fallback: Try creating regular campaign instead
+        $campaign = MailerLite::campaigns()
+            ->subject('Newsletter')
+            ->from('Team', 'team@company.com')
+            ->html('<h1>Content</h1>')
+            ->forFreePlan() // Use free plan compatible settings
+            ->create();
+    }
+}
+
+// ✅ What works on all plans:
+$subscribers = MailerLite::subscribers()->all();      // ✅ Subscriber management
+$groups = MailerLite::groups()->all();                // ✅ Group management  
+$fields = MailerLite::fields()->all();                // ✅ Field management
+$webhooks = MailerLite::webhooks()->all();            // ✅ Webhook management
+$campaigns = MailerLite::campaigns()->all();          // ✅ View existing campaigns
 ```
 
 ## License
