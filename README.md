@@ -7,6 +7,10 @@
 
 A comprehensive, fluent Laravel wrapper for the official MailerLite PHP SDK. Provides strongly-typed DTOs, expressive builders that read like English, robust services with granular exception handling, contracts for testability, and comprehensive test coverage.
 
+> **🔗 Built For**: This package is specifically designed for [Filament MailerLite Plugin](https://github.com/theihasan/filament-mailerlite) - a complete MailerLite management interface for Filament Admin.
+>
+> **📦 Uses Official SDK**: Built on top of the [official MailerLite PHP SDK](https://github.com/mailerlite/mailerlite-php) for reliable API integration.
+>
 > **⚠️ Plan Requirements**: Campaign and Automation features require **MailerLite Advanced Plan**. Subscribers, Groups, Fields, and Webhooks work on all plans including Free.
 
 ## Table of Contents
@@ -16,9 +20,9 @@ A comprehensive, fluent Laravel wrapper for the official MailerLite PHP SDK. Pro
 - [Subscribers](#subscribers)
 - [Groups](#groups)
 - [Fields](#fields)
-- [Campaigns](#campaigns) ⚠️ *Advanced Plan Required*
+- [Campaigns](#campaigns) ⚠️ *Advanced Plan Required* 🚧 *Under Development*
 - [Segments](#segments)
-- [Automations](#automations) ⚠️ *Advanced Plan Required*
+- [Automations](#automations) ⚠️ *Advanced Plan Required* 🚧 *Under Development*
 - [Webhooks](#webhooks)
 - [API Limitations & Plan Requirements](#api-limitations--important-notes)
 - [Testing](#testing)
@@ -479,8 +483,10 @@ $usage = MailerLite::fields()->getUsage('field-id-123');
 */
 ```
 
-## Campaigns
+## Campaigns 🚧 Under Development
 
+> **⚠️ Notice**: Campaign features are currently under active development. Some functionality may change in future releases.
+>
 > **📋 Plan Requirements**: Campaign features vary by MailerLite plan:
 > - **Free Plan**: Can create `regular` campaigns (basic email campaigns)  
 > - **Growing Business Plan**: Adds `resend` and `multivariate` campaign types
@@ -793,8 +799,10 @@ $subscribers = MailerLite::segments()->getSubscribers('segment-id-123', [
 | **Update segment filters** | ❌ | Use [web interface](https://dashboard.mailerlite.com/) |
 | **Activate/deactivate** | ❌ | Use [web interface](https://dashboard.mailerlite.com/) |
 
-## Automations
+## Automations 🚧 Under Development
 
+> **⚠️ Notice**: Automation features are currently under active development. Some functionality may change in future releases.
+>
 > **⚠️ MailerLite Plan Requirement**: Automation creation and management requires a **MailerLite Advanced Plan** or higher. Free and Basic plans may have limited automation features. Some operations may fail with plan-related restrictions.
 
 ### How to Get All Automations
@@ -1034,8 +1042,8 @@ test('subscriber can be created with fluent API', function () {
 | **Groups** | ✅ Full Access | ✅ Full Access | ✅ Full Access | All operations |
 | **Fields** | ✅ Full Access | ✅ Full Access | ✅ Full Access | All operations |
 | **Segments** | ✅ View Only | ✅ Full Access | ✅ Full Access | Create/Update via web UI |
-| **Campaigns** | ✅ Regular Only | ✅ + Resend/Multivariate | ✅ **Full Access** | **API Creation/Management** |
-| **Automations** | ❌ Limited | ✅ Basic | ✅ **Full Access** | **Advanced Features** |
+| **Campaigns** 🚧 | ✅ Regular Only | ✅ + Resend/Multivariate | ✅ **Full Access** | **API Creation/Management** |
+| **Automations** 🚧 | ❌ Limited | ✅ Basic | ✅ **Full Access** | **Advanced Features** |
 | **Webhooks** | ✅ Full Access | ✅ Full Access | ✅ Full Access | All operations |
 
 #### Common Plan-Related Errors:
@@ -1264,5 +1272,6 @@ The MIT License (MIT). Please see [License File](LICENSE.md) for more informatio
 ## Credits
 
 - [Abul Hassan](https://github.com/theihasan) - Package Author
-- Built on [MailerLite PHP SDK](https://github.com/mailerlite/mailerlite-php)
+- Built for [Filament MailerLite Plugin](https://github.com/theihasan/filament-mailerlite)
+- Built on [Official MailerLite PHP SDK](https://github.com/mailerlite/mailerlite-php)
 - Powered by [Spatie Laravel Package Tools](https://github.com/spatie/laravel-package-tools)
